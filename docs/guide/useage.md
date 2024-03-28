@@ -12,7 +12,7 @@ order: 2
 第一种是函数模式，可以使用 `this.$contextmenu` 或者 `showContextMenu` 全局函数，通过菜单数据显示一个右键菜单：
 
 ```js
-import ContextMenu from '@imengyu/vue3-context-menu'
+import ContextMenu from '@imengyu/vue-code-layout'
 
 onContextMenu(e : MouseEvent) {
   //prevent the browser's default menu
@@ -133,7 +133,7 @@ menuData.items[0].hidden = true; //更改是否隐藏
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { MenuOptions } from '@imengyu/vue3-context-menu';
+import type { MenuOptions } from '@imengyu/vue-code-layout';
 
 export default defineComponent({
   data() {
@@ -168,7 +168,7 @@ export default defineComponent({
 
 本库附带了一个菜单栏组件，因为右键菜单的功能和菜单栏非常相似，所以一并做到库里了，你也可以使用这个组件实现桌面程序的主菜单栏功能。
 
-在线示例可以参考[这里](https://imengyu.top/pages/vue3-context-menu-demo/#/MenuBar)。
+在线示例可以参考[这里](https://imengyu.top/pages/vue-code-layout-demo/#/MenuBar)。
 
 ```vue
 <template>
@@ -176,7 +176,7 @@ export default defineComponent({
 </template>
 
 <script setup lang="ts">
-import { MenuBar } from '@imengyu/vue3-context-menu';
+import { MenuBar } from '@imengyu/vue-code-layout';
 
 const menuData : MenuBarOptions = {
   items: [

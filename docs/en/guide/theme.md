@@ -22,20 +22,20 @@ this.$contextmenu({
 
 |Theme|Explain|Image|
 |--|--|--|
-|`default`|Default theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-default.jpg)|
-|`default dark`|Default theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-default-dark.jpg)|
-|`flat`|Simple flat theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-flat.jpg)|
-|`flat dark`|Simple flat theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-flat-dark.jpg)|
-|`win10`|Win10 like theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-win10.jpg)|
-|`win10 dark`|Win10 like theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-win10-dark.jpg)|
-|`mac`|Mac like theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-mac.jpg)|
-|`mac dark`|Mac like theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-mac-dark.jpg)|
+|`default`|Default theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-default.jpg)|
+|`default dark`|Default theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-default-dark.jpg)|
+|`flat`|Simple flat theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-flat.jpg)|
+|`flat dark`|Simple flat theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-flat-dark.jpg)|
+|`win10`|Win10 like theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-win10.jpg)|
+|`win10 dark`|Win10 like theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-win10-dark.jpg)|
+|`mac`|Mac like theme|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-mac.jpg)|
+|`mac dark`|Mac like theme with dark|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-mac-dark.jpg)|
 
 ## Custom Theme
 
 You can write your own theme, just make sure that the theme name is different from the built-in name.
 
-All CSS style definitions are in [`/ContextMenu.scss`](https://github.com/imengyu/vue3-context-menu/blob/main/library/ContextMenu.scss). You can copy all the styles, modify them as needed, and store them in your file.
+All CSS style definitions are in [`/ContextMenu.scss`](https://github.com/imengyu/vue-code-layout/blob/main/library/ContextMenu.scss). You can copy all the styles, modify them as needed, and store them in your file.
 
 ### Custom Theme Example
 
@@ -71,7 +71,7 @@ For example, the following is the implementation of an example theme `my-theme-n
 Then import the theme file and use it in theme:
 
 ```js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 import 'your-style-file-path.scss'
 ```
 

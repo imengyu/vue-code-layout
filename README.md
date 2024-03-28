@@ -7,6 +7,8 @@ A Vue editor layout component that like VSCode and can be used to develop web ed
 
 ---
 
+English | [中文](./README.CN.md)
+
 ## Features
 
 * Simple and easy to use, small size

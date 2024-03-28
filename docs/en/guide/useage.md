@@ -8,8 +8,8 @@ order: 1
 ## Import
 
 ```js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
-import ContextMenu from '@imengyu/vue3-context-menu'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
+import ContextMenu from '@imengyu/vue-code-layout'
 
 createApp(App).use(ContextMenu)     
 ```
@@ -25,8 +25,8 @@ The first is the function mode. You can use  `this.$contextmenu` or `showContext
 ```ts /src/main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
-import ContextMenu from '@imengyu/vue3-context-menu'
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue-code-layout'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 
 createApp(App)
   .use(ContextMenu)
@@ -35,7 +35,7 @@ createApp(App)
 
 ```vue /src/App.vue [active]
 <script setup lang="ts">
-import ContextMenu from '@imengyu/vue3-context-menu'
+import ContextMenu from '@imengyu/vue-code-layout'
 
 function onContextMenu(e : MouseEvent) {
   //prevent the browser's default menu
@@ -80,8 +80,8 @@ The second is the component mode. You can use the component and template to disp
 ```ts /src/main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
-import ContextMenu from '@imengyu/vue3-context-menu'
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue-code-layout'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 
 createApp(App)
   .use(ContextMenu)
@@ -109,7 +109,7 @@ createApp(App)
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { MenuOptions } from '@imengyu/vue3-context-menu'
+import { MenuOptions } from '@imengyu/vue-code-layout'
 
 const show = ref(false);
 const options = ref<MenuOptions>({
@@ -180,7 +180,7 @@ The following example shows how to dynamically display/hide menus and dynamicall
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { MenuOptions } from '@imengyu/vue3-context-menu';
+import type { MenuOptions } from '@imengyu/vue-code-layout';
 
 export default defineComponent({
   data() {
@@ -220,8 +220,8 @@ This library comes with a menu bar component, which is very similar to the funct
 ```ts /src/main.ts
 import { createApp } from 'vue'
 import App from './App.vue'
-import ContextMenu from '@imengyu/vue3-context-menu'
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue-code-layout'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 
 createApp(App)
   .use(ContextMenu)
@@ -235,7 +235,7 @@ createApp(App)
 </template>
 
 <script setup lang="ts">
-import { MenuBar } from '@imengyu/vue3-context-menu';
+import { MenuBar } from '@imengyu/vue-code-layout';
 
 const menuData : MenuBarOptions = {
   items: [

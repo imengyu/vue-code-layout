@@ -6,10 +6,10 @@ order: 0
 # Install
 
 ```shell
-npm install -save @imengyu/vue3-context-menu
+npm install -save @imengyu/vue-code-layout
 ```
 
-vue3-context-menu only supports Vue3. If you are using Vue2, you can try the following library.
+vue-code-layout only supports Vue3. If you are using Vue2, you can try the following library.
 
 * [xunleif2e/vue-context-menu](https://github.com/xunleif2e/vue-context-menu)
 * [GitHub-Laziji/menujs](https://github.com/GitHub-Laziji/menujs) (This library is inspired by it)
@@ -20,8 +20,8 @@ It is recommended that you import components globally for the most convenient us
 
 ```js
 //main.js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
-import ContextMenu from '@imengyu/vue3-context-menu'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
+import ContextMenu from '@imengyu/vue-code-layout'
 
 createApp(App).use(ContextMenu).mount('#app')  
 ```
@@ -32,7 +32,7 @@ First import the style file:
 
 ```js
 //main.js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 ```
 
 Then import components where you need to use them:
@@ -62,7 +62,7 @@ Then import components where you need to use them:
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { type MenuOptions, ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue3-context-menu';
+import { type MenuOptions, ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue-code-layout';
 
 export default defineComponent({
   data() {
@@ -113,14 +113,14 @@ In Vue files that use single page applications without using vite, webpack or ot
 
 You need to import these two files in html. The files can be found in the lib directory of the npm package.
 
-* vue3-context-menu.umd.js
-* vue3-context-menu.css
+* vue-code-layout.umd.js
+* vue-code-layout.css
 
 Register menu components:
 
 ```js
 createApp(...)
-  .use(window['vue3-context-menu'].default)
+  .use(window['vue-code-layout'].default)
 ```
 
 After registration, it can be used as a normal project. The following is a complete case:
@@ -129,10 +129,10 @@ After registration, it can be used as a normal project. The following is a compl
 <!--examples\single-test.html-->
 <html>
   <head>
-    <title>vue3-context-menu test</title>
-    <link rel="stylesheet" href="./vue3-context-menu.css" />
+    <title>vue-code-layout test</title>
+    <link rel="stylesheet" href="./vue-code-layout.css" />
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="./vue3-context-menu.umd.js"></script>
+    <script src="./vue-code-layout.umd.js"></script>
   </head>
   <body>
     <div id="app">
@@ -205,7 +205,7 @@ After registration, it can be used as a normal project. The following is a compl
           }
         },  
       })
-      .use(window['vue3-context-menu'].default)
+      .use(window['vue-code-layout'].default)
       .mount('#app')
     </script>
   </body>
@@ -218,8 +218,8 @@ If you find that the default name of the library menu conflicts with the name of
 
 ```js
 //main.js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
-import ContextMenuGlobal, { ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue3-context-menu';
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css';
+import ContextMenuGlobal, { ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue-code-layout';
 
 const app = createApp(App);
 

@@ -22,20 +22,20 @@ this.$contextmenu({
 
 |主题|说明|示意图|
 |--|--|--|
-|`default`|默认主题|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-default.jpg)|
-|`default dark`|默认主题深色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-default-dark.jpg)|
-|`flat`|精简扁平菜单|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-flat.jpg)|
-|`flat dark`|精简扁平菜单深色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-flat-dark.jpg)|
-|`win10`|仿Win10菜单白色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-win10.jpg)|
-|`win10 dark`|仿Win10菜单黑色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-win10-dark.jpg)|
-|`mac`|仿 macos catalina 菜单|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-mac.jpg)|
-|`mac dark`|仿 macos catalina 菜单深色模式|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue3-context-menu/main/screenshot/example-mac-dark.jpg)|
+|`default`|默认主题|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-default.jpg)|
+|`default dark`|默认主题深色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-default-dark.jpg)|
+|`flat`|精简扁平菜单|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-flat.jpg)|
+|`flat dark`|精简扁平菜单深色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-flat-dark.jpg)|
+|`win10`|仿Win10菜单白色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-win10.jpg)|
+|`win10 dark`|仿Win10菜单黑色|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-win10-dark.jpg)|
+|`mac`|仿 macos catalina 菜单|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-mac.jpg)|
+|`mac dark`|仿 macos catalina 菜单深色模式|![example-default-dark.jpg](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/example-mac-dark.jpg)|
 
 ## 自定义主题
 
 你可以新写你自己的主题，只需要保证主题名字与内置名字不同即可。
 
-菜单所有的css样式定义都在 [`/ContextMenu.scss`](https://github.com/imengyu/vue3-context-menu/blob/main/library/ContextMenu.scss) 中。
+菜单所有的css样式定义都在 [`/ContextMenu.scss`](https://github.com/imengyu/vue-code-layout/blob/main/library/ContextMenu.scss) 中。
 你可以将所有样式复制出来，按需修改，存放在你的主题文件中。
 
 ### 自定义主题示例
@@ -72,6 +72,6 @@ this.$contextmenu({
 然后导入主题文件，即可在 theme 中使用：
 
 ```js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 import '你的样式文件路径.scss'
 ```

@@ -12,7 +12,7 @@
     }"
     :custom-setup="{
       ...props, // do not forget it
-      deps: { '@imengyu/vue3-context-menu': 'latest' }
+      deps: { '@imengyu/vue-code-layout': 'latest' }
     }"
     :code-options="codeOptions"
   >

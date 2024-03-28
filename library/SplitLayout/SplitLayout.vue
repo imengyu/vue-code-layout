@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, type Ref, type PropType, watch, onMounted, computed, nextTick } from 'vue';
+import { ref, provide, type Ref, type PropType, watch, onMounted, computed, nextTick, onBeforeUnmount } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutPanelHosterContext, CodeLayoutGrid, CodeLayoutDragDropReferencePosition } from '../CodeLayout';
 import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal } from './SplitN';
 import SplitNest from './SplitNest.vue';
@@ -40,6 +40,7 @@ const emit = defineEmits([
   'panelActive',
   'panelDrop',
   'canLoadLayout',
+  'canSaveLayout',
 ]);
 const props = defineProps({
   /**
@@ -80,6 +81,9 @@ onMounted(() => {
   rootGrid.value.parentGrid = props.rootGridType;
   emit('canLoadLayout', instance);
 });
+onBeforeUnmount(() => {
+  emit('canSaveLayout');
+})
 watch(() => props.rootGridType, (v) => {
   rootGrid.value.accept = [ v ];
   rootGrid.value.parentGrid = props.rootGridType;

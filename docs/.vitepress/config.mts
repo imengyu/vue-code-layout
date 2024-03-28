@@ -3,10 +3,10 @@ import { renderSandbox } from 'vitepress-plugin-sandpack';
 import container from 'markdown-it-container';
 
 export default defineConfig({
-  base: '/pages/vue3-context-menu-docs/',
+  base: '/pages/vue-code-layout-docs/',
   lang: 'zh-CN',
-  title: 'vue3-context-menu',
-  description: '一个使用 Vue3 制作的简洁美观简单的右键菜单组件',
+  title: 'vue-code-layout',
+  description: 'Vue 仿 VSCode 布局组件',
   locales: {
     root: {
       label: '中文',
@@ -15,14 +15,14 @@ export default defineConfig({
     en: {
       label: 'English',
       lang: 'en', 
-      description: 'A simple, beautiful and simple context menu component made by Vue3',  
+      description: 'A laayout component that like VSCode.',  
       themeConfig: {
         socialLinks: [
-          { icon: 'github', link: 'https://github.com/imengyu/vue3-context-menu' },
+          { icon: 'github', link: 'https://github.com/imengyu/vue-code-layout' },
         ],
         footer: {
           message: 'Released under the MIT License.',
-          copyright: 'Copyright © 2022 imengyu.top'
+          copyright: 'Copyright © 2024 imengyu.top'
         },
         nav: [
           { text: 'Guide', link: '/en/guide/install' },
@@ -76,13 +76,13 @@ export default defineConfig({
         icon: {
           svg: '<svg role="img" viewBox="0 0 1024 1024"><path d="M512 1024C229.222 1024 0 794.778 0 512S229.222 0 512 0s512 229.222 512 512-229.222 512-512 512z m259.149-568.883h-290.74a25.293 25.293 0 0 0-25.292 25.293l-0.026 63.206c0 13.952 11.315 25.293 25.267 25.293h177.024c13.978 0 25.293 11.315 25.293 25.267v12.646a75.853 75.853 0 0 1-75.853 75.853h-240.23a25.293 25.293 0 0 1-25.267-25.293V417.203a75.853 75.853 0 0 1 75.827-75.853h353.946a25.293 25.293 0 0 0 25.267-25.292l0.077-63.207a25.293 25.293 0 0 0-25.268-25.293H417.152a189.62 189.62 0 0 0-189.62 189.645V771.15c0 13.977 11.316 25.293 25.294 25.293h372.94a170.65 170.65 0 0 0 170.65-170.65V480.384a25.293 25.293 0 0 0-25.293-25.267z"/></svg>'
         },
-        link: 'https://gitee.com/imengyu/vue3-context-menu'
+        link: 'https://gitee.com/imengyu/vue-code-layout'
       },
-      { icon: 'github', link: 'https://github.com/imengyu/vue3-context-menu' },
+      { icon: 'github', link: 'https://github.com/imengyu/vue-code-layout' },
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2022 imengyu.top'
+      copyright: 'Copyright © 2024 imengyu.top'
     },
     nav: [
       { text: '教程', link: '/guide/install' },

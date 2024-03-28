@@ -8,7 +8,7 @@ title: Function mode
 ## ContextMenu
 
 ```ts
-import ContextMenu from '@imengyu/vue3-context-menu'
+import ContextMenu from '@imengyu/vue-code-layout'
 ```
 
 Global Function
@@ -42,7 +42,7 @@ Global Function
   You can use this function to convert the correct menu display position:
 
   ```ts
-  import ContextMenu from '@imengyu/vue3-context-menu'
+  import ContextMenu from '@imengyu/vue-code-layout'
 
   function onContextMenu(e: MouseEvent) {
     const scaledPosition = ContextMenu.transformMenuPosition(e.target as HTMLElement, e.offsetX, e.offsetY);

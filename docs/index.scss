@@ -45,24 +45,28 @@ html[class="dark"] {
 .big-demo {
   img {
     position: absolute;
-    right: 300px;
-    top: -60px;
+    width: 600px;
+    right: 200px;
+    top: 60px;
     z-index: -1;
   }
 }
 
 @media screen and (max-width: 1600px) {
   .big-demo img {
+    width: 650px;
     right: 200px;
   }
 }
 @media screen and (max-width: 1450px) {
   .big-demo img {
+    width: 550px;
     right: 100px;
   }
 }
 @media screen and (max-width: 1200px) {
   .big-demo img {
+    width: 350px;
     position: relative;
     margin-top: 30px;
     right: 0;

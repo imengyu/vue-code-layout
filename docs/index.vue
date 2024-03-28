@@ -1,8 +1,8 @@
 <template>
   <div class="big-home-area">
     <div class="big-title">
-      <h1>vue3-context-menu</h1>
-      <p class="big">简洁美观简单的右键菜单组件</p>
+      <h1>{{ title }}</h1>
+      <p class="big">{{ description }}</p>
       <p></p>
     </div>
     <div class="big-start">
@@ -10,18 +10,22 @@
       <button @click="goView">查看演示</button>
     </div>
     <div class="big-demo">
-      <img class="hidden-dark" src="https://imengyu.top/assets/images/demo-light.png" />
-      <img class="hidden-light" src="https://imengyu.top/assets/images/demo-dark.png" />
+      <img :src="Img" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import Img from "../screenshot/first.jpg";
+import { useData } from 'vitepress'
+
+const { title, description } = useData()
+
 function goStart() {
   location.href = './guide/start.html'
 }
 function goView() {
-  window.open('https://imengyu.top/pages/vue3-context-menu-demo/');
+  window.open('https://imengyu.top/pages/vue-code-layout-demo/');
 }
 </script>
 

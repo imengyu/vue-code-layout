@@ -7,7 +7,7 @@ title: 函数模式
 ## ContextMenu
 
 ```ts
-import ContextMenu from '@imengyu/vue3-context-menu'
+import ContextMenu from '@imengyu/vue-code-layout'
 ```
 
 菜单全局函数。
@@ -41,7 +41,7 @@ import ContextMenu from '@imengyu/vue3-context-menu'
   你可以使用此函数来转换至正确的菜单显示位置:
 
   ```ts
-  import ContextMenu from '@imengyu/vue3-context-menu'
+  import ContextMenu from '@imengyu/vue-code-layout'
 
   function onContextMenu(e: MouseEvent) {
     const scaledPosition = ContextMenu.transformMenuPosition(e.target as HTMLElement, e.offsetX, e.offsetY);

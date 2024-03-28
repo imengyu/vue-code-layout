@@ -7,10 +7,10 @@ order: 5
 
 ## 自定义样式
 
-如果你觉得默认菜单样式不好看，想修改掉它，还可以覆盖默认css样式（比起覆盖默认样式，但是还是推荐你使用自定义主题，更简单而且支持动态切换），所有的css样式定义都在源代码 [`/ContextMenu.scss`](https://github.com/imengyu/vue3-context-menu/blob/main/library/ContextMenu.scss) 中。你可以将所有样式复制出来，按需修改，存放在你的文件中。然后在导入的地方覆盖默认样式：
+如果你觉得默认菜单样式不好看，想修改掉它，还可以覆盖默认css样式（比起覆盖默认样式，但是还是推荐你使用自定义主题，更简单而且支持动态切换），所有的css样式定义都在源代码 [`/ContextMenu.scss`](https://github.com/imengyu/vue-code-layout/blob/main/library/ContextMenu.scss) 中。你可以将所有样式复制出来，按需修改，存放在你的文件中。然后在导入的地方覆盖默认样式：
 
 ```js
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 import '你的样式scss文件路径.scss'
 ```
 
@@ -86,8 +86,8 @@ import '你的样式scss文件路径.scss'
 
 完整案例可在这里查看
 
-* 函数模式 [examples/views/BasicCustomize.vue](https://github.com/imengyu/vue3-context-menu/blob/main/examples/views/BasicCustomize.vue)
-* 组件模式 [examples/views/ComponentCustomize.vue](https://github.com/imengyu/vue3-context-menu/blob/main/examples/views/ComponentCustomize.vue)。
+* 函数模式 [examples/views/BasicCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/BasicCustomize.vue)
+* 组件模式 [examples/views/ComponentCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/ComponentCustomize.vue)。
 
 ### 函数模式
 
@@ -128,7 +128,7 @@ this.$contextmenu({
 
 组件模式支持更多的自定义插槽。
 
-> 注：函数模式也同样支持这些插槽，只需要在 [showContextMenu](../api/ContextMenuInstance.md#contextmenushowcontextmenuoptions-menuoptions-customslots-recordstring-slot) 函数传入第二个参数，提供插槽渲染函数，案例可参考 [examples\views\BasicCustomize.vue](https://github.com/imengyu/vue3-context-menu/blob/main/examples/views/BasicCustomize.vue) 112行。
+> 注：函数模式也同样支持这些插槽，只需要在 [showContextMenu](../api/ContextMenuInstance.md#contextmenushowcontextmenuoptions-menuoptions-customslots-recordstring-slot) 函数传入第二个参数，提供插槽渲染函数，案例可参考 [examples\views\BasicCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/BasicCustomize.vue) 112行。
 
 | 插槽名 | 描述 | 参数 |
 | :----: | :----: | :----: |
@@ -169,7 +169,7 @@ this.$contextmenu({
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import type { MenuOptions } from '@imengyu/vue3-context-menu';
+import type { MenuOptions } from '@imengyu/vue-code-layout';
 
 export default defineComponent({
   data() {

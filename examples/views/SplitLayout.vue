@@ -4,6 +4,8 @@
       ref="splitLayoutRef"
       @panelClose="onPanelClose"
       @panelDrop="onPanelDrop"
+      @canLoadLayout="loadLayout"
+      @canSaveLayout="saveLayout"
     >
       <template #tabContentRender="{ panel }">
         <span v-if="panel.name === 'datahelp'">
@@ -191,20 +193,16 @@ function loadLayout() {
   }
 }
 function saveLayout() {
-  if (props.enableSave) {
-    localStorage.setItem('SplitLayoutDemoSaveData', JSON.stringify(splitLayoutRef.value?.saveLayout()));
+  if (props.enableSave && splitLayoutRef.value) {
+    localStorage.setItem('SplitLayoutDemoSaveData', JSON.stringify(splitLayoutRef.value.saveLayout()));
   }
 }
 
 onMounted(() => {
-  nextTick(() => {
-    loadLayout();
-  });
   window.addEventListener('beforeunload', saveLayout);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', saveLayout);
-  saveLayout();
 })
 </script>
 
