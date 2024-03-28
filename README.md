@@ -65,6 +65,7 @@ If you have any good modifications, welecome submit a PR!
 
 * [vue3-context-menu](https://github.com/imengyu/vue3-context-menu)
 * [vue-dock-layout](https://github.com/imengyu/vue-dock-layout)
+* [vue-dynamic-form A data driven form component for vue3](https://github.com/imengyu/vue-dynamic-form)
 
 ## License
 

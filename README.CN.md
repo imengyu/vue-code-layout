@@ -59,6 +59,12 @@ npm run build-lib  # Build library project
 
 如果您有好的修改，欢迎提交PR，成为项目的一员！
 
+## 广告：作者的其他有用的项目
+
+* [vue3-context-menu Vue右键菜单组件](https://github.com/imengyu/vue3-context-menu)
+* [vue-dock-layout Vue仿Visual studio拖拽布局组件](https://github.com/imengyu/vue-dock-layout)
+* [vue-dynamic-form vue数据驱动的表单](https://github.com/imengyu/vue-dynamic-form)
+
 ## License
 
 [MIT](./LICENSE)
