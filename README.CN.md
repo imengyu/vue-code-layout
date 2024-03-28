@@ -3,7 +3,7 @@
 
 一个仿 VSCode 的 Vue 编辑器布局组件，可以用于开发Web编辑器。
 
-![截图](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/first.jpg)
+![截图](https://raw.githubusercontent.com/imengyu/vue-code-layout/master/screenshot/first.jpg)
 
 ---
 

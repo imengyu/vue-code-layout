@@ -3,7 +3,7 @@
 
 A Vue editor layout component that like VSCode and can be used to develop web editors.
 
-![screenshot](https://raw.githubusercontent.com/imengyu/vue-code-layout/main/screenshot/first.jpg)
+![screenshot](https://raw.githubusercontent.com/imengyu/vue-code-layout/master/screenshot/first.jpg)
 
 ---
 
