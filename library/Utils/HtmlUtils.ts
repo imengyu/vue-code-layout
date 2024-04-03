@@ -23,6 +23,8 @@ function getTop(e: HTMLElement, stopClassOrEle ? : string|HTMLElement) : number 
     )
   ) 
     offset += getTop(parent, stopClassOrEle) - parent.scrollTop;
+  if (e.offsetParent === null)
+    offset -= document.documentElement.scrollTop;
   return offset;
 }
 /**
@@ -44,6 +46,8 @@ function getLeft(e: HTMLElement, stopClassOrEle ? : string|HTMLElement) : number
   ) 
     offset += getLeft(parent, stopClassOrEle) - parent.scrollLeft;
     
+  if (e.offsetParent === null)
+    offset -= document.documentElement.scrollLeft;
   return offset;
 }
 

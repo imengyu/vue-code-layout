@@ -68,11 +68,10 @@ import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
-import type { CodeLayoutConfig, CodeLayoutInstance, CodeLayoutPanelInternal } from '../../library/CodeLayout';
-import type { CodeLayoutSplitNInstance } from '../../library/SplitLayout/SplitN';
-import CodeLayout from '../../library/CodeLayout.vue';
-import CodeLayoutScrollbar from '../../library/Components/CodeLayoutScrollbar.vue';
-import SplitLayout from '../../library/SplitLayout/SplitLayout.vue';
+import { 
+  CodeLayout, CodeLayoutScrollbar, SplitLayout, type CodeLayoutSplitNInstance, 
+  type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal 
+} from 'vue-code-layout';
 import TestContent1 from '../assets/text/Useage.vue?raw';
 import TestContent2 from '../../README.md?raw';
 
@@ -112,6 +111,7 @@ const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
+  bottomPanelMaximize: false
 };
 const config = reactive<CodeLayoutConfig>({
   ...defaultCodeLayoutConfig,
@@ -119,6 +119,12 @@ const config = reactive<CodeLayoutConfig>({
     for (const key in defaultCodeLayoutConfig) {
       (config as Record<string, any>)[key] = (defaultCodeLayoutConfig as Record<string, any>)[key];
     }
+  },
+  onDropToPanel(reference, referencePosition, panel, dropTo) {
+    if (reference.name === 'explorer.file' && panel.name === 'explorer.outline') {
+      return false;
+    }
+    return false
   },
 });
 
@@ -361,6 +367,7 @@ function loadLayout() {
         name: 'bottom.ports',
         startOpen: true,
         iconSmall: () => h(IconSearch),
+        accept: [ 'bottomPanel' ],
       });
       bottomGroup.addPanel({
         title: 'TERMINAL',

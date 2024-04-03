@@ -30,8 +30,6 @@ import type { CodeLayoutActionButton } from './CodeLayout';
 import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
 import SimpleTooltip from './Components/SimpleTooltip.vue';
 
-defineEmits([ 'update:open' ])
-
 defineProps({
   actions: {
     type: Object as PropType<CodeLayoutActionButton[]>,

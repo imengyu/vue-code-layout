@@ -37,8 +37,8 @@ import IconFile from '../assets/icons/IconFile.vue';
 import IconSearch from '../assets/icons/IconSearch.vue';
 import { ref, reactive, onMounted, nextTick, h } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
-import type { CodeLayoutConfig, CodeLayoutInstance, CodeLayoutPanelInternal } from '@imengyu/vue-code-layout';
-import { CodeLayout } from '@imengyu/vue-code-layout';
+import type { CodeLayoutConfig, CodeLayoutInstance, CodeLayoutPanelInternal } from 'vue-code-layout';
+import { CodeLayout } from 'vue-code-layout';
 
 const codeLayout = ref<CodeLayoutInstance>();
 const config = reactive<CodeLayoutConfig>({

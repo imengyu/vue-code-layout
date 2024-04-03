@@ -8,7 +8,7 @@ export function createMiniTimeOut(interval: number, cb: () => void) {
       timeOut = setTimeout(() => {
         timeOut = 0;
         cb();
-      }, interval);
+      }, interval) as any;
     },
     stop() {
       if (timeOut > 0) {
@@ -28,7 +28,7 @@ export function createMiniTimer(interval: number, cb: () => void) {
       timerId = setInterval(() => {
         timerId = 0;
         cb();
-      }, interval);
+      }, interval) as any;
     },
     stop() {
       if (timerId > 0) {

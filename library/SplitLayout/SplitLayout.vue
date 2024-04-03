@@ -44,16 +44,23 @@ const emit = defineEmits([
 ]);
 const props = defineProps({
   /**
-   * Set rootGrid accept value
+   * Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging
    */
   rootGridType: {
     type: String as PropType<CodeLayoutGrid>,
     default: 'centerArea',
   },
   /**
-   * Show tab header
+   * Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender.
    */
   showTabHeader: {
+    type: Boolean,
+    default: true,
+  },
+  /**
+   * Should save layout in window.beforeunload
+   */
+  saveBeforeUnload: {
     type: Boolean,
     default: true,
   },
@@ -80,14 +87,21 @@ onMounted(() => {
   rootGrid.value.accept = [ props.rootGridType ];
   rootGrid.value.parentGrid = props.rootGridType;
   emit('canLoadLayout', instance);
+  if (props.saveBeforeUnload)
+    window.addEventListener('beforeunload', saveLayoutAtUnmount)
 });
 onBeforeUnmount(() => {
-  emit('canSaveLayout');
+  window.removeEventListener('beforeunload', saveLayoutAtUnmount);
+  saveLayoutAtUnmount();
 })
 watch(() => props.rootGridType, (v) => {
   rootGrid.value.accept = [ v ];
   rootGrid.value.parentGrid = props.rootGridType;
 });
+
+function saveLayoutAtUnmount() {
+  emit('canSaveLayout', instance);
+}
 
 const instance = {
   getGridTreeDebugText: () => {
@@ -187,7 +201,8 @@ function onChildGridActiveChildChanged(panel: CodeLayoutPanelInternal) {
   if (panel === context.currentActiveGrid.value) {
     emit('panelActive', lastActivePanel.value, panel.activePanel);
     lastActivePanel.value = panel.activePanel;
-  }
+  } 
+  context.currentActiveGrid.value === panel.parentGroup;
 }
 
 let generatePanelNameCount = 0;

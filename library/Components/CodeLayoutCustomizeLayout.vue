@@ -275,7 +275,7 @@ const actions = computed<CodeLayoutActionButton[]>(() => ([
   width: 600px;
   border-radius: var(--code-layout-border-radius-small);
   margin-left: -300px;
-  z-index: 10;
+  z-index: 100;
   background-color: var(--code-layout-color-background-second);
   box-shadow: 0 0 5px 1px var(--code-layout-color-shadow);
   color: var(--code-layout-color-text);

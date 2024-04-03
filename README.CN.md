@@ -20,14 +20,14 @@
 ### 安装
 
 ```
-npm install -save @imengyu/vue-code-layout
+npm install -save vue-code-layout
 ```
 
 在 main.ts 中导入:
 
 ```js
-import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
-import VueCodeLayout from '@imengyu/vue-code-layout'
+import 'vue-code-layout/lib/vue-code-layout.css'
+import VueCodeLayout from 'vue-code-layout'
 
 createApp(App)
   .use(VueCodeLayout)  

@@ -22,7 +22,7 @@ import { useData } from 'vitepress'
 const { title, description } = useData()
 
 function goStart() {
-  location.href = './guide/install.html'
+  location.href = './guide/start.html'
 }
 function goView() {
   window.open('https://imengyu.top/pages/vue-code-layout-demo/');

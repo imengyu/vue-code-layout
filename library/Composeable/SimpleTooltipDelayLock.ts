@@ -24,7 +24,7 @@ export function useSimpleTooltipDelayLock() {
         cb();
         showState = true;
       }
-    }, 650);
+    }, 650) as any;
   }
   function onLeave() {
     if (hideDelayTimer > 0) 
@@ -32,7 +32,7 @@ export function useSimpleTooltipDelayLock() {
     hideDelayTimer = setTimeout(() => {
       showState = false;
       leaveState = true;
-    }, 50);
+    }, 50) as any;
   }
 
   return {

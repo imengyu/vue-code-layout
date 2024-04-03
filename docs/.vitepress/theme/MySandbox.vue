@@ -12,7 +12,7 @@
     }"
     :custom-setup="{
       ...props, // do not forget it
-      deps: { '@imengyu/vue-code-layout': 'latest' }
+      deps: { 'vue-code-layout': 'latest' }
     }"
     :code-options="codeOptions"
   >

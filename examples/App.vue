@@ -1,11 +1,18 @@
 <template>
   <div class="test">
     <div class="test-top">
-      <h1>Vue Code layout</h1>
-      <router-link :to="{ name: 'BasicUseage' }" class="first">Base Layou useage</router-link>
-      <router-link :to="{ name: 'SplitLayout' }" class="first">Split Layout</router-link>
-      <router-link :to="{ name: 'DataSaveAndLoad' }" class="first">Load and save</router-link>
-      <!-- <router-link :to="{ name: 'Theme' }">Custom Style</router-link> -->
+      <div>
+        <h1>Vue Code layout</h1>
+        <router-link :to="{ name: 'BasicUseage' }" class="link first">Base Layou useage</router-link>
+        <router-link :to="{ name: 'SplitLayout' }" class="link first">Split Layout</router-link>
+        <router-link :to="{ name: 'DataSaveAndLoad' }" class="link first">Load and save</router-link>
+        <!-- <router-link :to="{ name: 'Theme' }">Custom Style</router-link> -->
+      </div>
+      <div>
+        <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank"><img class="m-1" src="https://img.shields.io/npm/v/vue-code-layout.svg?style=for-the-badge" alt="vue-marquee-text-component npm"></a>
+        <a href="https://github.com/imengyu/vue-code-layout/blob/master/LICENSE.md" target="_blank"><img alt="GitHub License" src="https://img.shields.io/github/license/imengyu/vue-code-layout?style=for-the-badge"></a>
+        <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank"><img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40imengyu%2Fvue3-context-menu?style=for-the-badge"></a>
+      </div>
     </div>
     <div class="test-host">
       <router-view />
@@ -30,21 +37,36 @@ html, body, #app {
   position: relative;
 
   .test-host {
-    margin-top: 30px;
+    margin-top: 10px;
     margin-left: 20px;
     margin-right: 20px;
     height: 86vh;
   }
   .test-top {
-    padding-top: 10px;
+    padding-top: 20px;
+    padding-right: 150px;
     height: 40px;
     margin-left: 80px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    > div {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
+
+      img {
+        margin-left: 10px;
+      }
+    }
 
     h1 {
       margin: 0;
       color: #000;
+      margin-right: 20px;
     }
-    a {
+    .link {
       margin: 0 15px;
       color: #1a7ff1;
       text-decoration: underline;

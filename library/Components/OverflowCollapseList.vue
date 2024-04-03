@@ -28,23 +28,38 @@ import { useResizeChecker } from '../Composeable/ResizeChecker';
 import ContextMenu, { type MenuItem } from '@imengyu/vue3-context-menu';
 import HtmlUtils from '../Utils/HtmlUtils';
 
-const props = defineProps({	
+const props = defineProps({
+  /**
+   * Items to display, render by slot
+   */
   items: {
     type: Object as PropType<Array<any>>,
     default: () => ([] as object)
   },
+  /**
+   * Activated item, activated item will not be hidden
+   */
   activeItem: {
     type: null,
     default: null
   },
+  /**
+   * Direction of the list, horizontal or vertical
+   */
   direction: {
     type: String as PropType<'vertical'|'horizontal'>,
     default: 'horizontal'
   },
+  /**
+   * Label of the item in the context menu
+   */
   itemMenuLabel: {
     type: Function as PropType<(item: any) => string>,
     default: null,
   },
+  /**
+   * Mergin of the item when collapse
+   */
   itemCollapseMergin: {
     type: Number,
     default: 30,

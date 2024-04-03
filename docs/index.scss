@@ -46,7 +46,7 @@ html[class="dark"] {
   img {
     position: absolute;
     width: 600px;
-    right: 200px;
+    right: 0;
     top: 60px;
     z-index: -1;
   }
@@ -55,13 +55,13 @@ html[class="dark"] {
 @media screen and (max-width: 1600px) {
   .big-demo img {
     width: 650px;
-    right: 200px;
+    right: 0;
   }
 }
 @media screen and (max-width: 1450px) {
   .big-demo img {
     width: 550px;
-    right: 100px;
+    right: 10px;
   }
 }
 @media screen and (max-width: 1200px) {

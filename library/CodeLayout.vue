@@ -102,31 +102,53 @@ import CodeLayoutActionItem from './CodeLayoutActionItem.vue';
 import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
-import { MenuBar, type MenuOptions } from '@imengyu/vue3-context-menu';
-import type { MenuBarOptions } from '@imengyu/vue3-context-menu/lib/MenuBar';
-import type { CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
+import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
 import { usePanelDraggerRoot } from './Composeable/DragDrop';
+import type { CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
 
+const emit = defineEmits([	
+  'canLoadLayout',
+  'canSaveLayout',
+]);
 const props = defineProps({
+  /**
+   * Base layout config
+   */
   layoutConfig: {
     type: Object as PropType<CodeLayoutConfig>,
     default: () => defaultCodeLayoutConfig
   },
+  /**
+   * Language config
+   */
   langConfig: {
     type: Object as PropType<CodeLayoutLangConfig>,
     default: () => ({
       lang: 'en',
     }),
   },
+  /**
+   * Main menu (in top left) config
+   */
   mainMenuConfig: {
     type: Object as PropType<MenuOptions>,
     default: null,
   },
+  /**
+   * The empty text when no panel in the group
+   */
   emptyText: {
     type: String,
     default: "Drag a view here to display",
+  },
+  /**
+   * Should the canSaveLayout event be triggered when window. beforeupload
+   */
+  saveBeforeUnload: {
+    type: Boolean,
+    default: true,
   },
 });
 const { layoutConfig } = toRefs(props);
@@ -665,11 +687,6 @@ function removeGroup(panel: CodeLayoutPanelInternal) {
 
   gridInstance.removeChild(panel);
   panel.parentGrid = 'none';
-
-  //当目标网格已经没有面板了，发出通知
-  if (gridInstance.children.length === 0) 
-    props.layoutConfig.onGridEmpty?.(grid);
-
   panelInstances.delete(panel.name);
 
   return panel;
@@ -685,12 +702,21 @@ defineExpose(codeLayoutInstance);
 
 onMounted(() => {
   nextTick(() => {
+    emit('canLoadLayout', codeLayoutInstance);
     loadActivityBarPosition();
   });
+  if (props.saveBeforeUnload)
+    window.addEventListener('beforeunload', saveLayoutAtUnmount)
 });
 onBeforeUnmount(() => {
-  codeLayoutBase.value?.saveGridLayoutDataToConfig();
+  saveLayoutAtUnmount();
 });
+
+function saveLayoutAtUnmount() {
+  window.removeEventListener('beforeunload', saveLayoutAtUnmount);
+  codeLayoutBase.value?.saveGridLayoutDataToConfig();
+  emit('canSaveLayout', codeLayoutInstance);
+}
 
 </script>
 

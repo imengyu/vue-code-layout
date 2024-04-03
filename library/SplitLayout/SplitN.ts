@@ -49,42 +49,55 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     this.open = true;
   }
 
+  /**
+   * Set whether users can close the current panel by continuously shrinking it.
+   */
   canMinClose = false;
   /**
    * Layout direction. 
    */
   direction: 'vertical'|'horizontal' = 'vertical';
   /**
-   * Child drid of this grid.
+   * Child grid of this grid.
    */
   childGrid : CodeLayoutSplitNGridInternal[] = [];
 
   //Public
 
-  addGrid(panel: CodeLayoutSplitNGrid, direction: "vertical" | "horizontal" | undefined = undefined) {
-    const panelInternal = panel as CodeLayoutSplitNGridInternal;
+  /**
+   * Add a child grid to this grid.
+   * @param grid Grid to add
+   * @param direction Direction, default is the direction perpendicular to the current grid
+   * @returns Child grid instance.
+   */
+  addGrid(grid: CodeLayoutSplitNGrid, direction: "vertical" | "horizontal" | undefined = undefined) {
+    const panelInternal = grid as CodeLayoutSplitNGridInternal;
     
     if (panelInternal.parentGroup)
-      throw new Error(`Panel ${panel.name} already added to ${panelInternal.parentGroup.name} !`);
+      throw new Error(`Panel ${grid.name} already added to ${panelInternal.parentGroup.name} !`);
 
     const panelResult = reactive(new CodeLayoutSplitNGridInternal(this.context));
-    Object.assign(panelResult, panel);
+    Object.assign(panelResult, grid);
     panelResult.children = [];
     panelResult.childGrid = [];
-    panelResult.open = panel.startOpen ?? false;
-    panelResult.size = panel.size ?? 0;
-    panelResult.accept = panel.accept ?? this.accept;
+    panelResult.open = true;
+    panelResult.size = grid.size ?? 0;
+    panelResult.accept = grid.accept ?? this.accept;
     panelResult.parentGrid = this.parentGrid;
     panelResult.direction = direction ?? (this.direction === 'vertical' ? 'horizontal' : 'vertical');
     this.addChildGrid(panelResult as CodeLayoutSplitNGridInternal);
     return panelResult as CodeLayoutSplitNGridInternal;
   }
-  removeGrid(panel: CodeLayoutSplitNGrid) {
-    const panelInternal = panel as CodeLayoutSplitNGridInternal;
+  /**
+   * Remove a child grid from this grid.
+   * @param grid Grid to remove
+   */
+  removeGrid(grid: CodeLayoutSplitNGrid) {
+    const panelInternal = grid as CodeLayoutSplitNGridInternal;
     if (panelInternal.parentGroup !== this)
-      throw new Error(`Panel ${panel.name} is not child of this group !`);
+      throw new Error(`Panel ${grid.name} is not child of this group !`);
     this.removeChildGrid(panelInternal);
-    return panel;
+    return grid;
   }
   addPanel(panel: CodeLayoutSplitNPanel) {
     const panelInternal = panel as CodeLayoutPanelInternal;
@@ -207,27 +220,33 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
 export interface CodeLayoutSplitNInstance {
   /**
    * Get root grid instance.
+   * @returns Root grid instance.
    */
   getRootGrid() : CodeLayoutSplitNGridInternal;
   /**
    * Get panel instance by name.
-   * @param name The pance name.
+   * @param name The panel name.
+   * @returns Panel instance, if panel is not found in the component, return undefined
    */
   getPanelByName(name: string): CodeLayoutPanelInternal | undefined,
   /**
    * Get grid instance by name.
-   * @param name The pance name.
+   * @param name The grid name.
+   * @returns Grid instance, if grid is not found in the component, return undefined
    */
   getGridByName(name: string): CodeLayoutSplitNGridInternal | undefined,
   /**
    * Obtain a grid that is currently actived by user and can be used to add panels.
    */
-  getActiveGird() : CodeLayoutSplitNGridInternal;
+  getActiveGird() : CodeLayoutSplitNGridInternal|undefined;
 
   getGridTreeDebugText() : string;
 
   /**
-   * Active a panel.
+   * Activate the specified panel through Name. If the specified Name panel does not exist in the component, it has no effect.
+   * 
+   * This method will change ActiveGird.
+   * 
    * @param name Panel name
    */
   activePanel(name: string): void;

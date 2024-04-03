@@ -1,0 +1,3 @@
+# CodeLayoutCustomizeLayout
+
+CustomizeLayout自定义布局组件，默认位于CodeLayout右上角。导出目的是因为如果你需要自定义标题栏可以自己控制显示位置。应该与CodeLayout一起使用。

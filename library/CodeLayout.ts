@@ -5,45 +5,150 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 
 /**
  * Layout Type Definition
+ * 
+ * Default data can be copied when creating objects:
+ * ```ts
+  import { defaultCodeLayoutConfig } from 'vue-code-layout';
+
+  const config = reactive<CodeLayoutConfig>({
+    ...defaultCodeLayoutConfig,
+    primarySideBarWidth: 40,
+  });
+  ```
  */
 export interface CodeLayoutConfig {
+  /**
+   * Control whether to switch the display of the primarySideBar when clicking on the selected item in the activity bar
+   */
   primarySideBarSwitchWithActivityBar: boolean,
+  /**
+   * The position of the primarySideBar
+   */
   primarySideBarPosition: 'left'|'right',
+  /**
+   * The size of the primarySideBar (0-100, percentage)
+   */
   primarySideBarWidth: number,
+  /**
+   * The minimum size of the primarySideBar in pixels
+   */
   primarySideBarMinWidth: number,
+  /**
+   * The size of the secondarySideBar (0-100, percentage)
+   */
   secondarySideBarWidth: number,
+  /**
+   * The minimum size of the secondarySideBar in pixels
+   */
   secondarySideBarMinWidth: number,
+  /**
+   * The size of the bottomPanel (0-100, percentage)
+   */
   bottomPanelHeight: number,
+  /**
+   * The minimum size of the bottomPanel in pixels
+   */
   bottomPanelMinHeight: number,
+  /**
+   * The layout position of the bottomPanel
+   * * left: At the bottom left
+   * * center: At the bottom center
+   * * right: At the bottom right
+   * * justify: At the bottom center and justify
+   * * left-side: Center left
+   * * right-side: Center right
+   */
   bottomAlignment: 'left'|'center'|'right'|'justify'|'left-side'|'right-side',
+  /**
+   * The position of the activityBar
+   * * side: Main left
+   * * top: In primarySideBar top
+   * * hidden: No activityBar
+   */
   activityBarPosition: 'side'|'top'|'hidden',
+  /**
+   * The height of the panel title in pixels
+   */
   panelHeaderHeight: number,
+  /**
+   * The minimum height (in pixels) for all panels
+   */
   panelMinHeight: number,
+  /**
+   * Show title bar?
+   */
   titleBar: boolean,
+  /**
+   * Display Customize layout pop-up at the top of the title bar?
+   */
   titleBarShowCustomizeLayout: boolean,
+  /**
+   * Show activity bar?
+   */
   activityBar: boolean,
+  /**
+   * Show primarySideBar?
+   */
   primarySideBar: boolean,
+  /**
+   * Show secondarySideBar?
+   */
   secondarySideBar: boolean,
+  /**
+   * Show bottomPanel?
+   */
   bottomPanel: boolean,
+  /**
+   * Can the bottomPanel be maximized?
+   */
   bottomPanelMaximize: boolean,
+  /**
+   * Show statusBar?
+   */
   statusBar: boolean,
+  /**
+   * Show menuBar?
+   */
   menuBar: boolean,
 
   //Events
 
+  /**
+   * When the user clicks the reset button in the custom layout pop-up, this callback is triggered
+   */
   onResetDefault?: () => void;
+  /**
+   * When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging
+   */
   onStartDrag?: (panel: CodeLayoutPanelInternal) => boolean;
+  /**
+   * Trigger this callback when the user completes dragging the panel
+   */
   onEndDrag?: (panel: CodeLayoutPanelInternal) => void;
+  /**
+   * When the user drags a panel to a root group, this callback is triggered, which can return false to prevent the user from dragging
+   */
   onDropToGrid?: (panel: CodeLayoutPanelInternal, grid: CodeLayoutGrid) => boolean;
+  /**
+   * When the user drags a panel to another panel, this callback is triggered, which can return false to prevent the user from dragging
+   */
   onDropToPanel?: (
     reference: CodeLayoutPanelInternal,
     referencePosition: CodeLayoutDragDropReferencePosition, 
     panel: CodeLayoutPanelInternal, 
     dropTo: 'normal'|'empty'|'tab-header'|'activiy-bar'
   ) => boolean;
-  onGridFirstDrop?: (grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal;
-  onGridEmpty?: (grid: CodeLayoutGrid) => void;
+  /**
+   * When the user drags a panel to a group, this callback is triggered to customize and modify the panel data that will eventually be added to the group
+   */
+  onGridFirstDrop?: (grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal; 
+  /**
+   * When a non shrinking TAB group is set to attempt to shrink, this callback will be triggered
+   */
   onNoAutoShinkTabGroup?: (group: CodeLayoutPanelInternal) => void,
+  /**
+   * This callback is triggered when a regular group that is set to not shrink attempts to shrink
+   */
   onNoAutoShinkNormalGroup?: (group: CodeLayoutPanelInternal) => void,
 }
 /**
@@ -107,7 +212,8 @@ export type CodeLayoutPanelCloseType = 'unSave'|'close'|'none';
 export interface CodeLayoutInstance {
   /**
    * Get panel instance by name.
-   * @param name The pance name.
+   * @param name The panel name.
+   * @returns Found panel instance, if this panel is not found in the component, return undefined
    */
   getPanelByName(name: string): CodeLayoutPanelInternal | undefined,
   /**
@@ -125,6 +231,7 @@ export interface CodeLayoutInstance {
   /**
    * Get the internal root grid instance.
    * @param target Grid name.
+   * @returns Top level grid instance
    */
   getRootGrid(target: CodeLayoutGrid): CodeLayoutGridInternal,
   /**
@@ -138,7 +245,9 @@ export interface CodeLayoutInstance {
    */
   relayoutGroup(name: string): void;
   /**
-   * Save current layout to JSON data.
+   * Save the layout dragged by the user to the JSON data, and after the next entry, call 'loadLayout' to reload and restore the original layout from the JSON data.
+   * 
+   * Note: Some basic layout data (CodeLayoutConfig) needs to be save after called this function.
    */
   saveLayout(): any;
   /**
@@ -180,6 +289,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   /**
    * Name of this panel.
    * 
+   * Don't change this value after panel added to layout.
+   * 
    * You can obtain an instance of a panel using this name in the `CodeLayout.getPanelByName` instance method. 
    * 
    * * This name needs to be unique in a CodeLayout/SplitLayout.
@@ -197,7 +308,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * 
    * * Only used in CodeLayout.
    */
-  resizeable = false;
+  resizeable = true;
   visible = true;
   showBadge = true;
   /**
@@ -281,7 +392,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   /**
    * Remove panel from this group.
    * @param panel Panel instance.
-   * @returns 
+   * @param shrink Automatically shrink? Default true
    */
   removePanel(panel: CodeLayoutPanelInternal, shrink = true) {
     if (panel.parentGroup !== this)
@@ -295,7 +406,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
   /**
    * Open this panel.
-   * @param closeOthers 
+   * @param closeOthers When opening oneself, do you also close other panels at the same level, Default: false
    */
   openPanel(closeOthers = false) {
     if (this.parentGroup) {
@@ -336,7 +447,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
 
   /**
-   * Remove the current panel/grid from its parent
+   * Remove the current panel/grid from its parent.
    * @returns 
    */
   removeSelf() {
@@ -344,7 +455,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
   /**
    * Remove the current panel/grid from its parent and 
-   * trigger automatic shrink/merge operations.
+   * trigger automatic shrink operations.
    * @returns 
    */
   removeSelfWithShrink() {
@@ -352,7 +463,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
   /**
    * Set activePanel.
-   * @param child 
+   * @param child The panel to be activated
    */
   setActiveChild(child: CodeLayoutPanelInternal|null) {
     this.activePanel = child;
@@ -367,8 +478,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * Set parent activePanel to self.
    */
   activeSelf() {
-    if (this.parentGroup)
+    if (this.parentGroup) {
       this.parentGroup.setActiveChild(this);
+    }
   }
   /**
    * Get grid hoster container size (pixel).
@@ -519,6 +631,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     this.size = json.size;
   }
 }
+
+/**
+ * Definition of top-level grid group instance class.
+ */
 export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
 
   public constructor(
@@ -537,8 +653,8 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
   private onSwitchCollapse?: (open: boolean) => void;
 
   /**
-   * Expand or collapse the current grid.
-   * @param open 
+   * Open or collapse the current top-level grid.
+   * @param open Is open?
    */
   collapse(open: boolean) {
     this.onSwitchCollapse?.(open);

@@ -4,11 +4,24 @@ import type { CodeLayoutLangConfig } from '../CodeLayout';
 
 export type CodeLayoutLangDefine = typeof LangString;
 
-export function useCodeLayoutLang() {
+const internalLangs = {
+  'en': LangString,
+} as Record<string, CodeLayoutLangDefine>;
 
-  const internalLangs = {
-    'en': LangString,
-  } as Record<string, CodeLayoutLangDefine>;
+/**
+ * Add custom lang to CodeLayout language, should be called before CodeLayout component create.
+ * @param lang Lang name
+ * @param strings Content
+ */
+export function addCodeLayoutLang(lang: string, strings: CodeLayoutLangDefine) {
+  internalLangs[lang] = strings;
+}
+
+/**
+ * CodeLayout language string wrapper
+ * @returns 
+ */
+export function useCodeLayoutLang() {
 
   const langConfig = inject('codeLayoutLangConfig') as CodeLayoutLangConfig;
   const langStrings = computed(() => {

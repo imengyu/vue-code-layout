@@ -1,310 +1,76 @@
----
-title: Customize Styles and Rendering
-order: 3
----
+# Custom style
 
-# Customize Styles and Rendering
-
-## Custom style
-
-It is recommended that you use a custom theme, but you still can override the default menu style. All CSS style definitions are in [`/ContextMenu.scss`](https://github.com/imengyu/vue-code-layout/blob/main/library/ContextMenu.scss) source code. You can copy all the styles, modify them as needed, and store them in your file. Then overwrite the default style where you import:
+If you think the default style doesn't look good and want to modify it, you can also overwrite the default CSS style. All CSS style definitions are in the[Base.scss](https://github.com/imengyu/vue-code-layout/blob/main/library/Scss/Base.scss). You can copy all styles, modify them as needed, and store them in your file. Then overwrite the default style at the import location:
 
 ```js
-import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
-import 'your-style-file-path.scss'
+import 'vue-code-layout/lib/vue-code-layout.css'
+import 'Your style scss file path.scss'
 ```
 
-### Custom Fonts
+## CSS variables
 
-You can customize fonts through css:
+The style of the component has extracted some CSS variables for you to use, making it easy for you to modify colors without having to specify each state specifically.
 
 ```scss
-//Set fonts for all menus
-.mx-context-menu {
-  font-family: 'Times New Roman', Times, serif;
+//Common color and size variables 
+:root {
+  --code-layout-color-background: #1e1e1e; //background color
+  --code-layout-color-background-second: #252526;
+  --code-layout-color-background-light: #333333;
+  --code-layout-color-background-highlight: #04395e;
+  --code-layout-color-background-hover: #363737;
+  --code-layout-color-background-hover-light: #464646;
+  --code-layout-color-background-mask-light: rgba(255,255,255,0.2);
+  --code-layout-color-highlight: #0078d4; //highlight color 
+  --code-layout-color-text: #ccc; //text color
+  --code-layout-color-text-light: #fff;
+  --code-layout-color-text-highlight: #2f94f1;
+  --code-layout-color-text-gray: #818181;
+  --code-layout-color-text-disabled: #727272;
+  --code-layout-color-border: #474747; //border color
+  --code-layout-color-border-light: #cccccc;
+  --code-layout-color-border-background: #2a2a2a;
+  --code-layout-color-border-white: #fff;
+  --code-layout-color-shadow: rgba(0,0,0,0.15); //shadow size
+  --code-layout-color-scrollbar-thumb: rgba(204, 204, 204, 0.4); //scrollbar color
+  --code-layout-color-scrollbar-thumb-light: rgba(204, 204, 204, 0.6);
+  --code-layout-border-size: 1px; //border size
+  --code-layout-border-size-larger: 2px;
+  --code-layout-border-size-dragger: 4px;
+  --code-layout-sash-size: 8px; //xy merge drag bar size
+  --code-layout-border-radius-small: 5px; //border radius
+  --code-layout-border-radius-large: 5px;
+  --code-layout-header-height: 22px; //CodeLayout panel title size
+  --code-layout-titlebar-background: #3c3c3c; //CodeLayout Title Bar Background Color
+  --code-layout-titlebar-height: 35px; //CodeLayout Title height
+  --code-layout-status-height: 20px; //CodeLayout status height
+  --code-layout-font-size: 13px; //CodeLayou font size
+  --code-layout-font-size-small: 11px;
 }
 
-//Set the font of the specified customClass menu
-//this.$contextmenu({
-//  customClass: 'my-menu',
-//  ...
-//});
-.my-menu {
-  font-family: 'Times New Roman', Times, serif;
+//SplitLayout Tab Component specific variables
+.code-layout-split-tab {
+  --tab-height: 35px; //Base Height
+  --tab-font-size: 12px; //Font size
+  --tab-icon-size: 14px; //Icon size
+  --tab-text-color: var(--code-layout-color-text); //TAB component text and background color, inherited by default from CodeLayout to ensure consistent style
+  --tab-active-text-color: var(--code-layout-color-text-light);
+  --tab-mormal-color: var(--code-layout-color-background-light);
+  --tab-active-color: var(--code-layout-color-background);
+  --tab-border-color: var(--code-layout-color-background-second);
+  --tab-button-normal-color: transparent;
+  --tab-button-hover-color: var(--code-layout-color-background-hover-light);
+  --tab-close-size: 18px;  //The size of the TAB component close button
 }
 ```
 
-### CSS variables
+## Custom font
 
-The style of the menu has extracted some css variables for you to use. You can easily change the color of each menu state.
+You can customize the font through CSS:
 
 ```scss
-//Backgroud
---mx-menu-backgroud: #fff; //Menu background color
---mx-menu-hover-backgroud: #f1f1f1; //The background color of the menu item when hovering
---mx-menu-active-backgroud: #dfdfdf; //The background color of the menu item when the mouse is pressed
---mx-menu-open-backgroud: #f1f1f1; //The background color of the menu item when the menu item submenu is opened
---mx-menu-open-hover-backgroud: #f1f1f1; // The background color of the menu item when the menu item submenu is opened and the mouse is hovering
---mx-menu-divider: #f0f0f0; //Menu divider color
-
-//Text
---mx-menu-text: #2e2e2e; //Menu text color
---mx-menu-hover-text: #2e2e2e; //Menu text color when hovering
---mx-menu-active-text: #2e2e2e; //Menu text color when the mouse is pressed
---mx-menu-open-text: #2e2e2e; //Menu text color when the menu item submenu is opened
---mx-menu-open-hover-text: #2e2e2e; //Menu text color when the menu item submenu is opened and the mouse is hovering
---mx-menu-disabled-text: #c9c8c8; //Menu text color when the menu item is disabled
-
-//Shadow
---mx-menu-shadow-color: rgba(0, 0, 0, 0.1); //Menu Background Shadow Color
---mx-menu-backgroud-radius: 10px; //Menu background radius size
-
-//Shortcut badge
---mx-menu-shortcut-backgroud: #ebebeb; //The background color of the menu shortcut key badge, and its four states
---mx-menu-shortcut-backgroud-hover:#ebebeb;
---mx-menu-shortcut-backgroud-active:#ebebeb;
---mx-menu-shortcut-backgroud-open:#ebebeb;
---mx-menu-shortcut-backgroud-disabled:#fdfdfd;
---mx-menu-shortcut-text: #424242; //The text color of the menu shortcut key badge, and its four states
---mx-menu-shortcut-text-hover: #424242;
---mx-menu-shortcut-text-active: #424242;
---mx-menu-shortcut-text-open: #424242;
---mx-menu-shortcut-text-disabled: #a5a5a5;
-
-//Focus border color
---mx-menu-focus-color: #0085f1; //The color of the outline when the menu item is activated by keyboard
-
-//Icon placeholder width
---mx-menu-placeholder-width: 24px; //Width of icon placeholder area
-```
-
-## Customize rendering
-
-The menu provides some slots that allow you to customize some parts of the rendering. For details, please refer to the example source code:
-
-* Functional mode [examples/views/BasicCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/BasicCustomize.vue)
-* Component mode [examples/views/ComponentCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/ComponentCustomize.vue)。
-
-### Functional mode
-
-```js
-this.$contextmenu({
-  items: [
-    { 
-      label: "Item with custom icon render",
-      //The icon attribute supports passing VNode rendering custom content
-      icon: h('img', {
-        src: 'https://imengyu.top/assets/images/test/icon.png',
-        style: {
-          width: '20px',
-          height: '20px',
-        }
-      }),
-      divided: true, 
-    },
-    { 
-      //The label attribute supports passing VNode rendering custom content
-      label: h('div', {
-        style: {
-          fontSize: '20px',
-          color: '#f98',
-        }
-      }, "Item with custom render"),
-    },
-  ],
-  zIndex: 3,
-  minWidth: 230,
-  x: e.x,
-  y: e.y
-})
-```
-
-### Component mode
-
-Component mode supports more custom slots.
-
-| Slot name | Description | Arguments |
-| :----: | :----: | :----: |
-| itemRender | Global menu item render slot | MenuItemRenderData |
-| itemIconRender | Global menu item icon render slot | MenuItemRenderData |
-| itemLabelRender | Global menu item label render slot  | MenuItemRenderData |
-| itemRightArrowRender | Global menu item right arrow render slot  | MenuItemRenderData |
-| separatorRender | Global menu separator render slot  | - |
-
-> Note: The function mode also supports these slots. You only need to pass the second parameter into the [showContextMenu](../api/ContextMenuInstance.md#contextmenushowcontextmenuoptions-menuoptions-customslots-recordstring-slot) funvtion and provide the slot rendering function, For the case, refer to sample code [examples\views\BasicCustomize.vue](https://github.com/imengyu/vue-code-layout/blob/main/examples/views/BasicCustomize.vue) line 112.
-
-The following is a case of fully customized menus. You can use this case to encapsulate your own menu components.
-
-```vue
-//MyContextMenu.vue
-<template>
-  <!--this is Full Customized context-menu-->
-  <context-menu
-    :show="show"
-    :options="{ ...options, x, y }"
-    @update:show="(v: boolean) => $emit('update:show', v)"
-  >
-    <!--itemRender slot can customize the rendering of the entire menu item-->
-    <template #itemRender="{ disabled, label, icon, showRightArrow, onClick, onMouseEnter }">
-      <div 
-        :class="'my-menu-item'+(disabled?' disabled':'')"
-        @click="onClick"
-        @mouseenter="onMouseEnter"
-      >
-        <img v-if="icon" :src="icon" />
-        <div v-else class="icon-place-holder"></div>
-        <span>{{label}}</span>
-        <span v-if="showRightArrow" class="right-arraw">>></span>
-      </div>
-    </template>
-
-    <slot />
-  </context-menu>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-import type { MenuOptions } from '@imengyu/vue-code-layout';
-
-export default defineComponent({
-  data() {
-    return {
-      options: {
-        // The slot rendering submenu container is temporarily unavailable, 
-        // but the custom class can be used to customize the style of the container
-        customClass: "my-menu-box", 
-        zIndex: 3,
-        minWidth: 230,
-      } as MenuOptions,
-    }
-  },
-  props: {
-    show: {
-      type: Boolean,
-      required: true,
-    },
-    x: {
-      type: Number,
-      required: true,
-    },
-    y: {
-      type: Number,
-      required: true,
-    },
-  },
-});
-</script>
-
-<style>
-.my-menu-box {
-  border-radius: 0!important;
-  box-shadow: none!important;
-  border: 1px solid #585858!important;
-  background-color: #fff!important;
-  padding: 0!important;
+//Set the font for all components
+.code-layout-root {
+  font-family: 'Times New Roman', Times, serif;
 }
-.my-menu-item {
-  padding: 2px 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  user-select: none;
-}
-.my-menu-item:hover {
-  background-color: rgb(223, 223, 223);
-}
-.my-menu-item .icon-place-holder {
-  width: 20px;
-  height: 20px;
-}
-.my-menu-item img {
-  width: 20px;
-  height: 20px;
-}
-.my-menu-item span {
-  font-size: 15px;
-  color: #000;
-  white-space: nowrap;
-}
-.my-menu-item .right-arraw {
-  font-size: 20px;
-  color: #f05;
-}
-.my-menu-sperator {
-  border-bottom: 1px dashed #f00;
-}
-</style>
-```
-
-Usage after encapsulation:
-
-```vue
-//TestMyMenu.vue
-<template>
-  <!--The usage is the same as before-->
-  <MyContextMenu
-    v-model:show="show"
-    :x="x"
-    :y="y"
-  >
-    <context-menu-item label="Simple item" @click="alertContextMenuItemClicked('Item1')" />
-    <context-menu-item label="Item with a icon" icon="https://imengyu.top/assets/images/test/icon.png" @click="alertContextMenuItemClicked('Item2')" />
-    <context-menu-group label="Menu with child">
-      <context-menu-item label="Item1" @click="alertContextMenuItemClicked('Item1')" />
-      <context-menu-item label="Item1" @click="alertContextMenuItemClicked('Item1')" />
-    </context-menu-group>
-    <div class="my-menu-sperator"></div>
-    <context-menu-group label="Menu with child child child">
-      <context-menu-item label="Item1" @click="alertContextMenuItemClicked('Item1')" />
-      <context-menu-item label="Item2" @click="alertContextMenuItemClicked('Item2')" />
-      <context-menu-group label="Child with v-for 50">
-        <context-menu-item v-for="index of 50" :key="index" :label="'Item3-'+index" @click="alertContextMenuItemClicked('Item3' + index)" />
-      </context-menu-group>
-      <div class="my-menu-sperator"></div>
-      <context-menu-group label="Childs">
-        <context-menu-item label="Item1-1" @click="alertContextMenuItemClicked('Item1-1')" />
-        <context-menu-item label="Item1-2" @click="alertContextMenuItemClicked('Item1-2')" />
-        <div class="my-menu-sperator"></div>
-        <context-menu-group label="Childs">
-          <context-menu-item label="Item2-1" @click="alertContextMenuItemClicked('Item2-1')" />
-          <context-menu-item label="Item2-2" @click="alertContextMenuItemClicked('Item2-2')" />
-        </context-menu-group>
-      </context-menu-group>
-    </context-menu-group>
-  </MyContextMenu>
-</template>
-
-
-<script lang="ts">
-import { defineComponent } from 'vue'
-import MyContextMenu from './MyContextMenu.vue';//Import the menu component above 
-
-export default defineComponent({
-  data() {
-    return {
-      show: false,
-      x: 500,
-      y: 200
-    }
-  },
-  component: {
-    //Register component
-    MyContextMenu
-  },
-  methods: {
-    onContextMenu(e : MouseEvent) {
-      e.preventDefault();
-      //Set the mouse position
-      this.x = e.x;
-      this.y = e.y;
-      //Show menu
-      this.show = true;
-    },
-    alertContextMenuItemClicked(name: string) {
-      alert(name);
-    },
-  }
-});
-</script>
 ```

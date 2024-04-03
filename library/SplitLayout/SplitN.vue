@@ -80,7 +80,7 @@ const props = defineProps({
     default: true,
   },
   /**
-   * Set whether users can drag resize panels until the size is below the minimum value to close the panel.
+   * Set Dragger size (pixel)
    * 
    * Default: true
    */

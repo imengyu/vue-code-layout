@@ -15,8 +15,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'index.ts',
-      name: 'vue3-context-menu',
-      fileName: (format) => `vue3-context-menu.${format}.js`,
+      name: 'vue-code-layout',
+      fileName: (format) => `vue-code-layout.${format}.js`,
     },
     rollupOptions: {
       external: ['vue'],
@@ -24,7 +24,7 @@ export default defineConfig({
         globals: {
           vue: 'Vue'
         },
-        assetFileNames: 'vue3-context-menu.[ext]',
+        assetFileNames: 'vue-code-layout.[ext]',
       },
     },
     sourcemap: true,

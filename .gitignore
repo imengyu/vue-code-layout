@@ -4,6 +4,7 @@ node_modules
 /lib
 /examples/dist
 /library/dist
+/docs/importlib/
 
 
 # local env files

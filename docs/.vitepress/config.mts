@@ -25,8 +25,8 @@ export default defineConfig({
           copyright: 'Copyright © 2024 imengyu.top'
         },
         nav: [
-          { text: 'Guide', link: '/en/guide/install' },
-          { text: 'API Reference', link: '/en/api/ContextMenu' },
+          { text: 'Guide', link: '/en/guide/start' },
+          { text: 'API Reference', link: '/en/api/CodeLayout' },
           { text: 'Changelog', link: '/en/change/index' },
         ],
         sidebar: {
@@ -34,37 +34,34 @@ export default defineConfig({
             {
               text: 'Start',
               items: [
+                { text: 'Start', link: '/en/guide/start' },
                 { text: 'Install', link: '/en/guide/install' },
-                { text: 'Useage', link: '/en/guide/useage' },
-                { text: 'Menu icon', link: '/en/guide/icon' },
+                { text: 'Introduce', link: '/en/guide/useage' },
+                { text: 'I18n', link: '/en/guide/i18n' },
               ]
             },
             {
-              text: 'Theme and Customize',
+              text: 'Component',
               items: [
-                { text: 'Theme', link: '/en/guide/theme' },
-                { text: 'Customize Styles and Rendering', link: '/en/guide/customize' },
-                { text: 'Customize the menu mount container', link: '/en/guide/custom-container' },
+                { text: 'CodeLayout', link: '/en/guide/code-layout' },
+                { text: 'SplitLayout', link: '/en/guide/split-layout' },
+              ]
+            },
+            {
+              text: 'Customize',
+              items: [
+                { text: 'Customize', link: '/en/guide/customize' },
               ]
             },
           ],
           '/en/api/': [
-            {
-              text: 'API Reference',
-              items: [
-                { text: 'Function mode', link: '/en/api/ContextMenuInstance' },
-                { 
-                  text: 'Component mode',
-                  items: [
-                    { text: 'ContextMenu', link: '/en/api/ContextMenu' },
-                    { text: 'ContextMenuGroup', link: '/en/api/ContextMenuGroup' },
-                    { text: 'ContextMenuItem', link: '/en/api/ContextMenuItem' },
-                    { text: 'ContextMenuSeparator', link: '/en/api/ContextMenuSeparator' },
-                    { text: 'MenuBar', link: '/en/api/MenuBar' },
-                  ]
-                },
-              ]
-            },
+            { text: 'CodeLayout', link: '/en/api/CodeLayout' },
+            { text: 'SplitLayout', link: '/en/api/SplitLayout' },
+            { text: 'SplitN', link: '/en/api/SplitN' },
+            { text: 'CodeLayoutScrollbar', link: '/en/api/CodeLayoutScrollbar' },
+            { text: 'CodeLayoutActionsRender', link: '/en/api/CodeLayoutActionsRender' },
+            { text: 'CodeLayoutCustomizeLayout', link: '/en/api/CodeLayoutCustomizeLayout' },
+            { text: 'OverflowCollapseList', link: '/en/api/OverflowCollapseList' },
           ]
         }
       }
@@ -86,7 +83,7 @@ export default defineConfig({
     },
     nav: [
       { text: '教程', link: '/guide/install' },
-      { text: 'API 参考', link: '/api/ContextMenu' },
+      { text: 'API 参考', link: '/api/CodeLayout' },
       { text: '更新日志', link: '/change/index' },
     ],
     sidebar: {
@@ -96,16 +93,21 @@ export default defineConfig({
           items: [
             { text: '开始之前', link: '/guide/start' },
             { text: '安装', link: '/guide/install' },
-            { text: '如何使用', link: '/guide/useage' },
-            { text: '菜单图标', link: '/guide/icon' },
+            { text: '介绍', link: '/guide/useage' },
+            { text: '国际化', link: '/guide/i18n' },
+          ]
+        },
+        {
+          text: '组件',
+          items: [
+            { text: 'CodeLayout', link: '/guide/code-layout' },
+            { text: 'SplitLayout', link: '/guide/split-layout' },
           ]
         },
         {
           text: '美化与自定义',
           items: [
-            { text: '主题', link: '/guide/theme' },
-            { text: '自定义样式和渲染', link: '/guide/customize' },
-            { text: '自定义菜单挂载容器', link: '/guide/custom-container' },
+            { text: '自定义样式', link: '/guide/customize' },
           ]
         },
       ],
@@ -113,20 +115,19 @@ export default defineConfig({
         {
           text: 'API 参考',
           items: [
-            { text: '函数模式', link: '/api/ContextMenuInstance' },
-            { 
-              text: '组件模式',
-              items: [
-                { text: 'ContextMenu', link: '/api/ContextMenu' },
-                { text: 'ContextMenuGroup', link: '/api/ContextMenuGroup' },
-                { text: 'ContextMenuItem', link: '/api/ContextMenuItem' },
-                { text: 'ContextMenuSeparator', link: '/api/ContextMenuSeparator' },
-                { text: 'MenuBar', link: '/api/MenuBar' },
-              ]
-            },
+            { text: 'CodeLayout', link: '/api/CodeLayout' },
+            { text: 'SplitLayout', link: '/api/SplitLayout' },
+            { text: 'SplitN', link: '/api/SplitN' },
+            { text: 'CodeLayoutScrollbar', link: '/api/CodeLayoutScrollbar' },
+            { text: 'CodeLayoutActionsRender', link: '/api/CodeLayoutActionsRender' },
+            { text: 'CodeLayoutCustomizeLayout', link: '/api/CodeLayoutCustomizeLayout' },
+            { text: 'OverflowCollapseList', link: '/api/OverflowCollapseList' },
           ]
         },
       ]
+    },
+    search: {
+      provider: 'local'
     },
   },  
   markdown: {
@@ -142,7 +143,7 @@ export default defineConfig({
           render (tokens, idx) {
             return renderSandbox(tokens, idx, 'my-sandbox');
           },
-        });
+        })
     },
   },
 });

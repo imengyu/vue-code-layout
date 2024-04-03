@@ -85,7 +85,6 @@
     }
   }
 
-
   > .code-layout-split-dragger, > .split-n-container > .code-layout-split-dragger {
     position: relative;
     height: 100%;
@@ -126,6 +125,8 @@
   height: 100%;
 
   --tab-height: 35px;
+  --tab-font-size: 12px;
+  --tab-icon-size: 14px;
   --tab-text-color: var(--code-layout-color-text);
   --tab-active-text-color: var(--code-layout-color-text-light);
   --tab-mormal-color: var(--code-layout-color-background-light);
@@ -133,6 +134,7 @@
   --tab-border-color: var(--code-layout-color-background-second);
   --tab-button-normal-color: transparent;
   --tab-button-hover-color: var(--code-layout-color-background-hover-light);
+  --tab-close-size: 18px;
 }
 .code-layout-split-tab-list {
 
@@ -165,7 +167,7 @@
     background-color: var(--code-layout-color-background-hover);
   }
 
-  .tabs {
+  > .tabs {
     display: inline-flex;
     align-items: center;
     flex-wrap: nowrap;
@@ -215,6 +217,7 @@
       .icon {
         display: inline-block;
         padding: 0;
+        font-size: var(--tab-icon-size);
       }
       .close {
         text-decoration: none;
@@ -224,8 +227,8 @@
         justify-content: center;
         align-items: center;
         cursor: pointer;
-        width: 18px;
-        height: 18px;
+        width: var(--tab-close-size);
+        height: var(--tab-close-size);
         border-radius: 3px;
         padding: 0;
 
@@ -235,19 +238,31 @@
 
         .close-icon {
           visibility: hidden;
-          width: 18px;
-          height: 18px;
+          width: var(--tab-close-size);
+          height: var(--tab-close-size);
         }
         .unsave-dot {
           width: 14px;
           height: 14px;
         }
       }
+      .badge {
+        display: inline-block;
+        padding: 3px;
+        border-radius: var(--code-layout-font-size-small);
+        font-size: var(--code-layout-font-size-small);
+        min-width: var(--code-layout-font-size-small);
+        line-height: var(--code-layout-font-size-small);
+        text-align: center;
+        background-color: var(--code-layout-color-highlight);
+        color: var(--code-layout-color-text-light);
+        transform: scale(0.9);
+      }
 
-      span {
+      > span {
         display: inline-block;
         padding: 0 6px;
-        font-size: 12px;
+        font-size: var(--tab-font-size);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -283,6 +298,23 @@
           visibility: visible;
         }
       }    
+    }
+  }
+  > .extra {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+
+    > .code-layout-actions {
+      font-size: var(--tab-font-size);
+
+      svg {
+        font-size: var(--tab-icon-size);
+      }
     }
   }
 }

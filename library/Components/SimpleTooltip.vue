@@ -23,22 +23,43 @@ import { onMounted, onBeforeUnmount, nextTick, ref, useSlots, watch, type PropTy
 import { useSimpleTooltipDelayLock } from '../Composeable/SimpleTooltipDelayLock';
 
 const props = defineProps({
+  /**
+   * The content of the tooltip.
+   */
   content: {
     type: String,
     default: '',
   },
+  /**
+   * Whether to enable the tooltip.
+   */
   enable: {
     type: Boolean,
     default: true,
   },
+  /**
+   * The direction of the tooltip.
+   * 
+   * Default is 'right'.
+   */
   direction: {
     type: String as PropType<'left'|'top'|'bottom'|'right'>,
     default: 'right',
   },
+  /**
+   * The teleport target of the tooltip.
+   * 
+   * Default is 'body'.
+   */
   teleport: {
     type: String,
     default: 'body',
   },
+  /**
+   * The main direction offset of the tooltip. (px)
+   * 
+   * Default is 5.
+   */
   offset: {
     type: Number,
     default: 5,

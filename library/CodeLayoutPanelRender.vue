@@ -39,6 +39,7 @@
     <div 
       v-if="!alone" class="collapse"
       :draggable="!resizeDragging"
+      :title="panel.tooltip"
       @dragstart="handleDragStart(panel, $event)"
       @dragend="handleDragEnd"
       @click="handleHeaderClick"

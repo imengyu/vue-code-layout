@@ -5,10 +5,8 @@ title: 安装
 # 安装
 
 ```shell
-npm install -save @imengyu/vue-code-layout
+npm install -save vue-code-layout
 ```
-
-> 提示：vue-code-layout 仅支持 Vue3 + Vite
 
 ## 全局导入组件
 
@@ -16,8 +14,8 @@ npm install -save @imengyu/vue-code-layout
 
 ```js
 //main.js
-import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
-import CodeLayout from '@imengyu/vue-code-layout'
+import 'vue-code-layout/lib/vue-code-layout.css'
+import CodeLayout from 'vue-code-layout'
 
 createApp(App)
   .use(CodeLayout)
@@ -30,7 +28,7 @@ createApp(App)
 
 ```js
 //main.js
-import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
+import 'vue-code-layout/lib/vue-code-layout.css'
 ```
 
 然后在你需要使用的地方导入组件使用：
@@ -40,7 +38,7 @@ import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
 import { defineComponent } from 'vue'
 
 //导入组件
-import { CodeLayout } from '@imengyu/vue-code-layout';
+import { CodeLayout } from 'vue-code-layout';
 
 export default defineComponent({
   //注册组件

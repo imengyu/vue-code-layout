@@ -39,9 +39,9 @@ import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
 import { ref, onMounted, nextTick, h, onBeforeUnmount } from 'vue';
-import type { CodeLayoutPanelInternal } from '../../library/CodeLayout';
-import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from '../../library/SplitLayout/SplitN';
-import SplitLayout from '../../library/SplitLayout/SplitLayout.vue';
+import type { CodeLayoutPanelInternal } from 'vue-code-layout';
+import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
+import { SplitLayout } from 'vue-code-layout';
 
 const colors = [
   '#fb0',
@@ -121,6 +121,7 @@ function onResetAll() {
 function loadLayout() {
   if (splitLayoutRef.value) {
     const grid = splitLayoutRef.value.getRootGrid();
+    grid.direction = 'horizontal';
 
     const data = localStorage.getItem('SplitLayoutDemoSaveData');
     if (props.enableSave && data) {
@@ -145,8 +146,9 @@ function loadLayout() {
         name: 'grid1',
         visible: true,
         size: 0,
+        closeType: 'close',
       });
-      grid.addGrid({
+      const grid2 = grid.addGrid({
         name: 'grid2',
         visible: true,
         size: 0,
@@ -177,6 +179,27 @@ function loadLayout() {
           data: i,
         });
       }
+
+      count++;
+      grid2.addPanel({
+        title: `Panel with actions`,
+        tooltip: `Panel${count} tooltip`,
+        name: `panel${count}`,
+        closeType: 'close',
+        badge: '2',
+        iconSmall: () => h(getRandomIcon()),
+        actions: [
+          {
+            icon: () => h(IconSearch),
+            tooltip: 'Search',
+            onClick: () => {
+              console.log('Search');
+            },
+          },
+        ],
+        data: count,
+      });
+
       getDebugGridTreeText();
 
       if (props.enableSave) {
@@ -187,6 +210,10 @@ function loadLayout() {
           iconSmall: () => h(IconMarkdown),
         });
       }
+
+      const file1 = splitLayoutRef.value.getPanelByName('file1')
+      
+      file1?.closePanel()
 
       grid.notifyRelayout();
     }

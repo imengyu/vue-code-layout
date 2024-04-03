@@ -38,7 +38,10 @@
           </slot>
         </div>
       </slot>
-      <slot name="tabHeaderExtraRender" :grid="grid" />
+      <div class="extra">
+        <slot name="tabHeaderExtraRender" :grid="grid" />
+        <CodeLayoutActionsRender v-if="grid.activePanel?.actions" :actions="grid.activePanel?.actions" />
+      </div>
     </div>
     <!--tab content -->
     <div 
@@ -66,6 +69,7 @@ import { ref, type PropType, inject, toRefs } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLayoutSplitNPanelInternal } from './SplitN';
 import SplitTabItem from './SplitTabItem.vue'
 import { getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
 
 const props = defineProps({
   grid: {

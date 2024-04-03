@@ -22,14 +22,14 @@ English | [中文](./README.CN.md)
 ### Install
 
 ```
-npm install -save @imengyu/vue-code-layout
+npm install -save vue-code-layout
 ```
 
 Import in main.ts:
 
 ```js
-import '@imengyu/vue-code-layout/lib/vue-code-layout.css'
-import VueCodeLayout from '@imengyu/vue-code-layout'
+import 'vue-code-layout/lib/vue-code-layout.css'
+import VueCodeLayout from 'vue-code-layout'
 
 createApp(App)
   .use(VueCodeLayout)  

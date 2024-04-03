@@ -13,6 +13,7 @@ export default defineConfig({
   base: './',
   resolve: {
     alias: {
+      'vue-code-layout': '../../library',
       '@': fileURLToPath(new URL('./', import.meta.url))
     }
   }

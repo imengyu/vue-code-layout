@@ -1,12 +1,16 @@
 {
-  "name": "@imengyu/vue-code-layout",
-  "version": "1.0.0",
+  "name": "vue-code-layout",
+  "version": "1.0.1",
   "description": "A editor layout for Vue",
   "main": "lib/vue-code-layout.umd.js",
   "files": [
     "lib",
     "index.d.ts"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.com/"
+  },
   "scripts": {
     "dev": "vite serve examples",
     "build-demo": "vite build examples",
@@ -32,7 +36,7 @@
     "vite": "^4.4.9",
     "vite-plugin-dts": "^3.6.4",
     "vite-plugin-raw": "^1.0.3",
-    "vitepress": "^1.0.0-rc.31",
+    "vitepress": "^1.0.1",
     "vitepress-plugin-sandpack": "^1.1.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",

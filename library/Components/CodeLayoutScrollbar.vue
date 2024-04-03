@@ -41,10 +41,16 @@ import { createMouseDragHandler } from '../Composeable/MouseHandler';
 import { useResizeChecker } from "../Composeable/ResizeChecker";
 
 const props = defineProps({	
+  /**
+   * Scroll direction
+   */
   scroll: {
     type: String as PropType<'both'|'none'|'vertical'|'horizontal'>,
     default: 'both'
   },
+  /**
+   * Scroll bar size (pixel)
+   */
   scrollBarSize: {
     type: Number,
     default: 8

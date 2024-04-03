@@ -111,6 +111,7 @@
           text-align: center;
           background-color: var(--code-layout-color-highlight);
           color: var(--code-layout-color-text-light);
+          transform: scale(0.9);
         }  
 
         &.active, &:hover {
