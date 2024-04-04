@@ -1,11 +1,13 @@
 import { computed, inject } from 'vue';
 import { LangString } from './en';
+import { LangString as LangStringZh } from './zh';
 import type { CodeLayoutLangConfig } from '../CodeLayout';
 
 export type CodeLayoutLangDefine = typeof LangString;
 
 const internalLangs = {
   'en': LangString,
+  'zh': LangStringZh,
 } as Record<string, CodeLayoutLangDefine>;
 
 /**
