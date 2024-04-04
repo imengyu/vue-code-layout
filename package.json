@@ -1,6 +1,6 @@
 {
   "name": "vue-code-layout",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A editor layout for Vue",
   "main": "lib/vue-code-layout.umd.js",
   "files": [
@@ -49,15 +49,21 @@
   "keywords": [
     "vue3",
     "vue",
-    "context",
-    "menu",
+    "drag",
+    "drop",
+    "dock",
+    "window",
+    "tab",
+    "panel",
+    "code",
+    "vscode",
+    "editor",
     "layout",
     "组件",
     "布局",
     "编辑器",
-    "code",
-    "vscode",
-    "editor"
+    "context",
+    "menu"
   ],
   "author": "imengyu",
   "license": "MIT",
