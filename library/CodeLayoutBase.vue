@@ -98,7 +98,9 @@ function loadLayout() {
       return parent.addGrid({
         name: 'bottomPanel',
         visible: config.bottomPanel,
-        size: config.bottomPanelMaximize ? 100 : config.bottomPanelHeight,
+        size: config.bottomPanelMaximize ? 100 : (
+          config.bottomPanelHeight < 100 ? config.bottomPanelHeight : 20
+        ),
         minSize: config.bottomPanelMinHeight,
         canMinClose: true,
       });
@@ -187,19 +189,48 @@ function loadLayout() {
     rootGrid.notifyRelayout();
   }
 }
-
-watch(() => props.config.bottomAlignment, loadLayout);
 watch(() => props.config.bottomPanel, loadLayout);
-watch(() => props.config.bottomPanelHeight, loadLayout);
-watch(() => props.config.bottomPanelMaximize, loadLayout);
-watch(() => props.config.bottomPanelMinHeight, loadLayout);
-watch(() => props.config.primarySideBar, loadLayout);
-watch(() => props.config.primarySideBarMinWidth, loadLayout);
-watch(() => props.config.primarySideBarPosition, loadLayout);
-watch(() => props.config.primarySideBarWidth, loadLayout);
 watch(() => props.config.secondarySideBar, loadLayout);
-watch(() => props.config.secondarySideBarMinWidth, loadLayout);
+watch(() => props.config.primarySideBar, loadLayout);
+watch(() => props.config.bottomPanelMaximize, (v) => {
+  if (v)
+    relayoutAfterVarChange();
+  else
+    loadLayout();
+});
+watch(() => props.config.bottomAlignment, loadLayout);
+watch(() => props.config.bottomPanelHeight, loadLayout);
+watch(() => props.config.bottomPanelMinHeight, relayoutAfterVarChange);
+watch(() => props.config.primarySideBarMinWidth, relayoutAfterVarChange);
+watch(() => props.config.primarySideBarPosition, relayoutAfterVarChange);
+watch(() => props.config.primarySideBarWidth, loadLayout);
+watch(() => props.config.secondarySideBarMinWidth, relayoutAfterVarChange);
 watch(() => props.config.secondarySideBarWidth, loadLayout);
+
+function relayoutAfterVarChange() {
+  saveGridLayoutDataToConfig();
+  loadLayout();
+}
+function saveGridLayoutDataToConfig() {
+  const config = props.config;
+  if (splitLayoutRef.value) {
+    const bottomPanel = splitLayoutRef.value.getGridByName('bottomPanel');
+    const primarySideBar = splitLayoutRef.value.getGridByName('primarySideBar');
+    const secondarySideBar = splitLayoutRef.value.getGridByName('secondarySideBar');
+    if (bottomPanel) {
+      config.bottomPanel = bottomPanel.visible;
+      config.bottomPanelHeight = bottomPanel.size;
+    }
+    if (primarySideBar) {
+      config.primarySideBar = primarySideBar.visible;
+      config.primarySideBarWidth = primarySideBar.size;
+    }
+    if (secondarySideBar) {
+      config.secondarySideBar = secondarySideBar.visible;
+      config.secondarySideBarWidth = secondarySideBar.size;
+    }
+  }
+}
 
 onMounted(() => {
   loadLayout();
@@ -207,26 +238,7 @@ onMounted(() => {
 
 defineExpose<CodeLayoutBaseInstance>({
   getRef: () => container.value,
-  saveGridLayoutDataToConfig() {
-    const config = props.config;
-    if (splitLayoutRef.value) {
-      const bottomPanel = splitLayoutRef.value.getGridByName('bottomPanel');
-      const primarySideBar = splitLayoutRef.value.getGridByName('primarySideBar');
-      const secondarySideBar = splitLayoutRef.value.getGridByName('secondarySideBar');
-      if (bottomPanel) {
-        config.bottomPanel = bottomPanel.visible;
-        config.bottomPanelHeight = bottomPanel.size;
-      }
-      if (primarySideBar) {
-        config.primarySideBar = primarySideBar.visible;
-        config.primarySideBarWidth = primarySideBar.size;
-      }
-      if (secondarySideBar) {
-        config.secondarySideBar = secondarySideBar.visible;
-        config.secondarySideBarWidth = secondarySideBar.size;
-      }
-    }
-  },
+  saveGridLayoutDataToConfig,
 });
 
 </script>
