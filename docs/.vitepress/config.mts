@@ -15,7 +15,7 @@ export default defineConfig({
     en: {
       label: 'English',
       lang: 'en', 
-      description: 'A laayout component that like VSCode.',  
+      description: 'A layout component like VSCode.',  
       themeConfig: {
         socialLinks: [
           { icon: 'github', link: 'https://github.com/imengyu/vue-code-layout' },
