@@ -309,6 +309,13 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * * Only used in CodeLayout.
    */
   resizeable = true;
+  /**
+   * Show panel?
+   * 
+   * * Only used in CodeLayout.
+   * 
+   * After changed, need call `relayoutAfterToggleVisible` to apply.
+   */
   visible = true;
   showBadge = true;
   /**
@@ -504,6 +511,26 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    */
   relayoutAllWithNewPanel(panels: CodeLayoutPanelInternal[], referencePanel?: CodeLayoutPanelInternal) {
     this.pushLateAction('relayoutAllWithNewPanel', panels, referencePanel);
+  }
+  /**
+   * Notify hoster container there has grids was visible changed and needs to relayout.
+   * @param panel Changed panel.
+   */
+  relayoutAfterToggleVisible(panel?: CodeLayoutPanelInternal) {
+    if (!panel)
+      panel = this;
+    const parent = panel.getParent();
+    if (!parent)
+      return;
+    if (panel.visible) {
+      if (parent instanceof CodeLayoutPanelInternal)
+        parent.relayoutAllWithNewPanel([ panel ]);
+      parent.setActiveChild(panel);
+    } else {
+      if (parent instanceof CodeLayoutPanelInternal)
+        parent.relayoutAllWithRemovePanel(panel);
+      parent.reselectActiveChild();
+    }
   }
   /**
    * Notify hoster container there has grids was removed and needs to relayout.
@@ -843,7 +870,6 @@ export interface CodeLayoutContext {
     panel: CodeLayoutPanelInternal, 
     dropTo: 'normal'|'empty'|'tab-header'|'activiy-bar',
   ) => void,
-  relayoutAfterToggleVisible: (panel: CodeLayoutPanelInternal) => void,
   relayoutTopGridProp: (grid: CodeLayoutGrid, visible: boolean) => void,
   instance: CodeLayoutInstance;
 }

@@ -40,12 +40,16 @@
           @mouseleave="onOrthogonalDraggerLeave('end')"
         />
       </div>
-      <slot 
-        v-if="child.visible"
-        name="grid"
-        :grid="child"
-        :index="index"
-      />
+      <div
+        class="content"
+      >
+        <slot 
+          v-if="child.visible"
+          name="grid"
+          :grid="child"
+          :index="index"
+        />
+    </div>
     </div>
   </div>
 </template>

@@ -41,6 +41,8 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal {
 }
 /**
  * Grid type definition of SplitLayout.
+ * 
+ * Events:
  */
 export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal implements CodeLayoutSplitNGrid {
 

@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, h, inject, type Ref } from 'vue';
+import { ref, type PropType, h, inject, type Ref, watch } from 'vue';
 import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
@@ -192,7 +192,7 @@ const buttomPanelActions = ref<CodeLayoutActionButton[]>([
     tooltip: t('maximizePanel'),
     onClick() {
       layoutConfig.value.bottomPanelMaximize = !layoutConfig.value.bottomPanelMaximize;
-      buttomPanelActions.value[0].tooltip = layoutConfig.value.bottomPanelMaximize ? t('restorePanelSize') : t('maximizePanel');
+      
     },
   },
   {
@@ -212,6 +212,10 @@ const secondaryPanelActions = ref<CodeLayoutActionButton[]>([
     },
   },
 ]);
+
+watch(() => layoutConfig.value.bottomPanelMaximize, (v) => {
+  buttomPanelActions.value[0].tooltip = v ? t('restorePanelSize') : t('maximizePanel');
+});
 
 </script>
 

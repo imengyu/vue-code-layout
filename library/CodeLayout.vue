@@ -229,20 +229,6 @@ const codeLayoutInstance : CodeLayoutInstance = {
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
   dragDropToPanelNear,
-  relayoutAfterToggleVisible(panel) {
-    const parent = panel.getParent();
-    if (!parent)
-      return;
-    if (panel.visible) {
-      if (parent instanceof CodeLayoutPanelInternal)
-        parent.relayoutAllWithNewPanel([ panel ]);
-      parent.setActiveChild(panel);
-    } else {
-      if (parent instanceof CodeLayoutPanelInternal)
-        parent.relayoutAllWithRemovePanel(panel);
-      parent.reselectActiveChild();
-    }
-  },
   relayoutTopGridProp(grid, visible) {
     const _layoutConfig = props.layoutConfig;
     switch (grid) {

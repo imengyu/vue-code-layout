@@ -5,9 +5,10 @@ nav:
   order: 5
 ---
 
-## v1.0.3 - 2024/04/05
+## v1.0.3 - 2024/04/07
 
 * [Fix] Fix the height lost issue after maximizing and restoring the panel.
+* [Fix] Fix panel maximizing button state issue.
 
 ## v1.0.2 - 2024/04/05
 

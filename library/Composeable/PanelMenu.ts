@@ -33,7 +33,7 @@ export function usePanelMenuControl() {
           disabled: panel.noHide || showCount <= 1,
           onClick: () => {
             panel.visible = !panel.visible;
-            context.relayoutAfterToggleVisible(panel);
+            panel.relayoutAfterToggleVisible();
           }
         },
         { 
@@ -51,7 +51,7 @@ export function usePanelMenuControl() {
             disabled: othersPanel.noHide || (showCount <= 1 && othersPanel.visible),
             onClick() {
               othersPanel.visible = !othersPanel.visible;
-              context.relayoutAfterToggleVisible(othersPanel);
+              othersPanel.relayoutAfterToggleVisible();
             },
           } as MenuItem
         }),

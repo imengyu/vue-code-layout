@@ -70,6 +70,8 @@ const props = defineProps({
   },
 });
 
+const currentBottom = ref<CodeLayoutSplitNGridInternal>();
+
 function loadLayout() {
   if (splitLayoutRef.value) {
     const rootGrid = splitLayoutRef.value.getRootGrid();
@@ -95,7 +97,7 @@ function loadLayout() {
       });
     }
     function buildBottom(parent: CodeLayoutSplitNGridInternal) {
-      return parent.addGrid({
+      currentBottom.value = parent.addGrid({
         name: 'bottomPanel',
         visible: config.bottomPanel,
         size: config.bottomPanelMaximize ? 100 : (
@@ -104,6 +106,7 @@ function loadLayout() {
         minSize: config.bottomPanelMinHeight,
         canMinClose: true,
       });
+      return currentBottom.value;
     }    
     function buildCenter(parent: CodeLayoutSplitNGridInternal) {
       return parent.addGrid({
@@ -189,14 +192,27 @@ function loadLayout() {
     rootGrid.notifyRelayout();
   }
 }
+
+let nextNoChangeLayout = false;
+
 watch(() => props.config.bottomPanel, loadLayout);
 watch(() => props.config.secondarySideBar, loadLayout);
 watch(() => props.config.primarySideBar, loadLayout);
 watch(() => props.config.bottomPanelMaximize, (v) => {
+  if (nextNoChangeLayout) {
+    nextNoChangeLayout = false;
+    return;
+  }
   if (v)
     relayoutAfterVarChange();
   else
     loadLayout();
+});
+watch(() => currentBottom.value?.size, (v) => {
+  if (v && v < 100 && props.config.bottomPanelMaximize) {
+    nextNoChangeLayout = true;
+    props.config.bottomPanelMaximize = false;
+  }
 });
 watch(() => props.config.bottomAlignment, loadLayout);
 watch(() => props.config.bottomPanelHeight, loadLayout);
