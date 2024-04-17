@@ -40,9 +40,9 @@ For detailed usage, please refer to the documentation.
 
 ## Documentation
 
-[Documentation](https://imengyu.top/pages/vue-code-layout-docs/)
+[Documentation](https://docs.imengyu.top/vue-code-layout-docs/)
 
-[Demo](https://imengyu.top/pages/vue-code-layout-demo/)
+[Demo](https://docs.imengyu.top/vue-code-layout-demo/)
 
 ## Develop
 

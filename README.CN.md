@@ -38,9 +38,9 @@ createApp(App)
 
 ## 文档
 
-[查看文档](https://imengyu.top/pages/vue-code-layout-docs/)
+[查看文档](https://docs.imengyu.top/vue-code-layout-docs/)
 
-[查看在线演示](https://imengyu.top/pages/vue-code-layout-demo/)
+[查看在线演示](https://docs.imengyu.top/vue-code-layout-demo/)
 
 ## 开发
 

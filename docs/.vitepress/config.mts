@@ -3,7 +3,7 @@ import { renderSandbox } from 'vitepress-plugin-sandpack';
 import container from 'markdown-it-container';
 
 export default defineConfig({
-  base: '/pages/vue-code-layout-docs/',
+  base: '/vue-code-layout-docs/',
   lang: 'zh-CN',
   title: 'vue-code-layout',
   description: 'Vue 仿 VSCode 布局组件',
