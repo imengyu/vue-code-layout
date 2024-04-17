@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, type Ref, type PropType, watch, onMounted, computed, nextTick, onBeforeUnmount } from 'vue';
+import { ref, provide, type Ref, type PropType, watch, onMounted, nextTick, onBeforeUnmount } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutPanelHosterContext, CodeLayoutGrid, CodeLayoutDragDropReferencePosition } from '../CodeLayout';
 import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal } from './SplitN';
 import SplitNest from './SplitNest.vue';
@@ -179,8 +179,6 @@ const instance = {
   saveLayout: () => rootGrid.value.toJson(),
 } as CodeLayoutSplitNInstance;
 
-(window as any).instance = instance
-
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);
 const context : CodeLayoutSplitLayoutContext = {
   currentActiveGrid: currentActiveGrid as Ref<CodeLayoutSplitNGridInternal|null>,
@@ -307,7 +305,7 @@ function dragDropToPanel(
     };
   } else {
     //3.3
-    const oldParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+    const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
     const newGridTop = new CodeLayoutSplitNGridInternal(targetGrid.context);//上级包围的网格
     const newGrid = new CodeLayoutSplitNGridInternal(targetGrid.context);//新面板包围的网格
     Object.assign(newGrid, {
@@ -349,9 +347,9 @@ function dragDropToPanel(
       rootGrid.value.noAutoShink = true;
     }
     else {
-      if (!oldParent)
-        throw new Error('oldParent is null');
-      oldParent.replaceChildGrid(targetGrid, newGridTop);
+      if (!oldTargetGridParent)
+        throw new Error('oldTargetGridParent is null');
+      oldTargetGridParent.replaceChildGrid(targetGrid, newGridTop);
     }
 
     //重新布局面板
@@ -430,11 +428,11 @@ function autoShrinkEmptyGrid(grid: CodeLayoutSplitNGridInternal, dropGrid: CodeL
     parent.childGrid[0].size += grid.size;
 
   //如果父级网格只剩下一个子网格，则将其与父级网格替换
-  if (parent.childGrid.length == 1)
+  if (parent.childGrid.length === 1)
     parent.moveChildGridToSelf(parent.childGrid[0]);
   
   //如果父级网格没有子网格了，继续收缩
-  if (parent.children.length == 0 && parent.childGrid.length == 0)
+  if (parent.children.length === 0 && parent.childGrid.length === 0)
     autoShrinkEmptyGrid(parent);
 }
 

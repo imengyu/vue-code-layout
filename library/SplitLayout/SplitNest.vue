@@ -2,6 +2,7 @@
   <SplitN
     v-if="grid.childGrid?.length"
     ref="splitLayoutRef"
+    :key="grid.name"
     :grid="grid"
     :horizontal="grid.direction === 'horizontal'"
     :indexOfParent="indexOfParent"
@@ -11,6 +12,7 @@
     <template #grid="{ grid: childGrid, index }">
       <SplitNest 
         v-if="childGrid.childGrid?.length"
+        :key="childGrid.name"
         :grid="childGrid"
         :indexOfParent="index"
         :isLastOfParent="index === grid.childGrid.length - 1"

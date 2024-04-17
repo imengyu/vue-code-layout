@@ -14,6 +14,7 @@
           >
             <template #tabContentRender="{ panel }">
               <vue-monaco-editor
+                v-if="panel.name.startsWith('file')"
                 v-model:value="panel.data.value"
                 :language="panel.data.language"
                 :path="panel.data.path"
@@ -73,6 +74,7 @@ import {
   type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal 
 } from 'vue-code-layout';
 import TestContent1 from '../assets/text/Useage.vue?raw';
+//import TestContent1 from '../assets/text/Useage2.vue?raw';
 import TestContent2 from '../../README.md?raw';
 
 const props = defineProps({
@@ -89,7 +91,7 @@ const MONACO_EDITOR_OPTIONS = {
   automaticLayout: true,
   formatOnType: true,
   formatOnPaste: true,
-};
+}; 
 const defaultCodeLayoutConfig : CodeLayoutConfig = {
   primarySideBarSwitchWithActivityBar: true,
   primarySideBarPosition: 'left',

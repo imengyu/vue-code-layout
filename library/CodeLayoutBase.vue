@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div ref="container" class="code-layout-root">
-    <div v-if="config.titleBar" class="code-layout-title-bar">
+    <div v-show="config.titleBar" class="code-layout-title-bar">
       <div>
         <slot name="titleBarIcon" />
         <slot v-if="config.menuBar" name="titleBarMenu" />
@@ -17,7 +17,7 @@
     <div class="code-layout-activity">
       <!--activity bar-->
       <div 
-        v-if="config.activityBar && config.primarySideBarPosition === 'left' && config.activityBarPosition === 'side'" 
+        v-show="config.activityBar && config.primarySideBarPosition === 'left' && config.activityBarPosition === 'side'" 
         :class="['code-layout-activity-bar',config.primarySideBarPosition]"
       >
         <slot name="activityBar" />
@@ -28,6 +28,8 @@
         ref="splitLayoutRef"
         rootGridType="rootGrid"
         :showTabHeader="false"
+        @canLoadLayout="loadLayout"
+        @canSaveLayout="saveGridLayoutDataToConfig"
       >
         <template #gridRender="{ grid }">
           <slot :name="grid.name" />
@@ -36,21 +38,21 @@
       
       <!--activity bar (right)-->
       <div 
-        v-if="config.activityBar && config.primarySideBarPosition === 'right' && config.activityBarPosition === 'side'" 
+        v-show="config.activityBar && config.primarySideBarPosition === 'right' && config.activityBarPosition === 'side'" 
         :class="['code-layout-activity-bar',config.primarySideBarPosition]"
       >
         <slot name="activityBar" />
       </div>
     </div>
     <!--status bar-->
-    <div v-if="config.statusBar" class="code-layout-status">
+    <div v-show="config.statusBar" class="code-layout-status">
       <slot name="statusBar" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, onMounted, watch } from 'vue';
+import { ref, type PropType, watch } from 'vue';
 import type { CodeLayoutConfig } from './CodeLayout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
@@ -78,7 +80,7 @@ function loadLayout() {
     const config = props.config;
     const inversePrimary = props.config.primarySideBarPosition === 'right';
 
-    function buildSecondary(parent: CodeLayoutSplitNGridInternal) {
+    const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
       return parent.addGrid({
         name: inversePrimary ? 'primarySideBar' : 'secondarySideBar',
         visible: inversePrimary ? config.primarySideBar : config.secondarySideBar,
@@ -87,7 +89,7 @@ function loadLayout() {
         canMinClose: true,
       });
     }
-    function buildPrimary(parent: CodeLayoutSplitNGridInternal) {
+    const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
       return parent.addGrid({
         name: inversePrimary ? 'secondarySideBar' : 'primarySideBar',
         visible: inversePrimary ? config.secondarySideBar : config.primarySideBar,
@@ -96,7 +98,7 @@ function loadLayout() {
         canMinClose: true,
       });
     }
-    function buildBottom(parent: CodeLayoutSplitNGridInternal) {
+    const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
       currentBottom.value = parent.addGrid({
         name: 'bottomPanel',
         visible: config.bottomPanel,
@@ -108,7 +110,7 @@ function loadLayout() {
       });
       return currentBottom.value;
     }    
-    function buildCenter(parent: CodeLayoutSplitNGridInternal) {
+    const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
       return parent.addGrid({
         name: 'centerArea',
         visible: true,
@@ -116,7 +118,7 @@ function loadLayout() {
         minSize: 0,
       });
     }   
-    function buildGroup(parent: CodeLayoutSplitNGridInternal, name: string, direction?: "vertical" | "horizontal") {
+    const buildGroup = (parent: CodeLayoutSplitNGridInternal, name: string, direction?: "vertical" | "horizontal") => {
       const grid = parent.addGrid({
         name,
         visible: true,
@@ -209,9 +211,10 @@ watch(() => props.config.bottomPanelMaximize, (v) => {
     loadLayout();
 });
 watch(() => currentBottom.value?.size, (v) => {
-  if (v && v < 100 && props.config.bottomPanelMaximize) {
+  const config = props.config;
+  if (v && v < 100 && config.bottomPanelMaximize) {
     nextNoChangeLayout = true;
-    props.config.bottomPanelMaximize = false;
+    config.bottomPanelMaximize = false;
   }
 });
 watch(() => props.config.bottomAlignment, loadLayout);
@@ -247,10 +250,6 @@ function saveGridLayoutDataToConfig() {
     }
   }
 }
-
-onMounted(() => {
-  loadLayout();
-});
 
 defineExpose<CodeLayoutBaseInstance>({
   getRef: () => container.value,

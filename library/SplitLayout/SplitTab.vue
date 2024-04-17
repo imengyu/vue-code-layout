@@ -23,7 +23,7 @@
         <div class="tabs">
           <slot
             v-for="(panel, index) in grid.children"
-            :key="index"
+            :key="panel.name"
             :panel="panel" 
             :index="index"
             :active="panel === grid.activePanel"

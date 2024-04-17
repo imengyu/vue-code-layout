@@ -4,7 +4,7 @@
   > 
     <SimpleTooltip
       v-for="(action, index) in actions"
-      :key="index"
+      :key="action.name ?? index"
       :content="action.tooltip"
       :direction="action.tooltipDirection ?? 'bottom'"
     >

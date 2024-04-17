@@ -8,7 +8,7 @@
   >
     <slot 
       v-for="(item, index) in items"
-      :key="index"
+      :key="item.key ?? index"
       :item="item"
       :index="index"
       name="item"
