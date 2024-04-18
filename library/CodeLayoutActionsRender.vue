@@ -1,6 +1,7 @@
 <template>
   <div 
     :class="[ 'code-layout-actions' ]"
+    draggable="false"
   > 
     <SimpleTooltip
       v-for="(action, index) in actions"
@@ -11,6 +12,7 @@
       <CodeLayoutVNodeStringRender v-if="action.render" :content="action.render" />
       <button 
         v-else
+        draggable="false"
         tabindex="0"
         :class="[
           index === actions!.length - 1 ? 'last' : '',

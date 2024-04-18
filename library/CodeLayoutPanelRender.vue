@@ -39,13 +39,15 @@
     <div 
       v-if="!alone" class="collapse"
       :draggable="!resizeDragging"
-      :title="panel.tooltip"
       @dragstart="handleDragStart(panel, $event)"
       @dragend="handleDragEnd"
-      @click="handleHeaderClick"
-      @contextmenu="onContextMenu(props.panel, $event)"
     >
-      <div class="collapse-title">
+      <div 
+        class="collapse-title"
+        :title="panel.tooltip"
+        @click="handleHeaderClick"
+        @contextmenu="onContextMenu(props.panel, $event)"
+      >
         <IconArrow class="arrow" />
         <CodeLayoutVNodeStringRender :content="panel.title" />
         <CodeLayoutVNodeStringRender v-if="horizontal && !open" :content="panel.iconSmall" />
