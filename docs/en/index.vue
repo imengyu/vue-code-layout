@@ -25,7 +25,7 @@ function goStart() {
   location.href = './guide/start.html'
 }
 function goView() {
-  window.open('https://imengyu.top/pages/vue-code-layout-demo/');
+  window.open('https://docs.imengyu.top/vue-code-layout-demo/');
 }
 </script>
 
