@@ -40,6 +40,7 @@ import { ref, onMounted, onBeforeUnmount, nextTick, type PropType, reactive } fr
 import { createMouseDragHandler } from '../Composeable/MouseHandler';
 import { useResizeChecker } from "../Composeable/ResizeChecker";
 
+
 const props = defineProps({	
   /**
    * Scroll direction
@@ -201,9 +202,45 @@ onBeforeUnmount(() => {
   observer.disconnect();
 });
 
-defineExpose({
+export interface CodeLayoutScrollbarInstance {
+  /**
+   * Force update scrollbar state
+   */
+  refreshScrollState(): void;
+  /**
+   * Get scroll containerElement
+   */
+  getScrollContainer(): HTMLElement | undefined;
+  /**
+   * Scroll to position
+   * @param options 
+   */
+  scrollTo(x: number, y: number): void;
+  /**
+   * Scroll to top
+   */
+  scrollToTop() : void;
+  /**
+   * Scroll to bottom
+   */
+  scrollToBottom() : void;
+}
+
+defineExpose<CodeLayoutScrollbarInstance>({
   refreshScrollState() {
     calcScroll(true);
+  },
+  getScrollContainer() {
+    return container.value;
+  },
+  scrollTo(x: number, y: number) {
+    container.value?.scrollTo(x, y);
+  },
+  scrollToTop() {
+    container.value?.scrollTo(0, 0);
+  },
+  scrollToBottom() {
+    container.value?.scrollTo(container.value.scrollWidth, container.value.scrollHeight);
   },
 })
 
