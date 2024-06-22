@@ -680,13 +680,13 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
     this.onSwitchCollapse = onSwitchCollapse;
   }
 
-  private onSwitchCollapse: (open: boolean) => void;
-  private onActiveSelf: () => void;
+  private onSwitchCollapse?: (open: boolean) => void;
+  private onActiveSelf?: () => void;
 
   activeSelf() {
     if (!this.open)
       this.collapse(true);
-    this.onActiveSelf();
+    this.onActiveSelf?.();
   }
 
   /**
@@ -694,7 +694,7 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
    * @param open Is open?
    */
   collapse(open: boolean) {
-    this.onSwitchCollapse(open);
+    this.onSwitchCollapse?.(open);
   }
 }
 
