@@ -1,6 +1,6 @@
 {
   "name": "vue-code-layout",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A editor layout for Vue",
   "main": "lib/vue-code-layout.umd.js",
   "files": [
