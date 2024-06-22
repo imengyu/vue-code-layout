@@ -486,6 +486,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    */
   activeSelf() {
     if (this.parentGroup) {
+      this.parentGroup.activeSelf();
       this.parentGroup.setActiveChild(this);
     }
   }
