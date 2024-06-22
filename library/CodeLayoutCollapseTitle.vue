@@ -38,7 +38,7 @@ defineProps({
   },
   actions: {
     type: Object as PropType<CodeLayoutActionButton[]>,
-    default: false,
+    default: null,
   },
   title: {
     type: String,
