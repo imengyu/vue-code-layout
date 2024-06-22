@@ -1,22 +1,19 @@
 <template>
   <!-- 扁平情况下多个条目只显示单页 -->
   <template v-if="show && group.tabStyle === 'hidden'">
-    <template v-if="group.children.length > 0">
-      <CodeLayoutGroupRender
-        v-for="(panelGroup, key) in group.children"
-        :key="key"
-        :show="panelGroup.visible && panelGroup === group.activePanel"
-        :group="(panelGroup as CodeLayoutPanelInternal)"
-        :horizontal="false"
-      >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
-        </template>
-        <template #emptyTabRender>
-          <slot name="emptyTabRender" />
-        </template>
-      </CodeLayoutGroupRender>
-    </template>
+    <CodeLayoutGroupRender
+      v-if="group.activePanel"
+      :show="group.activePanel.visible"
+      :group="(group.activePanel as CodeLayoutPanelInternal)"
+      :horizontal="false"
+    >
+      <template #panelRender="data">
+        <slot name="panelRender" v-bind="data" />
+      </template>
+      <template #emptyTabRender>
+        <slot name="emptyTabRender" />
+      </template>
+    </CodeLayoutGroupRender>
     <slot v-else name="emptyTabRender" />
   </template>
   <!-- 正常页面 -->
@@ -124,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, h, inject, type Ref, watch } from 'vue';
+import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance } from 'vue';
 import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
@@ -217,6 +214,13 @@ watch(() => layoutConfig.value.bottomPanelMaximize, (v) => {
   buttomPanelActions.value[0].tooltip = v ? t('restorePanelSize') : t('maximizePanel');
 });
 
+const instance = getCurrentInstance();
+
+defineExpose({
+  forceUpdate() {
+    instance?.proxy?.$forceUpdate();
+  }
+})
 </script>
 
 <style lang="scss">

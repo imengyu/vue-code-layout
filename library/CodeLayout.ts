@@ -486,8 +486,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    */
   activeSelf() {
     if (this.parentGroup) {
-      this.parentGroup.activeSelf();
       this.parentGroup.setActiveChild(this);
+      this.parentGroup.activeSelf();
     }
   }
   /**
@@ -670,22 +670,31 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
     tabStyle: CodeLayoutPanelTabStyle,
     context: CodeLayoutPanelHosterContext,
     onSwitchCollapse: (open: boolean) => void,
+    onActiveSelf: () => void,
   ) {
     super(context);
     this.name = name;
     this.tabStyle = tabStyle;
     this.parentGrid = name;
+    this.onActiveSelf = onActiveSelf;
     this.onSwitchCollapse = onSwitchCollapse;
   }
 
-  private onSwitchCollapse?: (open: boolean) => void;
+  private onSwitchCollapse: (open: boolean) => void;
+  private onActiveSelf: () => void;
+
+  activeSelf() {
+    if (!this.open)
+      this.collapse(true);
+    this.onActiveSelf();
+  }
 
   /**
    * Open or collapse the current top-level grid.
    * @param open Is open?
    */
   collapse(open: boolean) {
-    this.onSwitchCollapse?.(open);
+    this.onSwitchCollapse(open);
   }
 }
 

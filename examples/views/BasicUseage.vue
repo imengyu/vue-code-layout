@@ -47,8 +47,16 @@
             <img src="../assets/images/placeholder5.png">
           </CodeLayoutScrollbar>
         </template>
+        <template v-else-if="panel.name === 'debug.a'">
+          <h1>debug.a</h1>
+        </template>
+        <template v-else-if="panel.name === 'debug.b'">
+          <h1>debug.b</h1>
+          <p>../assets/images/placeholder5.png</p>
+        </template>
         <template v-else-if="panel.name === 'bottom.ports'">
           <img src="../assets/images/placeholder3.png">
+          <button @click="testPanelActive">Test active debug b</button>
         </template>
         <template v-else-if="panel.name === 'bottom.terminal'">
           <img src="../assets/images/placeholder4.png">
@@ -321,6 +329,12 @@ function loadLayout() {
         tabStyle: 'single',
         iconLarge: () => h(IconSearch),
       }, 'primarySideBar');
+      const groupDebug = codeLayout.value.addGroup({
+        title: 'Debug',
+        tooltip: 'Debug',
+        name: 'debug',
+        iconLarge: () => h(IconFile),
+      }, 'primarySideBar');
 
       const bottomGroup = codeLayout.value.getRootGrid('bottomPanel');
 
@@ -361,6 +375,18 @@ function loadLayout() {
             onClick() {},
           },
         ]
+      });
+      groupDebug.addPanel({
+        title: 'A',
+        tooltip: 'Debug a',
+        name: 'debug.a',
+        iconSmall: () => h(IconSearch),
+      });
+      groupDebug.addPanel({
+        title: 'B',
+        tooltip: 'Debug b',
+        name: 'debug.b',
+        iconSmall: () => h(IconSearch),
       });
 
       bottomGroup.addPanel({
@@ -406,6 +432,10 @@ function saveLayout() {
     localStorage.setItem('CodeLayoutDemoSaveData', JSON.stringify(codeLayout.value?.saveLayout()));
     localStorage.setItem('CodeLayoutDemoSaveConfig', JSON.stringify(toRaw(config)));
   }
+}
+
+function testPanelActive() {
+  codeLayout.value?.getPanelByName('debug.b')?.activeSelf();
 }
 
 onMounted(() => {

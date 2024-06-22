@@ -27,13 +27,11 @@
           <MenuBar :options="mainMenuConfigWithCollapseState" />
         </slot>
         <!--main activityBar items-->
-        <CodeLayoutActionItem
-          v-for="(panelGroup, key) in panels.primary.children"
-          v-show="panelGroup.visible"
-          :key="key"
-          :item="panelGroup"
-          :active="panelGroup === panels.primary.activePanel && layoutConfig.primarySideBar"
-          @active-item="onActivityBarAcitve(panelGroup)"
+        <CodeLayoutActivityBar
+          ref="activityBarGroup" 
+          :primary="panels.primary"
+          :primarySideBar="layoutConfig.primarySideBar"
+          @activityBarAcitve="onActivityBarAcitve"
         />
       </div>
       <div class="bottom">
@@ -42,6 +40,7 @@
     </template>
     <template #primarySideBar>
       <CodeLayoutGroupRender
+        ref="primarySideBarGroup"
         :group="panels.primary"
         :horizontal="false"
       >
@@ -57,6 +56,7 @@
     </template>
     <template #secondarySideBar>
       <CodeLayoutGroupRender
+        ref="secondarySideBarGroup"
         :group="panels.secondary"
         :horizontal="false"
       >
@@ -72,6 +72,7 @@
     </template>
     <template #bottomPanel>
       <CodeLayoutGroupRender
+        ref="bottomPanelGroup"
         :group="panels.bottom"
         :horizontal="true"
       >
@@ -98,15 +99,19 @@
 import { ref, type Ref, type PropType, onMounted, provide, onBeforeUnmount, toRefs, computed, watch, nextTick, reactive } from 'vue';
 import { CodeLayoutPanelInternal, type CodeLayoutConfig, type CodeLayoutContext, type CodeLayoutGrid, type CodeLayoutInstance, CodeLayoutGridInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutLangConfig, defaultCodeLayoutConfig } from './CodeLayout';
 import CodeLayoutBase, { type CodeLayoutBaseInstance } from './CodeLayoutBase.vue';
-import CodeLayoutActionItem from './CodeLayoutActionItem.vue';
 import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
 import { usePanelDraggerRoot } from './Composeable/DragDrop';
 import type { CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
+import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
+const primarySideBarGroup = ref();
+const bottomPanelGroup = ref();
+const secondarySideBarGroup = ref();
+const activityBarGroup = ref();
 
 const emit = defineEmits([	
   'canLoadLayout',
@@ -165,16 +170,26 @@ const panels = ref({
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.primarySideBar = open;
+  },
+  () => {
+    primarySideBarGroup.value.forceUpdate();
+    activityBarGroup.value.forceUpdate();
   }),
   secondary: new CodeLayoutGridInternal('secondarySideBar', 'icon', hosterContext,
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.secondarySideBar = open;
+  },
+  () => {
+    secondarySideBarGroup.value.forceUpdate();
   }),
   bottom: new CodeLayoutGridInternal('bottomPanel', 'text', hosterContext,
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.bottomPanel = open;
+  },
+  () => {
+    bottomPanelGroup.value.forceUpdate();
   }),
 }) as Ref<{
   primary: CodeLayoutGridInternal,
@@ -614,22 +629,9 @@ function onActivityBarAcitve(panelGroup: CodeLayoutPanelInternal) {
     //如果侧边栏关闭，则打开
     if (!props.layoutConfig.primarySideBar)
       _layoutConfig.primarySideBar = true;
-    //取消激活其他的面板
-    panels.value.primary.children.forEach((p) => p.open = false);
-    panelGroup.open = true;
     panels.value.primary.setActiveChild(panelGroup);
   }
 }
-function onPrimarySideBarSwitch(on: boolean) {
-  //当侧边栏关闭时，取消激活全部的面板
-  if (!on) 
-    panels.value.primary.children.forEach((p) => p.open = false);
-  //当侧边栏重新打开时，需要重新显示激活面板
-  if (on && panels.value.primary.activePanel && !panels.value.primary.children.find((p) => p.open))
-    panels.value.primary.activePanel.open = true;
-}
-
-watch(() => layoutConfig.value.primarySideBar, onPrimarySideBarSwitch);
 
 //公开控制接口
 
