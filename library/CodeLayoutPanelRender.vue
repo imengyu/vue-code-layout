@@ -36,24 +36,19 @@
       ]" 
       @mousedown="resizeDragHandler"
     />
-    <div 
-      v-if="!alone" class="collapse"
+    <CodeLayoutCollapseTitle 
+      v-if="!alone" 
       :draggable="!resizeDragging"
+      :showIconSmall="horizontal && !open"
+      :iconSmall="panel.iconSmall"
+      :title="panel.title"
+      :tooltip="panel.tooltip"
+      :actions="panel.actions"
+      @click="handleHeaderClick"
+      @contextmenu="onContextMenu(props.panel, $event)"
       @dragstart="handleDragStart(panel, $event)"
       @dragend="handleDragEnd"
-    >
-      <div 
-        class="collapse-title"
-        :title="panel.tooltip"
-        @click="handleHeaderClick"
-        @contextmenu="onContextMenu(props.panel, $event)"
-      >
-        <IconArrow class="arrow" />
-        <CodeLayoutVNodeStringRender :content="panel.title" />
-        <CodeLayoutVNodeStringRender v-if="horizontal && !open" :content="panel.iconSmall" />
-      </div>
-      <CodeLayoutActionsRender class="actions" :actions="panel.actions" />
-    </div>
+    />
     <div 
       v-if="open"
       class="content"
@@ -77,6 +72,7 @@ import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRende
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import IconArrow from './Icons/IconArrow.vue';
 import { usePanelMenuControl } from './Composeable/PanelMenu';
+import CodeLayoutCollapseTitle from './CodeLayoutCollapseTitle.vue';
 
 const emit = defineEmits([ 
   'update:open', 'update:resizeDragging',
@@ -241,7 +237,7 @@ const {
 
   //状态控制
   &.open {
-    > .collapse {
+    > .code-layout-collapse {
       border-bottom-color: transparent;
 
       .arrow {
@@ -250,7 +246,7 @@ const {
     }
   }
   &:focus {
-    > .collapse {
+    > .code-layout-collapse {
       border: 1px solid var(--code-layout-color-highlight);
 
       .actions {
@@ -263,7 +259,7 @@ const {
   }
   &.resizing-self {
 
-    .collapse {
+    .code-layout-collapse {
       cursor: inherit;
     }
 
@@ -274,11 +270,11 @@ const {
     }
   }
   &:hover {
-    > .collapse .actions {
+    > .code-layout-collapse .actions {
       visibility: visible;
     }
   }
-  &:first-child:not(:focus) > .collapse {
+  &:first-child:not(:focus) > .code-layout-collapse {
     border-top-color: transparent;
   }
 
@@ -405,13 +401,13 @@ const {
       border-left: 1px solid var(--code-layout-color-border);
     }
 
-    .collapse {
+    .code-layout-collapse {
       border-top: none;
       background-color: var(--code-layout-color-background-light);
     }
 
     &.closed {
-      .collapse {
+      .code-layout-collapse {
         height: 100%;
         width: var(--code-layout-header-height);
         flex-direction: column;
@@ -452,52 +448,6 @@ const {
     }
   }
 
-  //面板折叠头部
-  > .collapse {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    height: var(--code-layout-header-height);
-    color: var(--code-layout-color-text);
-    padding: 0 5px;
-    border: 1px solid transparent;
-    border-top: 1px solid var(--code-layout-color-border);
-    cursor: pointer;
-    user-select: none;
-    overflow: hidden;
-
-    svg {
-      fill: currentColor;
-    }
-
-    .actions {
-      visibility: hidden;
-    }
-    .arrow {
-      margin-top: 1px;
-      margin-right: 2px;
-    }
-
-    div {
-      display: flex;
-      align-items: center;
-      flex-direction: row;
-      justify-content: start;
-    }
-    span {
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      font-size: 12px;
-      min-width: 3ch;
-    }
-
-    &.dragging {
-      opacity: 0.8;
-    }
-  }
   //内容区
   > .content {
     position: relative;

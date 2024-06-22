@@ -12,6 +12,7 @@ export * from './Language/index';
 
 import CodeLayout from './CodeLayout.vue'
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue'
+import CodeLayoutCollapseTitle from './CodeLayoutCollapseTitle.vue'
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue'
 import CodeLayoutScrollbar from './Components/CodeLayoutScrollbar.vue'
 import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue'
@@ -24,6 +25,7 @@ import SplitN from './SplitLayout/SplitN.vue'
 export {
   CodeLayout,
   CodeLayoutActionsRender,
+  CodeLayoutCollapseTitle,
   CodeLayoutCustomizeLayout,
   CodeLayoutScrollbar,
   CodeLayoutVNodeStringRender,
