@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div ref="container" class="code-layout-root">
+    <slot name="titleBarTop" />
     <div v-show="config.titleBar" class="code-layout-title-bar">
       <div>
         <slot name="titleBarIcon" />
@@ -13,6 +14,7 @@
         <slot name="titleBarRight" />
       </div>
     </div>
+    <slot name="titleBarBottom" />
     <!--root-->
     <div class="code-layout-activity">
       <!--activity bar-->

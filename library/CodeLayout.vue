@@ -3,6 +3,12 @@
     ref="codeLayoutBase"
     :config="layoutConfig"
   >
+    <template #titleBarBottom>
+      <slot name="titleBarBottom" />
+    </template>
+    <template #titleBarTop> 
+      <slot name="titleBarTop" />
+    </template>
     <template #titleBarIcon>
       <slot name="titleBarIcon" />
     </template>
