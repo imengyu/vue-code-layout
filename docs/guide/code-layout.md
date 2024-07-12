@@ -630,6 +630,8 @@ CodeLayout 还提供了一些插槽供您使用：
 * titleBarMenu 标题栏渲染主菜单位置
 * titleBarCenter 标题栏中心位置
 * titleBarRight 标题栏右侧位置（VSCode这里放置关闭按钮）
+* titleBarTop 标题栏上部空间
+* titleBarBottom 标题栏底部，在中心区域之上的空间，可以放置自定义操作
 * activityBarBottom 活动栏栏底部（VSCode这里放置设置按钮）
 * centerArea 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件
 * statusBar 状态栏位置

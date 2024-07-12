@@ -673,6 +673,8 @@ CodeLayout are also provided some solts for your use:
 * titleBarMenu: Title bar rendering main menu position
 * titleBarCenter: Title bar center position
 * titleBarRight: Position on the right side of the title bar (VSCode places the close button here)
+* titleBarTop: Area above the title bar
+* titleBarBottom: The area at the bottom of the title bar, above the center area, where custom actions can be placed
 * activityBarBottom: At the bottom of the activity bar (where VSCode places the settings button)
 * centerArea: The central area of CenterArea, where SliptLayout or other editor core components can be placed
 * statusBar: Status Bar Position

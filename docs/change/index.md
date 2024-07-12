@@ -5,6 +5,11 @@ nav:
   order: 5
 ---
 
+## v1.0.4 - 2024/07/12
+
+* [Add] Add `titleBarBottom` and `titleBarTop` slot.
+* [Fix] Fix a problem that `activeSelf` unable to activate the closed hidden panel.
+
 ## v1.0.3 - 2024/04/07
 
 * [Fix] Fix the height lost issue after maximizing and restoring the panel.

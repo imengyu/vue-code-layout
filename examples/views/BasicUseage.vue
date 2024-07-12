@@ -5,6 +5,9 @@
       :layout-config="config"
       :main-menu-config="menuData"
     >
+      <template #titleBarBottom>
+        <slot name="extraActions" />
+      </template>
       <template #centerArea>
         <slot name="center">
           <SplitLayout
