@@ -37,11 +37,31 @@
           ref="activityBarGroup" 
           :primary="panels.primary"
           :primarySideBar="layoutConfig.primarySideBar"
+          :direction="layoutConfig.primarySideBarPosition"
           @activityBarAcitve="onActivityBarAcitve"
         />
       </div>
       <div class="bottom">
         <slot name="activityBarBottom" />
+      </div>
+    </template>
+    <template #activityBarSecondary>
+      <div class="top">
+        <!--no menu bar here show collapsed menu button-->
+        <slot v-if="!layoutConfig.menuBar" name="activityBarSecondaryTopBar">
+          <MenuBar :options="mainMenuConfigWithCollapseState" />
+        </slot>
+        <!--main activityBar items-->
+        <CodeLayoutActivityBar
+          ref="activityBarGroup" 
+          :primary="panels.secondary"
+          :primarySideBar="layoutConfig.secondarySideBar"
+          :direction="layoutConfig.primarySideBarPosition == 'left' ? 'right' : 'left'"
+          @activityBarAcitve="onActivityBarAcitve2"
+        />
+      </div>
+      <div class="bottom">
+        <slot name="activityBarSecondaryBottom" />
       </div>
     </template>
     <template #primarySideBar>
@@ -220,8 +240,24 @@ function loadActivityBarPosition() {
       panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
       break;
   }
+  if (layoutConfig.value.secondarySideBarAsActivityBar)
+  {
+    switch (layoutConfig.value.secondaryActivityBarPosition) {
+      case 'side':
+      case 'hidden':
+        panels.value.secondary.tabStyle = 'hidden';
+        break;
+      case 'top':
+        panels.value.secondary.tabStyle = 'icon';
+        break;
+    }
+  }
+  else
+    panels.value.secondary.tabStyle = 'icon';
 }
 
+watch(() => layoutConfig.value.secondarySideBarAsActivityBar, loadActivityBarPosition);
+watch(() => layoutConfig.value.secondaryActivityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBar, loadActivityBarPosition);
 
@@ -405,7 +441,7 @@ function dragDropToPanelNear(
 
   //2.3 组内
   if (
-    newParent.children.length === 1
+    (!dropToActiviyBar && newParent.children.length === 1)
     //当拖拽至只有一个子级的TAB页上时，reference 就是需要分割的面板
     || (!dropToTabHeader && newParent instanceof CodeLayoutPanelInternal && newParent.getIsTabContainer())
     //当拖拽至只有一个子级的顶级页上时，reference 就是需要分割的面板
@@ -636,6 +672,18 @@ function onActivityBarAcitve(panelGroup: CodeLayoutPanelInternal) {
     if (!props.layoutConfig.primarySideBar)
       _layoutConfig.primarySideBar = true;
     panels.value.primary.setActiveChild(panelGroup);
+  }
+} 
+function onActivityBarAcitve2(panelGroup: CodeLayoutPanelInternal) {
+  const _layoutConfig = props.layoutConfig;
+  if (panels.value.secondary.activePanel === panelGroup && props.layoutConfig.primarySideBarSwitchWithActivityBar) {
+    //如果点击当前条目，则切换侧边栏
+    _layoutConfig.secondarySideBar = !_layoutConfig.secondarySideBar;
+  } else {
+    //如果侧边栏关闭，则打开
+    if (!props.layoutConfig.secondarySideBar)
+      _layoutConfig.secondarySideBar = true;
+    panels.value.secondary.setActiveChild(panelGroup);
   }
 }
 

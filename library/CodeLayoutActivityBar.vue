@@ -5,8 +5,9 @@
     v-show="panelGroup.visible"
     :key="panelGroup.name"
     :item="panelGroup"
+    :direction="direction"
     :active="panelGroup.name === primary.activePanel?.name && primarySideBar"
-    @active-item="$emit('activityBarAcitve', panelGroup)"
+    @activeItem="$emit('activityBarAcitve', panelGroup)"
   />
 </template>
 
@@ -23,6 +24,10 @@ const props = defineProps({
   primarySideBar: {
     type: Boolean,
     default: false
+  },
+  direction: {
+    type: String as PropType<'left'|'right'>,
+    default: 'left'
   },
 });
 

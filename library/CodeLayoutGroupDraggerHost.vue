@@ -563,6 +563,7 @@ const {
   handleDragEnter,
   handleDragLeave,
   resetDragOverState,
+  resetDragState,
 } = usePanelDragOverDetector(
   container, group, horizontal, 
   () => {},
@@ -591,6 +592,7 @@ function handleDrop(e: DragEvent) {
     }
   }
   resetDragOverState();
+  resetDragState();
 }
 
 onMounted(() => {

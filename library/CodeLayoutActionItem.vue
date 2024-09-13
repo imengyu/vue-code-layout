@@ -1,7 +1,7 @@
 <template>
   <SimpleTooltip
     :content="item.tooltip"
-    :direction="layoutConfig.primarySideBarPosition === 'left' ? 'right' : 'left'"
+    :direction="direction == 'left' ? 'right' : 'left'"
   >
     <div 
       ref="container"
@@ -22,7 +22,7 @@
       @contextmenu="onContextMenu(item, $event)"
     >
       <div class="icon">
-        <CodeLayoutVNodeStringRender :content="item.iconLarge" />
+        <CodeLayoutVNodeStringRender :content="item.iconLarge" :fallback="item.title ?? item.name" />
       </div>
       <span v-if="item.badge" class="badge">
         <CodeLayoutVNodeStringRender :content="item.badge" />
@@ -50,6 +50,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  direction: {
+    type: String as PropType<'left'|'right'>,
+    default: 'left'
+  },
 });
 
 const { item } = toRefs(props);
@@ -74,9 +78,15 @@ const {
   handleDragEnter,
   handleDragLeave,
   resetDragOverState,
+  resetDragState,
 } = usePanelDragOverDetector(
   container, item, horizontal,
-  () => emit('activeItem'),
+  (dragPanel) => {
+    if ((dragPanel == item.value || item.value.isChildren(dragPanel)) 
+      && item.value.isSelfActived()) //当拖拽到自己上时，不隐藏
+      return;
+    emit('activeItem')
+  },
   (dragPanel) => checkDropPanelDefault(dragPanel, item.value, dragOverState)
 );
 
@@ -88,6 +98,7 @@ function handleDrop(e: DragEvent) {
     context.dragDropToPanelNear(item.value, dragOverState.value, dropPanel, 'activiy-bar');
   }
   resetDragOverState();
+  resetDragState();
 }
 
 

@@ -5,6 +5,20 @@ nav:
   order: 5
 ---
 
+## v1.0.7 - 2024/09/13
+
+* [Add] 第二侧边栏支持大侧栏模式和Tab模式切换 `secondarySideBarAsActivityBar` 。
+* [Fix] 修复拖拽子面板到边栏的当前条目上会导致其隐藏的细节问题。
+* [Fix] 修复拖拽子面板后，父面板因为切换而卸载后，再切换回来，无法再拖拽的问题。
+* [Fix] 修复拖拽子面板到顶级侧边栏消失的问题。
+
+---
+
+* [Add] The second sidebar supports ActionBar mode and Tab mode switching, `secondarySideBarAsActivityBar`.
+* [Fix] Fixed a issue where dragging subpanels to the current entry in the ActionBar would cause it to be hidden.
+* [Fix] Fixed an issue where the parent panel could not be dragged again after being unmounted due to switching.
+* [Fix] Fixed where drag subpanels to the top sidebar disappeared.
+
 ## v1.0.6 - 2024/07/12
 
 * [Add] Add `titleBarBottom` and `titleBarTop` slot.

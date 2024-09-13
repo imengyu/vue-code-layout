@@ -64,13 +64,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type PropType, inject, toRefs, type Ref } from 'vue';
+import { ref, computed, type PropType, inject, toRefs, type Ref, onMounted } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import { createMouseDragHandler } from './Composeable/MouseHandler';
 import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from './Composeable/DragDrop';
-import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
-import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
-import IconArrow from './Icons/IconArrow.vue';
 import { usePanelMenuControl } from './Composeable/PanelMenu';
 import CodeLayoutCollapseTitle from './CodeLayoutCollapseTitle.vue';
 
@@ -162,6 +159,7 @@ const {
   handleDragEnter,
   handleDragLeave,
   resetDragOverState,
+  resetDragState,
 } = usePanelDragOverDetector(
   element, panel, horizontal,
   () => {},
@@ -176,6 +174,7 @@ function handleDrop(e: DragEvent) {
     context.dragDropToPanelNear(panel.value, dragOverState.value, dropPanel, 'normal');
   }
   resetDragOverState();
+  resetDragState();
 }
 function handleHeaderClick() {
   emit('toggleHandler', props.panel, !props.open);
@@ -222,6 +221,9 @@ const {
   onContextMenu
 } = usePanelMenuControl();
 
+onMounted(() => {
+  dragPanelState.value = false;
+})
 </script>
 
 <style lang="scss">

@@ -75,6 +75,7 @@ const {
   handleDragEnter,
   handleDragLeave,
   resetDragOverState,
+  resetDragState,
 } = usePanelDragOverDetector(
   container, panel, horizontal, 
   () => emit('click'),
@@ -94,5 +95,6 @@ function handleDrop(e: DragEvent) {
     );
   }
   resetDragOverState();
+  resetDragState();
 }
 </script>

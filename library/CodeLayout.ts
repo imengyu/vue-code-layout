@@ -95,6 +95,17 @@ export interface CodeLayoutConfig {
    */
   secondarySideBar: boolean,
   /**
+   * Make secondary panel control as activity bar?
+   */
+  secondarySideBarAsActivityBar: boolean,
+   /**
+   * The position of the secondary panel's activityBar when `secondarySideBarAsActivityBar` is true.
+   * * side: Main left
+   * * top: In primarySideBar top
+   * * hidden: No activityBar
+   */
+  secondaryActivityBarPosition: 'side'|'top'|'hidden',
+  /**
    * Show bottomPanel?
    */
   bottomPanel: boolean,
@@ -178,6 +189,8 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   activityBarPosition: "side",
   secondarySideBarWidth: 20,
   secondarySideBarMinWidth: 170,
+  secondarySideBarAsActivityBar: false,
+  secondaryActivityBarPosition: 'side',
   bottomPanelHeight: 30,
   bottomPanelMinHeight: 40,
   bottomPanelMaximize: false,
@@ -489,6 +502,20 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       this.parentGroup.setActiveChild(this);
       this.parentGroup.activeSelf();
     }
+  }
+  /**
+   * Get is this panel actived in parent (Tab)
+   */
+  isSelfActived() {
+    if (this.parentGroup)
+      return this.parentGroup.activePanel == this;
+    return false;
+  }
+  /**
+   * Check panel is children.
+   */
+  isChildren(panel: CodeLayoutPanelInternal) {
+    return this.children.includes(panel);
   }
   /**
    * Get grid hoster container size (pixel).

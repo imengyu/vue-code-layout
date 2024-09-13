@@ -111,6 +111,8 @@ const defaultCodeLayoutConfig : CodeLayoutConfig = {
   activityBarPosition: 'side',
   secondarySideBarWidth: 20,
   secondarySideBarMinWidth: 170,
+  secondaryActivityBarPosition: 'side',
+  secondarySideBarAsActivityBar: false,
   bottomPanelHeight: 30,
   bottomPanelMinHeight: 40,
   bottomAlignment: 'center',
@@ -191,6 +193,12 @@ const menuData : MenuOptions = {
     {
       label: "Help",
       children: [
+        { 
+          label: "Reset Layout",
+          onClick: () => {
+            onResetAll();
+          },
+        },
         { label: "About" },
       ],
     },
@@ -341,6 +349,34 @@ function loadLayout() {
 
       const bottomGroup = codeLayout.value.getRootGrid('bottomPanel');
 
+      const groupRight1 = codeLayout.value.addGroup({
+        title: 'Right1',
+        tooltip: 'Right1',
+        name: 'right1',
+        iconLarge: () => h(IconFile),
+      }, 'secondarySideBar');
+      const groupRight2 = codeLayout.value.addGroup({
+        title: 'Right2',
+        tooltip: 'Right2',
+        name: 'right2',
+        iconLarge: () => h(IconFile),
+      }, 'secondarySideBar');
+      groupRight1.addPanel({
+        title: 'Right1',
+        tooltip: 'Right1',
+        name: 'right1.right1',
+      });
+      groupRight1.addPanel({
+        title: 'Right2',
+        tooltip: 'Right2',
+        name: 'right1.right2',
+      });
+      groupRight2.addPanel({
+        title: 'Right2',
+        tooltip: 'Right2',
+        name: 'right2.right2',
+      });
+
       groupExplorer.addPanel({
         title: 'VUE-CODE-LAYOUT',
         tooltip: 'vue-code-layout',
@@ -389,6 +425,12 @@ function loadLayout() {
         title: 'B',
         tooltip: 'Debug b',
         name: 'debug.b',
+        iconSmall: () => h(IconSearch),
+      });
+      groupDebug.addPanel({
+        title: 'C',
+        tooltip: 'Debug c',
+        name: 'debug.c',
         iconSmall: () => h(IconSearch),
       });
 

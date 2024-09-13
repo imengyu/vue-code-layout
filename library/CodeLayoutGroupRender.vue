@@ -56,7 +56,7 @@
     </div>
     <!-- 标题栏 -->
     <div 
-      v-else-if="group.tabStyle === 'single'"
+      v-else-if="group.tabStyle === 'single' || !group.children || group.children.length == 0"
       class="title-bar"
       :draggable="true"
       @dragstart="handleDragStart(group, $event)"
@@ -70,7 +70,7 @@
     <div :class="[ 'content', horizontal ? 'horizontal' : 'vertical' ]">
       <!-- 未有TAB栏情况下多个条目，支持拖拽分割 -->
       <CodeLayoutGroupDraggerHost 
-        v-if="group.children.length > 0 && (!group.tabStyle || group.tabStyle === 'none' || group.tabStyle === 'single')"
+        v-if="group.children.length > 1 && (!group.tabStyle || group.tabStyle === 'none' || group.tabStyle === 'single')"
         :group="group"
         :horizontal="horizontal"
       >
@@ -80,7 +80,7 @@
       </CodeLayoutGroupDraggerHost>
       <!-- 有TAB栏情况下多个条目，支持拖拽分割 -->
       <CodeLayoutGroupDraggerHost 
-        v-else-if="group.activePanel && group.activePanel.children.length > 0"
+        v-else-if="group.activePanel && group.activePanel.children.length > 1"
         :group="group.activePanel"
         :horizontal="horizontal"
       >

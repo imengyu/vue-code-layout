@@ -24,12 +24,24 @@ export function getCurrentDragPanel() {
 
 export function usePanelDraggerRoot() {
   const dragPanelState = ref(false);
+
   provide('dragPanelState', dragPanelState);
+  provide('setDragPanelState', () => {
+    dragPanelState.value = true;
+    console.log('setDragPanelState');
+  });
+  provide('resetDragPanelState', () => {
+    dragPanelState.value = false;
+    console.log('resetDragPanelState');
+    
+  });
 }
 
 //拖拽开始函数封装
 export function usePanelDragger() {
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
+  const setDragPanelState = inject('setDragPanelState') as () => void;
+  const resetDragPanelState = inject('resetDragPanelState') as () => void;
   const layoutConfig = inject('codeLayoutConfig', undefined) as Ref<CodeLayoutConfig>|undefined;
   const cornerSize = 40;
   const dragSelfState = ref(false);
@@ -58,7 +70,7 @@ export function usePanelDragger() {
     currentDragPanel = panel;
     (ev.target as HTMLElement).classList.add("dragging");
     dragSelfState.value = true;
-    dragPanelState.value = true;
+    setDragPanelState();
     document.addEventListener('dragover', draggingMouseMoveHandler);
   }
   function handleDragEnd(ev: DragEvent) {
@@ -68,7 +80,7 @@ export function usePanelDragger() {
     }
     (ev.target as HTMLElement).classList.remove("dragging");
     dragSelfState.value = false;
-    dragPanelState.value = false;
+    resetDragPanelState();
     document.removeEventListener('dragover', draggingMouseMoveHandler);
   }
   return {
@@ -83,14 +95,19 @@ export function usePanelDragOverDetector(
   container: Ref<HTMLElement|undefined>,
   selfPanel: Ref<CodeLayoutPanelInternal>|undefined,
   horizontal: Ref<boolean>|'four'|'center',
-  focusPanel: () => void,
+  focusPanel: (dragPanel: CodeLayoutPanelInternal) => void,
   dragoverChecking?: ((dragPanel: CodeLayoutPanelInternal) => boolean)|undefined,
 ) {
   
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
+  const resetDragPanelState = inject('resetDragPanelState') as () => void;
   const dragEnterState = ref(false);
   const dragOverState = ref<CodeLayoutDragDropReferencePosition>('');
-  const focusTimer = createMiniTimeOut(600, focusPanel);
+  const focusTimer = createMiniTimeOut(600, () => {
+    const drag = getCurrentDragPanel();
+    if (drag != null)
+      focusPanel(drag);
+  });
   const delayLeaveTimer = createMiniTimeOut(200, () => {
     dragOverState.value = '';
   });
@@ -102,8 +119,7 @@ export function usePanelDragOverDetector(
       return;
 
     delayLeaveTimer.stop();
-
-      
+  
     //检查面板，必须存在面板，并且不能是自己或者自己的父级
     const panel = getCurrentDragPanel();
     // 如果是内部拖拽数据，则不应该让浏览器处理弹出窗口
@@ -195,6 +211,9 @@ export function usePanelDragOverDetector(
     dragEnterState.value = false;
     dragOverState.value = '';
   }
+  function resetDragState() {
+    resetDragPanelState();
+  }
 
   return {
     dragPanelState,
@@ -204,5 +223,6 @@ export function usePanelDragOverDetector(
     handleDragEnter,
     handleDragLeave,
     resetDragOverState,
+    resetDragState,
   }
 }

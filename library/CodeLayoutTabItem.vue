@@ -73,6 +73,7 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  resetDragState,
   resetDragOverState,
 } = usePanelDragOverDetector(
   container, panel, horizontal, 
@@ -88,6 +89,7 @@ function handleDrop(e: DragEvent) {
     context.dragDropToPanelNear(panel.value, dragOverState.value, dropPanel, 'tab-header');
   }
   resetDragOverState();
+  resetDragState();
 }
 
 //菜单处理

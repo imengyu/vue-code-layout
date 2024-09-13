@@ -94,6 +94,27 @@ export function usePanelMenuControl() {
         ] as MenuItem[] : []),
         ...(panel.parentGrid === 'secondarySideBar' ? [
           { 
+            label: t('activityBarPosition'),
+            divided: 'up',
+            children: [
+              { 
+                label: t('side'),
+                checked: layoutConfig.value.secondaryActivityBarPosition === 'side',
+                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'side';}
+              },
+              { 
+                label: t('top'),
+                checked: layoutConfig.value.secondaryActivityBarPosition === 'top',
+                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'top';}
+              },
+              { 
+                label: t('hidden'),
+                checked: layoutConfig.value.secondaryActivityBarPosition === 'hidden',
+                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'hidden';}
+              },
+            ]
+          },
+          { 
             label: layoutConfig.value.primarySideBarPosition === 'left' ? 
               t('moveSecondarySideBarLeft') : t('moveSecondarySideBarRight'),
             onClick() {

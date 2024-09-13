@@ -40,6 +40,7 @@ const {
   handleDragEnter,
   handleDragLeave,
   resetDragOverState,
+  resetDragState,
 } = usePanelDragOverDetector(
   container, panel, horizontal,
   () => {}, 
@@ -62,6 +63,7 @@ function handleDrop(e: DragEvent) {
       context.dragDropToGrid(props.grid, dropPanel);
   }
   resetDragOverState();
+  resetDragState();
 }
 
 </script>

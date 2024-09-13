@@ -1,7 +1,7 @@
 <template>
   <div 
     class="code-layout-collapse"
-    :draggable="!draggable"
+    :draggable="draggable"
     @dragstart="$emit('dragstart', $event)"
     @dragend="$emit('dragend', $event)"
   >

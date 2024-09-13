@@ -10,6 +10,10 @@ export default defineComponent({
     class: {
       type: String,
       default: '',
+    },
+    fallback: {
+      type: String,
+      default: null,
     }
   },
   render() {
@@ -17,7 +21,9 @@ export default defineComponent({
       return [ h('span', { class: this.class }, this.content) ];
     if (typeof this.content === 'function')
       return [ this.content() ];
-    return [];
+    if (this.fallback != null)
+      return [ h('span', { class: this.class }, this.fallback) ];
+    return []
   },
 })
 </script>

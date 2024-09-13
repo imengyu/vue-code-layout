@@ -91,13 +91,21 @@
         cursor: pointer;
 
         span {
+          display: block;
           pointer-events: none;
+          max-width: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         svg {
           pointer-events: none;
           fill: var(--code-layout-color-text-gray);
         }
 
+        .icon {
+          position: relative;
+          max-width: 100%;
+        }
         .badge {
           position: absolute;
           right: 5px;

@@ -140,5 +140,6 @@ function handleTabContentDrop(e: DragEvent) {
     );
   }
   tabContentDragOverDetector.resetDragOverState();
+  tabContentDragOverDetector.resetDragState();
 }
 </script>
