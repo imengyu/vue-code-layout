@@ -91,8 +91,8 @@ const horizontal = ref(false);
 
 function onTabClick(panel: CodeLayoutSplitNPanelInternal) {
   const oldActivePanel = grid.value.activePanel;
-  grid.value.setActiveChild(panel);
   emit('tabActive', panel, oldActivePanel);
+  grid.value.setActiveChild(panel);
 }
 
 const tabHeaderDragOverDetector = usePanelDragOverDetector(

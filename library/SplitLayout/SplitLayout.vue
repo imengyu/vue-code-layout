@@ -39,6 +39,7 @@ const emit = defineEmits([
   'panelContextMenu',
   'panelActive',
   'panelDrop',
+  'gridActive',
   'canLoadLayout',
   'canSaveLayout',
 ]);
@@ -70,12 +71,8 @@ const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
   panelInstances,
   removePanelInternal,
-  childGridActiveChildChanged: onChildGridActiveChildChanged,
-  closePanelInternal(panel) {
-    new Promise<void>((resolve, reject) => emit('panelClose', panel, resolve, reject))
-      .then(() => panel.parentGroup?.removePanel(panel))
-      .catch(() => { /*ignore*/ })
-  },
+  childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
+  closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
 }
 const rootGrid = ref(new CodeLayoutSplitNGridInternal(hosterContext));
 rootGrid.value.size = 100;
@@ -182,25 +179,43 @@ const instance = {
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);
 const context : CodeLayoutSplitLayoutContext = {
   currentActiveGrid: currentActiveGrid as Ref<CodeLayoutSplitNGridInternal|null>,
-  activeGrid(grid) { currentActiveGrid.value = grid; },
+  activeGrid(grid) { 
+    const old = currentActiveGrid.value;
+    if (old != grid) {
+      currentActiveGrid.value = grid;
+      context.currentActiveGrid.value = grid;
+      emit('gridActive', old, grid)
+    }
+  },
   dragDropToPanel,
 };
 
 usePanelDraggerRoot();
 
-function onTabActiveChild(old: CodeLayoutPanelInternal, panel: CodeLayoutPanelInternal) {
-  if (panel === context.currentActiveGrid.value) {
-    emit('panelActive', lastActivePanel.value, panel.activePanel);
-    lastActivePanel.value = panel.activePanel;
+function onTabActiveChild(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
+  const parent = panel.parentGroup as CodeLayoutSplitNGridInternal;
+  const oldGrid = currentActiveGrid.value;
+  if (oldGrid != parent) {
+    context.currentActiveGrid.value = parent;
+    parent.onActive?.(parent);
+    emit('gridActive', oldGrid, parent)
   }
 }
 
-function onChildGridActiveChildChanged(panel: CodeLayoutPanelInternal) {
-  if (panel === context.currentActiveGrid.value) {
-    emit('panelActive', lastActivePanel.value, panel.activePanel);
-    lastActivePanel.value = panel.activePanel;
+function onPanelClose(panel: CodeLayoutSplitNPanelInternal) {
+  return new Promise<void>((resolve, reject) => emit('panelClose', panel, resolve, reject))
+      .then(() => {
+        panel.parentGroup?.removePanel(panel);
+        panel.onClose?.(panel);
+      })
+      .catch(() => { /*ignore*/ })
+}
+
+function onChildGridActiveChildChanged(grid: CodeLayoutSplitNGridInternal) {
+  if (context.currentActiveGrid.value === grid) {
+    emit('panelActive', lastActivePanel.value, grid.activePanel);
+    lastActivePanel.value = grid.activePanel;
   } 
-  context.currentActiveGrid.value === panel.parentGroup;
 }
 
 let generatePanelNameCount = 0;

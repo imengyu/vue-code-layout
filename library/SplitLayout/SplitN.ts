@@ -9,20 +9,44 @@ export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
    * Default: false
    */
   canMinClose?: boolean;
+
+  /**
+   * Callback when canMinClose is set to true, and this panel visible was changed by user dragging.
+   */
+  onMinCloseChanged?: (grid: CodeLayoutSplitNGrid, visible: boolean) => void;
+  /**
+   * Callback when user actived this grid.
+   */
+  onActive?: (grid: CodeLayoutSplitNGrid) => void;
+  /**
+   * Callback when user changed activePanel.
+   */
+  onActivePanelChanged?: (grid: CodeLayoutSplitNGrid, panel: CodeLayoutSplitNPanel) => void;
 }
 export interface CodeLayoutSplitNPanel extends Omit<CodeLayoutPanel, 'visible'|'showBadge'|'tabStyle'|'noHide'|'startOpen'> {
+  /**
+   * Callback when user actived this panel.
+   */
+  onActive?: (grid: CodeLayoutSplitNPanel) => void;
+  /**
+   * Callback when user closed this panel.
+   */
+  onClose?: (grid: CodeLayoutSplitNPanel) => void;
 }
 
 
 /**
  * Panel type definition of SplitLayout.
  */
-export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal {
+export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal implements CodeLayoutSplitNPanel {
 
   public constructor(context: CodeLayoutPanelHosterContext) {
     super(context);
     this.open = true;
   }
+
+  onActive?: (grid: CodeLayoutSplitNPanel) => void;
+  onClose?: (grid: CodeLayoutSplitNPanel) => void;
 
   /**
    * Panel in SplitLayout always open, no need to call the open method.
@@ -47,7 +71,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal {
 export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal implements CodeLayoutSplitNGrid {
 
   public constructor(context: CodeLayoutPanelHosterContext) {
-    super('centerArea', 'text', context, () => {});
+    super('centerArea', 'text', context, () => {}, () => {});
     this.open = true;
   }
 
@@ -63,7 +87,6 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
    * Child grid of this grid.
    */
   childGrid : CodeLayoutSplitNGridInternal[] = [];
-
   //Public
 
   /**
@@ -149,6 +172,10 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     super.reselectActiveChild();
     this.context.childGridActiveChildChanged(this);
   }
+
+  onActive?: (grid: CodeLayoutSplitNGrid) => void;
+  onActivePanelChanged?: (grid: CodeLayoutSplitNGrid, panel: CodeLayoutSplitNPanel) => void;
+  onMinCloseChanged?: (grid: CodeLayoutSplitNGrid, visible: boolean) => void;
 
   //Internal
   //These methods is called internally, and you do not need to use them.

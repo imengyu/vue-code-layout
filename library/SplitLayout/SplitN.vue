@@ -136,7 +136,11 @@ function adjustAndReturnAdjustedSize(
   const panelSize = Math.max(minSize, targetSize);
 
   if (panel.canMinClose && minSize > 0) {
-    panel.visible = targetSize > minSize / 2;
+    const newValue = targetSize > minSize / 2;
+    if (newValue != panel.visible) {
+      panel.visible = newValue;
+      panel.onMinCloseChanged?.(panel, newValue);
+    }
     if (!panel.visible)
       visibleChangedSize += panelSize;
   }
