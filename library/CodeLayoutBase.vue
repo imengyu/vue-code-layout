@@ -102,6 +102,9 @@ function loadLayout() {
         size: inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth,
         minSize: inversePrimary ? config.primarySideBarMinWidth : config.secondarySideBarMinWidth,
         canMinClose: true,
+        onMinCloseChanged(grid, visible) {
+          inversePrimary ? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
+        },
       });
     }
     const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
@@ -111,6 +114,9 @@ function loadLayout() {
         size: inversePrimary ? config.secondarySideBarWidth : config.primarySideBarWidth,
         minSize: inversePrimary ? config.secondarySideBarMinWidth : config.primarySideBarMinWidth,
         canMinClose: true,
+        onMinCloseChanged(grid, visible) {
+          inversePrimary ? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
+        },
       });
     }
     const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
@@ -122,6 +128,9 @@ function loadLayout() {
         ),
         minSize: config.bottomPanelMinHeight,
         canMinClose: true,
+        onMinCloseChanged(grid, visible) {
+          config.bottomPanel = visible;
+        },
       });
       return currentBottom.value;
     }    
