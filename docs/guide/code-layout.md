@@ -516,7 +516,7 @@ if (data) {
 由于 CodeLayout 依赖菜单功能，所以菜单功能与CodeLayout集成，
 如果你的应用需要主菜单，可以参考以下示例快速配置主菜单，也可以通过 titleBarMenu 插槽自己渲染菜单。
 
-菜单基于 [vue3-context-menu](https://github.com/imengyu/vue3-context-menu) 组件实现，其中的配置请参考其[文档](https://imengyu.top/pages/vue3-context-menu-docs)。
+菜单基于 [vue3-context-menu](https://github.com/imengyu/vue3-context-menu) 组件实现，其中的配置请参考其[文档](https://docs.imengyu.top/vue3-context-menu-docs)。
 
 ```vue
 <template>

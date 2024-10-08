@@ -559,7 +559,7 @@ if (data) {
 Due to CodeLayout's dependence on menu functions, menu functions are integrated with CodeLayout,
 If your application requires a main menu, you can refer to the following examples to quickly configure the main menu, or you can render the menu yourself through the titleBarMenu slot.
 
-The menu is based on [vue3-context-menu](https://github.com/imengyu/vue3-context-menu), Please refer to its [documentation](https://imengyu.top/pages/vue3-context-menu-docs) for configuration.
+The menu is based on [vue3-context-menu](https://github.com/imengyu/vue3-context-menu), Please refer to its [documentation](https://docs.imengyu.top/vue3-context-menu-docs) for configuration.
 
 ```vue preview
 <template>
