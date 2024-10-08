@@ -8,7 +8,7 @@
       `drag-over-${dragOverState}`,
     ]"
     :title="panel.tooltip"
-    :draggable="true"
+    :draggable="panel.draggable"
     @dragstart="handleDragStart(panel, $event)"
     @dragend="handleDragEnd"
     @dragover="handleDragOver"

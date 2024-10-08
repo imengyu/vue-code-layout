@@ -360,6 +360,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   tooltip?: string;
   badge?: string|(() => VNode)|undefined;
   accept?: CodeLayoutGrid[];
+  draggable = true;
   preDropCheck?: (
     dropPanel: CodeLayoutPanel, 
     targetGrid: CodeLayoutGrid,
@@ -489,7 +490,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     this.activePanel = child;
   }
   /**
-   * Auto set activePanel.
+   * Auto select a visible panel as activePanel.
    */
   reselectActiveChild() {
     this.activePanel = this.children.find((p) => p.visible) || null;
@@ -763,6 +764,12 @@ export interface CodeLayoutPanel {
    * Show badge?
    */
   showBadge?: boolean;
+  /**
+   * Is this panel draggable?
+   * 
+   * Default is true.
+   */
+  draggable?: boolean; 
 
   /**
    * Set which grids the current panel can be dragged and dropped onto.

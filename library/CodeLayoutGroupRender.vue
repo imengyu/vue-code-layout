@@ -58,7 +58,7 @@
     <div 
       v-else-if="group.tabStyle === 'single' || !group.children || group.children.length == 0"
       class="title-bar"
-      :draggable="true"
+      :draggable="group.draggable"
       @dragstart="handleDragStart(group, $event)"
       @dragend="handleDragEnd"
       @contextmenu="onContextMenu(group, $event)"

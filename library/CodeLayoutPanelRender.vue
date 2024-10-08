@@ -38,7 +38,7 @@
     />
     <CodeLayoutCollapseTitle 
       v-if="!alone" 
-      :draggable="!resizeDragging"
+      :draggable="panel.draggable && !resizeDragging"
       :showIconSmall="horizontal && !open"
       :iconSmall="panel.iconSmall"
       :title="panel.title"

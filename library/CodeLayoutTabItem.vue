@@ -11,7 +11,7 @@
         dragEnterState ? 'drag-enter' : '',
         `drag-over-${dragOverState}`,
       ]"
-      :draggable="true"
+      :draggable="panel.draggable"
       @dragstart="handleDragStart(panel, $event)"
       @dragend="handleDragEnd"
       @dragover="handleDragOver"
