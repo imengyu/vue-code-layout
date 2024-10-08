@@ -4,6 +4,8 @@
       ref="splitLayoutRef"
       @panelClose="onPanelClose"
       @panelDrop="onPanelDrop"
+      @panelActive="onPanelActive"
+      @gridActive="onGridActive"
       @canLoadLayout="loadLayout"
       @canSaveLayout="saveLayout"
     >
@@ -39,7 +41,7 @@ import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
 import { ref, onMounted, nextTick, h, onBeforeUnmount } from 'vue';
-import type { CodeLayoutPanelInternal } from 'vue-code-layout';
+import type { CodeLayoutPanelInternal, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
 import { SplitLayout } from 'vue-code-layout';
 
@@ -117,6 +119,13 @@ function onResetAll() {
   loadLayout();
   emit('resetAll');
 }
+function onPanelActive(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
+  console.log('onPanelActive', old?.name ?? 'null', '->', panel?.name ?? 'null');
+}
+function onGridActive(old: CodeLayoutSplitNGridInternal, grid: CodeLayoutSplitNGridInternal) {
+  console.log('onGridActive', old?.name ?? 'null', '->', grid?.name ?? 'null');
+}
+
 
 function loadLayout() {
   if (splitLayoutRef.value) {
@@ -223,6 +232,8 @@ function saveLayout() {
   if (props.enableSave && splitLayoutRef.value) {
     localStorage.setItem('SplitLayoutDemoSaveData', JSON.stringify(splitLayoutRef.value.saveLayout()));
   }
+
+  splitLayoutRef.value?.getActiveGird()?.activePanel
 }
 
 onMounted(() => {

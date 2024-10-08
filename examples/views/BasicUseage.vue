@@ -376,6 +376,12 @@ function loadLayout() {
         tooltip: 'Right2',
         name: 'right2.right2',
       });
+      groupRight2.addPanel({
+        title: 'Right3 No drag',
+        tooltip: 'Right3',
+        name: 'right2.right3',
+        draggable: false,
+      });
 
       groupExplorer.addPanel({
         title: 'VUE-CODE-LAYOUT',
