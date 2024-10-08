@@ -18,6 +18,7 @@
 | panelContextMenu | 用户在面板上点击右键菜单时触发此事件 | `panel: CodeLayoutSplitNPanelInternal, event: MouseEvent` |
 | panelActive | 当用户点击激活面板时触发事件 | `lastActivePanel: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal` |
 | panelDrop | 当用户拖拽面板放置时触发事件 | `panel: CodeLayoutSplitNPanelInternal, referencePanel: CodeLayoutSplitNPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition` |
+| gridActive | 当用户点击激活网格时触发事件 | `lastActivePanel: CodeLayoutSplitNGridInternal, panel: CodeLayoutSplitNGridInternal` |
 | canLoadLayout | 组件加载时触发此事件，可在此事件中执行加载布局操作 | `ref: CodeLayoutSplitNInstance` |
 | canSaveLayout | 组件卸载时触发此事件，可在此事件中执行加载保存操作 | `ref: CodeLayoutSplitNInstance` |
 

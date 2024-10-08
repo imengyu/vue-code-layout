@@ -75,7 +75,7 @@
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty :panel="panels.primary" grid="primarySideBar">
-            <slot name="emptyGroup" :panel="panels.primary" drid="primarySideBar">{{ emptyText }}</slot>
+            <slot name="emptyGroup" :panel="panels.primary" grid="primarySideBar">{{ emptyText }}</slot>
           </CodeLayoutEmpty>
         </template>
       </CodeLayoutGroupRender>

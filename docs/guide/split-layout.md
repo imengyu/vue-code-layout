@@ -294,6 +294,23 @@ const grid1 = grid.addGrid({
 
 如果你不希望自己手动添加的面板被收缩掉，可以在创建面板时指定禁止收缩，这样当网格为空时，不会被移除，并且渲染时会调用 tabEmptyContentRender 插槽，你可以在此插槽中渲染自定义内容。
 
+### 获取当前激活的网格/面板
+
+你有时候需要获取当前激活的网格/面板，例如保存用户当前正在编辑的文件，你可以通过 `getActiveGird` 获取当前激活的网格。
+
+```ts
+const grid = splitLayoutRef.value?.getActiveGird();
+```
+
+获取网格后，可以访问实例上的 `activePanel` 获取当前激活的面板。如果你在面板上绑定了自己的编辑器上下文，就可以调用它。
+
+```ts
+const panel = grid?.activePanel;
+if (panel != null) {
+  panel.data.save(); //调用我的编辑器上下文中的保存方法
+}
+```
+
 ## 标记、图标、标题、自定义操作
 
 一个面板支持以下配置字段来控制一些信息的显示，它的显示位置如图所示：

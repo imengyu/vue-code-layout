@@ -35,10 +35,14 @@ nav:
 | titleBarMenu | 标题栏渲染主菜单位置 | - |
 | titleBarCenter | 标题栏中心位置 | - |
 | titleBarRight | 标题栏右侧位置 | - |
+| activityBarTopBar | 主活动栏顶部 | - |
 | activityBarBottom | 主活动栏底部 | - |
+| activityBarSecondaryTopBar | 副活动栏顶部 | - |
+| activityBarSecondarBottom | 副活动栏底部 | - |
 | emptyGroup | 空组渲染插槽 | `{ panel: CodeLayoutGridInternal }` |
 | centerArea | 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件 | - |
 | statusBar | 状态栏位置 | - |
+| emptyGroup | 自定义渲染空组内容 | `{ grid: CodeLayoutGrid }` |
 
 ## CodeLayoutInstance
 

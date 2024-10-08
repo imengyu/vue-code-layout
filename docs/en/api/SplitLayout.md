@@ -18,6 +18,7 @@ Split layout components in the file editor center.
 | panelContextMenu | Trigger this event when the user clicks on the panel | `panel: CodeLayoutSplitNPanelInternal, event: MouseEvent` |
 | panelActive | Trigger event when the user clicks to activate the panel | `lastActivePanel: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal` |
 | panelDrop | Trigger event when the user drags and drops the panel | `panel: CodeLayoutSplitNPanelInternal, referencePanel: CodeLayoutSplitNPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition` |
+| gridActive | Trigger event when the user clicks to activate the grid | `lastActivePanel: CodeLayoutSplitNGridInternal, panel: CodeLayoutSplitNGridInternal` |
 | canLoadLayout | This event is triggered when a component is loaded, and loading layout operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
 | canSaveLayout | This event is triggered when the component is unmount, and loading and saving operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
 

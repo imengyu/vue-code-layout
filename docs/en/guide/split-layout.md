@@ -307,6 +307,23 @@ const grid1 = grid.addGrid({
 });
 ```
 
+### Get user focused grid/panel
+
+Sometimes you need to retrieve the currently activated grid/panel, for example, to save a file that the user is currently editing, you can use `getActiveGird` to retrieve the currently activated grid.
+
+```ts
+const grid = splitLayoutRef.value?.getActiveGird();
+```
+
+After obtaining the grid, you can access the `activePanel` on the instance to retrieve the currently activated panel. If you bind your own editor context on the panel, you can call it.
+
+```ts
+const panel = grid?.activePanel;
+if (panel != null) {
+  panel.data.save(); //Call the save method in the context of my editor
+}
+```
+
 ## Badge, Icon, Title, Actions
 
 A panel supports the following configuration fields to control the display of some information, and its display position is shown in the figure:

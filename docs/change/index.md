@@ -5,6 +5,22 @@ nav:
   order: 5
 ---
 
+## v1.0.8 - 2024/10/08
+
+* [Add] 为每个面板添加 `draggable` 属性用于控制此面板是否可以拖动。
+* [Add] 为 SplitLayout 添加 `gridActive` 事件用于收到激活网格更改事件。
+* [Fix] 修复 CodeLayout 拖拽子边栏收缩后自定义布局按钮状态没有修改问题。
+* [Fix] 修复 SplitLayout 激活的面板事件触发不正确问题。
+* [Docs] 文档细节修改。
+
+---
+
+* [Add] Add the `draggable` attribute to each panel to control whether it can be dragged.
+* [Add] Add a `gridActive` event to SplitLayout to receive activation grid change events.
+* [Fix] Fixed the issue where the Customize layout button status was not change after the CodeLayout drag sidebar was shrunk.
+* [Fix] Fix the issue of incorrect triggering of `panelActive` event by SplitlLayout.
+* [Docs] Update Document.
+
 ## v1.0.7 - 2024/09/13
 
 * [Add] 第二侧边栏支持大侧栏模式和Tab模式切换 `secondarySideBarAsActivityBar` 。

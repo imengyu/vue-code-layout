@@ -28,10 +28,14 @@ Editor shell layout component.
 | titleBarMenu | Title bar rendering main menu position | - |
 | titleBarCenter | Title bar center position | - |
 | titleBarRight | Right position of title bar | - |
+| activityBarTopBar | At the btopottom of the main activity bar | - |
 | activityBarBottom | At the bottom of the main activity bar | - |
+| activityBarSecondaryTopBar | At the btopottom of the secondary activity bar | - |
+| activityBarSecondarBottom | At the bottom of the secondary activity bar | - |
 | emptyGroup | Empty group render slot | `{ panel: CodeLayoutGridInternal }` |
 | centerArea | Central area, where SliptLayout or other editor components can be placed | - |
 | statusBar | Status bar position | - |
+| emptyGroup | Customize rendering of empty group content | `{ grid: CodeLayoutGrid }` |
 
 ## CodeLayoutInstance
 
