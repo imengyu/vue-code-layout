@@ -20,7 +20,7 @@
       @drop="handleTabHeaderDrop"
     >
       <slot name="tabHeaderRender">
-        <div class="tabs">
+        <CodeLayoutScrollbar scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
           <slot
             v-for="(panel, index) in grid.children"
             :key="panel.name"
@@ -36,9 +36,10 @@
               @contextmenu="emit('tabItemContextMenu', panel, $event)"
             />
           </slot>
-        </div>
+          <slot name="tabHeaderEndRender" :grid="grid" />
+        </CodeLayoutScrollbar>
       </slot>
-      <div class="extra">
+      <div class="code-layout-split-tab-list-extra">
         <slot name="tabHeaderExtraRender" :grid="grid" />
         <CodeLayoutActionsRender v-if="grid.activePanel?.actions" :actions="grid.activePanel?.actions" />
       </div>
@@ -70,6 +71,7 @@ import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLa
 import SplitTabItem from './SplitTabItem.vue'
 import { getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
+import CodeLayoutScrollbar from '../Components/CodeLayoutScrollbar.vue';
 
 const props = defineProps({
   grid: {

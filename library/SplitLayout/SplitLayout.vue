@@ -16,6 +16,9 @@
           <template #tabHeaderExtraRender="params">
             <slot name="tabHeaderExtraRender" v-bind="params" />
           </template>
+          <template #tabHeaderEndRender="params">
+            <slot name="tabHeaderEndRender" v-bind="params" />
+          </template>
           <template #tabItemRender="params">
             <slot name="tabItemRender" v-bind="params" />
           </template>

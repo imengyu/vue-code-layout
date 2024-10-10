@@ -151,7 +151,6 @@
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
-  overflow-x: scroll;
   height: var(--tab-height);
   background-color: var(--tab-border-color);
 
@@ -166,25 +165,21 @@
     z-index: 0;
     background-color: var(--tab-border-color);
   }
-  &::-webkit-scrollbar{
-    display: none;
-  }
 
   &.drag-active {
     background-color: var(--code-layout-color-background-hover);
   }
 
-  > .tabs {
+  .code-layout-split-tab-list-tabs {
     display: inline-flex;
     align-items: center;
+    justify-content: flex-start;
     flex-wrap: nowrap;
-    position: relative;
-    overflow: hidden;
+    overflow: scroll;
+    overflow-y: hidden;
     transition: all ease-in-out 0.25s;
-    height: 100%;
 
     .item {
-      flex: 1;
       position: relative;
       display: inline-flex;
       padding: 0px 10px;
@@ -307,7 +302,7 @@
       }    
     }
   }
-  > .extra {
+  .code-layout-split-tab-list-extra {
     display: flex;
     flex-grow: 1;
     flex-shrink: 0;

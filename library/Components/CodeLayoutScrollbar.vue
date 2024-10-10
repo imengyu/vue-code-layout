@@ -1,8 +1,8 @@
 <template>
-  <div class="code-layout-scrollbar">
+  <div class="code-layout-scrollbar" @wheel="mouseWheel">
     <div 
       ref="container" 
-      :class="'scroll-content ' + scroll"
+      :class="'scroll-content ' + scroll + ' ' + containerClass"
       @scroll="calcScrollBarPosition"
     >
       <slot />
@@ -55,6 +55,13 @@ const props = defineProps({
   scrollBarSize: {
     type: Number,
     default: 8
+  },
+  /**
+   * CSS class of inner container
+   */
+  containerClass: {
+    type: String,
+    default: ''
   },
 })
 
@@ -139,6 +146,17 @@ function calcScroll(force = false) {
   lastCalcScrollScrollHeight = container.value.scrollHeight;
 }
 
+//只有横向滚动时，使鼠标可以直接滚动
+function mouseWheel(e: WheelEvent) {
+  if (props.scroll == 'horizontal') {
+    if (e.deltaMode == 0) {
+      container.value?.scrollTo({
+        left: container.value.scrollLeft + (e.deltaY > 0 ? 30 : -30),
+      });
+    }
+  }
+}
+
 //滚动条滚动处理
 let mouseDragDownThumbX = 0, mouseDragDownX = 0;
 let mouseDragDownThumbY = 0, mouseDragDownY = 0;
@@ -213,7 +231,8 @@ export interface CodeLayoutScrollbarInstance {
   getScrollContainer(): HTMLElement | undefined;
   /**
    * Scroll to position
-   * @param options 
+   * @param x X scroll pos (pixel)
+   * @param y Y scroll pos (pixel)
    */
   scrollTo(x: number, y: number): void;
   /**
