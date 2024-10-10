@@ -187,7 +187,7 @@ Manually trigger the closing operation of the current panel.
 
 Description:
 
-克隆当前面板并且向指定方向分割。通常用于文件编辑器需要分成两个窗口编辑时使用。
+Clone the current panel and split it in the specified direction. Usually used when a file editor needs to be split into two windows for editing.
 
 Param:
 
