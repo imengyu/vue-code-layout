@@ -347,6 +347,15 @@ function loadLayout() {
         iconLarge: () => h(IconFile),
       }, 'primarySideBar');
 
+      for (let index = 0; index < 8; index++) {
+        codeLayout.value.addGroup({
+          title: 'Test' + index,
+          tooltip:  'Test' + index,
+          name:  'test' + index,
+          iconLarge: () => h(IconFile),
+        }, 'primarySideBar');
+      }
+
       const bottomGroup = codeLayout.value.getRootGrid('bottomPanel');
 
       const groupRight1 = codeLayout.value.addGroup({

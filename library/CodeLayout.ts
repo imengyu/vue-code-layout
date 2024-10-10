@@ -386,7 +386,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * @param startOpen Is the sub panel in an open state
    * @returns Child panel instance
    */
-  addPanel(panel: CodeLayoutPanel, startOpen = false) {
+  addPanel(panel: CodeLayoutPanel, startOpen = false, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
     
     if (panelInternal.parentGroup)
@@ -401,7 +401,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
     panelResult.parentGrid = this.parentGrid;
-    this.addChild(panelResult as CodeLayoutPanelInternal);
+    this.addChild(panelResult as CodeLayoutPanelInternal, index);
   
     if (startOpen || panel.startOpen)
       panelResult.openPanel();

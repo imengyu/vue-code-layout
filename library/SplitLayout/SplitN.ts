@@ -1,4 +1,4 @@
-import { reactive, type Ref } from "vue";
+import { nextTick, reactive, type Ref } from "vue";
 import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition } from "../CodeLayout";
 
 
@@ -34,6 +34,9 @@ export interface CodeLayoutSplitNPanel extends Omit<CodeLayoutPanel, 'visible'|'
   onClose?: (grid: CodeLayoutSplitNPanel) => void;
 }
 
+export type CodeLayoutSplitCopyDirection = 'left'|'top'|'bottom'|'right';
+
+
 
 /**
  * Panel type definition of SplitLayout.
@@ -61,6 +64,134 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
    */
   closePanel(): void {
     this.context.closePanelInternal(this);
+  }
+
+  /**
+   * Copy this panel and split it
+   * @param direction Split direction
+   * @param instanceCb New panel instance callback, can modify params
+  */
+  splitCopy(direction: CodeLayoutSplitCopyDirection, instanceCb: (panel: CodeLayoutSplitNPanel) => CodeLayoutSplitNPanel) {
+    /**
+     * 向网格中添加面板
+     *    如果父级与目标方向一致，则直接添加
+     *    如果父级与目标方向不一致，则
+     *      分割当前网格，在下一级创建网格
+     *        一半是当前父级所有子面板
+     *        一半是新的面板
+     */
+     
+
+    const self = this;
+    const adjustGrid = this.parentGroup as CodeLayoutSplitNGridInternal;
+    const parentGrid = this.parentGroup?.parentGroup as CodeLayoutSplitNGridInternal;
+
+    if (!parentGrid)
+      throw new Error("No top grid!");
+
+    //创建相同方向的网格
+    function createSameSideGrid(prev = false) {
+      const newGrid = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      Object.assign(newGrid, {
+        ...adjustGrid,
+        direction: adjustGrid.direction,
+        name: adjustGrid.name + Math.floor(Math.random() * 10),
+        children: [],
+        childGrid: [],
+        size: 0,
+        noAutoShink: false,
+      });
+      parentGrid.addChildGrid(
+        newGrid, 
+        parentGrid.childGrid.indexOf(adjustGrid) + (prev ? -1 : 0)
+      );
+      return newGrid;
+    }
+    //创建垂直方向的网格
+    function createSubGrid(prev = false) {
+      //新网格上部，放之前的面板
+      const newGrid = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      Object.assign(newGrid, {
+        ...adjustGrid,
+        direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
+        name: adjustGrid.name + Math.floor(Math.random() * 10),
+        children: [],
+        childGrid: [],
+        size: 0,
+        noAutoShink: false,
+      });
+      newGrid.addChilds(adjustGrid.children);
+      newGrid.setActiveChild(self);
+      adjustGrid.children = [];
+      adjustGrid.childGrid = [];
+      adjustGrid.addChildGrid(newGrid);
+
+      //新网格，放新的面板
+      const newGridOther = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      Object.assign(newGridOther, {
+        ...adjustGrid,
+        direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
+        name: adjustGrid.name + Math.floor(Math.random() * 10),
+        children: [],
+        childGrid: [],
+        size: 0,
+        noAutoShink: false,
+      });
+      adjustGrid.addChildGrid(newGridOther, prev ? 0 : 1);
+      return newGridOther;
+    }
+
+    let newGrid: CodeLayoutSplitNGridInternal;
+    
+    switch (direction) {
+      case 'left': {
+        newGrid = adjustGrid.direction == 'horizontal' ? 
+          createSubGrid(true) : 
+          createSameSideGrid(true);
+        break;
+      }
+      case 'right': {
+        newGrid = adjustGrid.direction == 'horizontal' ? 
+          createSubGrid() : 
+          createSameSideGrid();
+        break;
+      }
+      case 'top': {
+        newGrid = adjustGrid.direction == 'vertical' ? 
+          createSubGrid(true) : 
+          createSameSideGrid(true);
+        break;
+      }
+      case 'bottom': {
+        newGrid = adjustGrid.direction == 'vertical' ? 
+          createSubGrid() : 
+          createSameSideGrid();
+        break;
+      }
+      default:
+        throw new Error('Unknow direction: ' + direction)
+    }
+    const newPanelDef : CodeLayoutSplitNPanel = {
+      title: this.title,
+      tooltip: this.tooltip,
+      name: this.name,
+      badge: this.badge,
+      draggable: this.draggable,
+      accept: this.accept,
+      size: this.size,
+      minSize: this.minSize,
+      iconLarge: this.iconLarge,
+      iconSmall: this.iconSmall,
+      closeType: this.closeType,
+    };
+    const newPanel = newGrid.addPanel(instanceCb(newPanelDef));
+    newGrid.setActiveChild(newPanel);
+    
+    nextTick(() => {
+      parentGrid.notifyRelayout();
+      adjustGrid.notifyRelayout();
+      newGrid.notifyRelayout();
+    });
   }
 }
 /**
@@ -124,7 +255,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     this.removeChildGrid(panelInternal);
     return grid;
   }
-  addPanel(panel: CodeLayoutSplitNPanel) {
+  addPanel(panel: CodeLayoutSplitNPanel, startOpen?: boolean, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
     
     if (panelInternal.parentGroup)
@@ -137,7 +268,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     panelResult.children = [];
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
-    this.addChild(panelResult as CodeLayoutSplitNPanelInternal);
+    this.addChild(panelResult as CodeLayoutSplitNPanelInternal, index);
     this.context.panelInstances.set(panelInternal.name, panelResult as CodeLayoutSplitNPanelInternal);
   
     return panelResult as CodeLayoutSplitNPanelInternal;

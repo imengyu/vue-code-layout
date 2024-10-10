@@ -181,6 +181,76 @@ Panel type definition of SplitLayout.
 
 手动触发当前面板的关闭操作。
 
+### `splitCopy(direction: CodeLayoutSplitCopyDirection, instanceCb: (panel: CodeLayoutSplitNPanel) => CodeLayoutSplitNPanel): void`
+
+说明：
+
+克隆当前面板并且向指定方向分割。通常用于文件编辑器需要分成两个窗口编辑时使用。
+
+参数：
+
+| 名称 | 描述 |
+| :----: | :----: |
+| direction | 分割方向 |
+| instanceCb | 实例化新面板回调 |
+
+例如，以下参考代码绑定在面板的右键菜单事件中，用户右键点击菜单项可以将选中的面板向四个方向克隆并分割。
+
+```ts
+function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+  
+  ContextMenuGlobal.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "Split Up",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('top', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Down",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('bottom', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Left",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('left', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Right",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('right', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+    ],
+  });
+}
+
+```
+
 ## CodeLayoutSplitNGridInternal
 
 Grid type definition of SplitLayout.
@@ -188,7 +258,7 @@ Grid type definition of SplitLayout.
 | 属性 | 描述 | 类型 | 默认值 |
 | :----: | :----: | :----: | :----: |
 | canMinClose | Set whether users can close the current panel by continuously shrinking it. | `boolean` | `false` |
-| direction | Layout direction. | `'vertical'│'horizontal'` | `'vertical'` |
+| direction | Layout direction. | `'vertical' or 'horizontal'` | `'vertical'` |
 | childGrid | Child grid of this grid. | `CodeLayoutSplitNGridInternal[]` | - |
 
 ### `addGrid(grid: CodeLayoutSplitNGrid): CodeLayoutSplitNPanelInternal`

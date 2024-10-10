@@ -177,6 +177,7 @@ const instance = {
     rootGrid.value.notifyRelayout();
   },
   saveLayout: () => rootGrid.value.toJson(),
+  
 } as CodeLayoutSplitNInstance;
 
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);

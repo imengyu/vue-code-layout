@@ -5,6 +5,7 @@
       @panelClose="onPanelClose"
       @panelDrop="onPanelDrop"
       @panelActive="onPanelActive"
+      @panelContextMenu="onPanelMenu"
       @gridActive="onGridActive"
       @canLoadLayout="loadLayout"
       @canSaveLayout="saveLayout"
@@ -28,6 +29,7 @@
       </template>
     </SplitLayout>
     <div v-if="showData" class="demo-pre">
+      <button @click="onPanelReset()">Reset All Panel</button>
       <button @click="onPanelDrop()">Refresh Panel Tree</button>
       <br>
       {{ debugGridTreeText }} 
@@ -44,6 +46,7 @@ import { ref, onMounted, nextTick, h, onBeforeUnmount } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
 import { SplitLayout } from 'vue-code-layout';
+import ContextMenuGlobal from '@imengyu/vue3-context-menu';
 
 const colors = [
   '#fb0',
@@ -107,6 +110,68 @@ function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
 }
 function onPanelDrop() {
   getDebugGridTreeText();
+}
+function onPanelReset() {
+  onResetAll();
+}
+function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  console.log('panel', panel);
+
+  ContextMenuGlobal.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "Menu of " + panel.name,
+        onClick: () => {
+          alert("You click a menu item");
+        }
+      },
+      {
+        label: "Split Up",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('top', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Down",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('bottom', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Left",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('left', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Right",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('right', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+    ],
+  });
 }
 
 function getDebugGridTreeText() {
@@ -177,7 +242,7 @@ function loadLayout() {
         canMinClose: true,
       });
 
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 8; i++) {
         count++;
         grid3.addPanel({
           title: `Panel${count}`,

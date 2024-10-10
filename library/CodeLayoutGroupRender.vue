@@ -274,6 +274,11 @@ defineExpose({
       align-items: center;
       flex-wrap: nowrap;
       flex-shrink: 1;
+
+      .OverflowItem {
+        position: relative;
+        padding: calc(var(--tab-top-padding) + 2px) var(--tab-padding) 0 var(--tab-padding);
+      }
     }
     .tab-item {
       position: relative;
