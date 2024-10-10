@@ -1,5 +1,7 @@
 # OverflowCollapseList
 
+![OverflowCollapseList](../images/OverflowCollapseList.gif)
+
 自动溢出计算折叠条目组件，用在 CodeLayout 的一系列按钮组中。导出方便你使用。
 
 ## Props

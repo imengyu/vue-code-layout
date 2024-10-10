@@ -5,6 +5,16 @@ nav:
   order: 5
 ---
 
+## v1.0.9 - 2024/10/10
+
+* [Add] 为 SplitLayout 每个面板添加了 `splitCopy` 用于实现分割编辑器的功能。
+* [Fix] 修复 SplitLayout 标签页过多时无法滚动问题（#7）。
+
+---
+
+* [Add] Added `splitCopy` to each panel of SplitlLayout to implement the functionality of a split editor.
+* [Fix] Fixed the issue of not being able to scroll when there are too many SplitLayout tabs (#7).
+
 ## v1.0.8 - 2024/10/08
 
 * [Add] 为每个面板添加 `draggable` 属性用于控制此面板是否可以拖动。

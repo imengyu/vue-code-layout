@@ -183,6 +183,76 @@ Description:
 
 Manually trigger the closing operation of the current panel.
 
+### `splitCopy(direction: CodeLayoutSplitCopyDirection, instanceCb: (panel: CodeLayoutSplitNPanel) => CodeLayoutSplitNPanel): void`
+
+Description:
+
+克隆当前面板并且向指定方向分割。通常用于文件编辑器需要分成两个窗口编辑时使用。
+
+Param:
+
+| Name | Description |
+| :----: | :----: |
+| direction | Split direction |
+| instanceCb | New panel instance callback, can modify params |
+
+For example, the following reference code is bound to the `panelContextMenu` event of the panel. Users can right-click on the menu item to clone and split the selected panel in four directions.
+
+```ts
+function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+  
+  ContextMenuGlobal.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "Split Up",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('top', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Down",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('bottom', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Left",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('left', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+      {
+        label: "Split Right",
+        onClick: () => {
+          (panel as CodeLayoutSplitNPanelInternal).splitCopy('right', (panel) => {
+            panel.name = panel.name + '.copy';
+            panel.title = panel.title + ' Clone';
+            return panel;
+          });
+        }
+      },
+    ],
+  });
+}
+
+```
+
 ## CodeLayoutSplitNGridInternal
 
 Grid type definition of SplitLayout.

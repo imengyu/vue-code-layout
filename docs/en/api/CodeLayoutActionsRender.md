@@ -1,5 +1,7 @@
 # CodeLayoutActionsRender
 
+![Preview](../../images/CodeLayoutActions.png)
+
 The operation button group component is used in the panel title bar of CodeLayout for additional panel operations. This component is exported here for your convenience.
 
 ## Props

@@ -346,6 +346,43 @@ grid2.addPanel({
 });
 ```
 
+## 面板菜单
+
+面板可以自定义用户右键点击时的菜单，通过 `panelContextMenu` 事件显示菜单。
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+    @panelContextMenu="onPanelMenu"
+  >
+    <!--省略其他代码-->
+  </SplitLayout>
+</template>
+
+<script setup lang="ts">
+//...省略其他代码
+
+function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+  //这里使用 vue3-context-menu 显示菜单，你也可以使用你自己喜欢的菜单库
+  ContextMenuGlobal.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "Menu of " + panel.name,
+        onClick: () => {
+          alert("You click a menu item");
+        }
+      },
+    ],
+  });
+}
+</script>
+```
+
 ## 保存与加载数据
 
 SplitLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。

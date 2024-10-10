@@ -1,5 +1,7 @@
 # OverflowCollapseList
 
+![OverflowCollapseList](../../images/OverflowCollapseList.gif)
+
 Automatic overflow calculation folding item component, used in a series of button groups in CodeLayout. Exporting is convenient for you to use.
 
 ## Props

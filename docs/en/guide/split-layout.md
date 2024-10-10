@@ -359,6 +359,43 @@ grid2.addPanel({
 });
 ```
 
+## Panel menu
+
+You can define contextmenu of a Panel, use `panelContextMenu` event callback to display your menu.
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+    @panelContextMenu="onPanelMenu"
+  >
+    <!--Other codes...-->
+  </SplitLayout>
+</template>
+
+<script setup lang="ts">
+//...Other codes
+
+function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+  e.stopPropagation();
+  e.preventDefault();
+  //Here i use vue3-context-menu library to show menu, you can use other menu library
+  ContextMenuGlobal.showContextMenu({
+    x: e.x,
+    y: e.y,
+    items: [
+      {
+        label: "Menu of " + panel.name,
+        onClick: () => {
+          alert("You click a menu item");
+        }
+      },
+    ],
+  });
+}
+</script>
+```
+
 ## Saving and Loading Data
 
 SplitLayout supports you to save user dragged layouts to JSON data, and then reload and restore the original layout from JSON data on the next entry.

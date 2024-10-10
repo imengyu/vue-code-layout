@@ -1,5 +1,7 @@
 # CodeLayoutActionsRender
 
+![Preview](../images/CodeLayoutActions.png)
+
 操作按钮组组件，这个组件用在 CodeLayout 的面板标题栏中，用于面板的额外操作，这里导出这个组件方便你使用。
 
 ## Props
