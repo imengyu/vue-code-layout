@@ -4,15 +4,19 @@
 
 推荐将 CodeLayout 置于顶级组件并设置宽高占满屏幕。
 
+::: warning
+本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
+:::
+
 要使用 CodeLayout ，有以下步骤：
 
 1. 需要[导入组件](./install.md#全局导入组件).
 2. 定义基础布局数据：基础布局数据控制了几个主要部分的大小、位置、是否显示等等状态。
 3. 定义插槽与内容：在组件中，内容是以“面板”为单位来组织的，所以需要添加面板数据，然后在插槽中渲染。
 
-例如：
+例如，下方是一个最简单的示例：
 
-```vue
+```vue preview
 <template>
   <CodeLayout 
     ref="codeLayout"
@@ -31,14 +35,14 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, nextTick, h } from 'vue';
-//import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig } from 'vue-code-layout';
+import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig } from 'vue-code-layout';
 import IconFile from '../../examples/assets/icons/IconFile.vue';
 import IconSearch from '../../examples/assets/icons/IconSearch.vue';
 
 //2. 定义布局的基础定义，这些数据控制了
 //几个主要部分的大小、位置、是否显示等等状态
 const config = reactive<CodeLayoutConfig>({
-  //...defaultCodeLayoutConfig,
+  ...defaultCodeLayoutConfig,
   primarySideBarSwitchWithActivityBar: true,
   primarySideBarPosition: 'left',
   primarySideBarWidth: 40,
@@ -330,7 +334,18 @@ const groupExplorer = codeLayout.value.addGroup({
 
 要对这个操作进行限制，你可以使用一下方法：
 
-1. 通过 `accept` 限制面板可以放置的根组，例如下方的面板过设置 accept 限制了面板仅可以放置在 底栏 根组。
+* 设置某个面板不可拖拽。
+
+  ```ts
+  bottomGroup.addPanel({
+    title: 'PORTS',
+    tooltip: 'Ports',
+    name: 'bottom.ports',
+    draggable: false, //禁止拖拽
+  });
+  ```
+
+* 通过 `accept` 限制面板可以放置的根组，例如下方的面板过设置 accept 限制了面板仅可以放置在 底栏 根组。
 
   ```ts
   bottomGroup.addPanel({
@@ -343,7 +358,7 @@ const groupExplorer = codeLayout.value.addGroup({
   });
   ```
 
-2. 通过自定义回调自由处理
+* 通过自定义回调自由处理
 
     可以在基础配置中设置拖拽回调，在回调中返回false表示阻止拖拽。
 
@@ -439,7 +454,7 @@ const config = reactive<CodeLayoutConfig>({
 });
 ```
 
-布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以加载布局数据需要调用实例上的 loadLayout 方法，根据面板名称实例化面板。
+布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以你还需要在 loadLayout 的回调，根据面板名称填充这些数据，以实例化面板。
 
 ```ts
 const data = localStorage.getItem('LayoutData');
@@ -645,4 +660,6 @@ CodeLayout 还提供了一些插槽供您使用：
 
 这时Vue可能会将你的组件卸载重新创建，组件状态会丢失，所以你需要处理自己的组件，在卸载时保存相关状态。
 
-**提示：**在开发模式下，当你修改了代码后，HMR重载可能会将 CodeLayout 也卸载，如果您仅在onMounted回调中插入面板，则这时是不会重新再触发的，所以组件内面板数据会丢失，要解决这个问题，可以把原来在onMounted回调中插入面板的逻辑移至 CodeLayout 的 canLoadLayout 事件回调中，即可重新创建数据。
+::: tip
+**提示：** 在开发模式下，当你修改了代码后，HMR重载可能会将 CodeLayout 也卸载，如果您仅在onMounted回调中插入面板，则这时是不会重新再触发的，所以组件内面板数据会丢失，要解决这个问题，可以把原来在onMounted回调中插入面板的逻辑移至 CodeLayout 的 canLoadLayout 事件回调中，即可重新创建数据。
+:::

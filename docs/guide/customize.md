@@ -5,7 +5,7 @@ order: 5
 
 # 自定义样式
 
-如果你觉得默认样式不好看，想修改掉它，还可以覆盖默认css样式，所有的css样式定义都在[源代码/Base.scss](https://github.com/imengyu/vue-code-layout/blob/main/library/Scss/Base.scss) 中。你可以将所有样式复制出来，按需修改，存放在你的文件中。然后在导入的地方覆盖默认样式：
+如果你觉得默认样式不好看，想修改掉它，还可以覆盖默认css样式，所有的css样式定义都在[源代码/Base.scss](https://github.com/imengyu/vue-code-layout/blob/master/library/Scss/Base.scss) 中。你可以将所有样式复制出来，按需修改，存放在你的文件中。然后在导入的地方覆盖默认样式：
 
 ```js
 import 'vue-code-layout/lib/vue-code-layout.css'

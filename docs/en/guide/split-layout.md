@@ -4,6 +4,10 @@
 
 It is recommended to place `SplitLayout` in the top-level component or `CodeLayout`'s `centerArea` slot and set the width and height to fill the screen.
 
+::: warning
+This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
+:::
+
 To use SplitLayout, there are the following steps:
 
 1. [Import Components](./install.md#global-import-components).
@@ -173,7 +177,7 @@ h2 {
 
 Definition:
 
-* **Grid**：A grid is a container that can contain multiple panels, composed in Tab mode, but can only have one displayed panel at the same time; Alternatively, it can be a parent panel that contains sub grids divided in different directions. The parent panel has two layout directions, horizontal and vertical. The layout direction is only used for sub grids, and the sub panels are displayed in Tab mode.
+* **Grid**：A grid is a container that can contain multiple panels, composed in Tab mode, but can only have one displayed panel at the same time; Alternatively, it can be a parent grid that contains sub grids divided in different directions. It has two layout directions, horizontal and vertical.
 * **Panel**：Panel, the content is organized in units of "panels", and the panel is the basic unit that ultimately allows you to render the content. Users can drag and close each panel.
 
 You can add your panels to the components, or obtain panel instances for corresponding operations.
@@ -324,6 +328,10 @@ if (panel != null) {
 }
 ```
 
+::: tip
+You can listen to the `gridActive` event of SplitLayout to obtain the user's latest activated grid.
+:::
+
 ## Badge, Icon, Title, Actions
 
 A panel supports the following configuration fields to control the display of some information, and its display position is shown in the figure:
@@ -396,6 +404,69 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 </script>
 ```
 
+## Customize render Tab header
+
+### Tab header
+
+Split Layout supports custom rendering tab buttons, allowing you to customize rendering of a certain part or all parts.
+You can use the `tabItemRender` slot to render tab entries, which allows for the entire overlay rendering.
+
+If you only need to customize certain parts of the rendering, you can import the default tab component `SplitTabItem`, which supports the functionality of default tabs but also allows you to customize a certain part of them.
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+  >
+    <!--Other codes...-->
+
+    <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+      <SplitTabItem 
+        :panel="(panel as CodeLayoutSplitNPanelInternal)"
+        :active="active"
+        @click="onTabClick"
+        @contextmenu="onContextMenu($event)"
+      >
+        <template #title>
+          <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
+        </template>
+        <template #icon>
+          <MyIcon />
+        </template>
+        <template #badge>
+          <span class="badge">99+</span>
+        </template>
+        <template #close>
+          <MyCloseIcon />
+        </template>
+      </SplitTabItem>
+    </template>
+  </SplitLayout>
+</template>
+
+<script setup lang="ts">
+import { SplitLayout, SplitTabItem } from 'vue-code-layout';
+//...Other codes...
+</script>
+```
+
+### Tab tail
+
+You can use the `tabHeaderExtraRender` slot to render the tail area of a tab, for example, the example below adds a 'Add Panel' button at the end of the tab.
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+  >
+    <!--Other codes...-->
+    <template #tabHeaderExtraRender="{ grid }">
+      <button @click="onAddPanel(grid)">+ 添加面板</button>
+    </template>
+  </SplitLayout>
+</template>
+```
+
 ## Saving and Loading Data
 
 SplitLayout supports you to save user dragged layouts to JSON data, and then reload and restore the original layout from JSON data on the next entry.
@@ -442,7 +513,7 @@ localStorage.setItem('SplitLayoutData', json);
 
 ### Load data
 
-Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). Therefore, loading layout data requires calling the `loadLayout` method on the instance to instantiate the panel based on its name.
+Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). So you also need to fill in these data based on the panel name in the callback of loadLayout to instantiated the panel.
 
 ```ts
 const data = localStorage.getItem('SplitLayoutData');

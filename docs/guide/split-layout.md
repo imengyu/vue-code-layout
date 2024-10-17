@@ -4,12 +4,16 @@
 
 推荐将 SplitLayout 置于顶级组件或者 CodeLayout 的 centerArea 插槽并设置宽高占满屏幕。
 
+::: warning
+本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
+:::
+
 要使用 SplitLayout ，有以下步骤：
 
 1. 需要[导入组件](./install.md#全局导入组件).
 2. 定义插槽与内容：在组件中，内容是以“面板”为单位来组织的，所以需要添加面板数据，然后在插槽中渲染。
 
-例如：
+例如，下方是一个最简单的示例：
 
 ```vue preview
 <template>
@@ -311,6 +315,10 @@ if (panel != null) {
 }
 ```
 
+::: tip
+可以监听 SplitLayout 的 `gridActive` 事件来获取用户最新激活的面板。
+:::
+
 ## 标记、图标、标题、自定义操作
 
 一个面板支持以下配置字段来控制一些信息的显示，它的显示位置如图所示：
@@ -383,6 +391,71 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 </script>
 ```
 
+## 自定义渲染面板头
+
+### 自定义标签页头部
+
+SplitLayout 支持自定义渲染标签页按钮，你可以自定义渲染某个部分，或者是全部自定义渲染。
+
+您可以使用 `tabItemRender` 插槽渲染标签页条目，该插槽允许整个覆盖渲染。
+
+如果只需要自定义渲染某些部分，可以导入默认的标签页组件 `SplitTabItem`，它支持默认标签页的功能，但同时也允许你自定义
+其中的某一部分。
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+  >
+    <!--省略其他代码-->
+
+    <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+      <SplitTabItem 
+        :panel="(panel as CodeLayoutSplitNPanelInternal)"
+        :active="active"
+        @click="onTabClick"
+        @contextmenu="onContextMenu($event)"
+      >
+        <template #title>
+          <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
+        </template>
+        <template #icon>
+          <MyIcon />
+        </template>
+        <template #badge>
+          <span class="badge">99+</span>
+        </template>
+        <template #close>
+          <MyCloseIcon />
+        </template>
+      </SplitTabItem>
+    </template>
+  </SplitLayout>
+</template>
+
+<script setup lang="ts">
+import { SplitLayout, SplitTabItem } from 'vue-code-layout';
+//...省略其他代码
+</script>
+```
+
+### 自定义标签页尾部
+
+您可以使用 `tabHeaderExtraRender` 插槽渲染标签页尾部区域，例如，下方的示例在标签页尾部增加了一个“添加面板”的按钮。
+
+```vue
+<template>
+  <SplitLayout
+    ref="splitLayoutRef"
+  >
+    <!--省略其他代码-->
+    <template #tabHeaderExtraRender="{ grid }">
+      <button @click="onAddPanel(grid)">+ 添加面板</button>
+    </template>
+  </SplitLayout>
+</template>
+```
+
 ## 保存与加载数据
 
 SplitLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。
@@ -429,7 +502,7 @@ localStorage.setItem('SplitLayoutData', json);
 
 ### 加载数据
 
-布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以加载布局数据需要调用实例上的 loadLayout 方法，根据面板名称实例化面板。
+布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以你还需要在 loadLayout 的回调，根据面板名称填充这些数据，以实例化面板。
 
 ```ts
 const data = localStorage.getItem('SplitLayoutData');

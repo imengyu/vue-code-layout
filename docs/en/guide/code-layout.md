@@ -4,6 +4,10 @@
 
 It is recommended to place CodeLayout at the top-level component and set the width and height to fill the screen.
 
+::: warning
+This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
+:::
+
 To use CodeLayout, there are the following steps:
 
 1. [Import Component](./install.md#global-import-components).
@@ -372,6 +376,17 @@ const groupExplorer = codeLayout.value.addGroup({
 By default, all panels can be dragged and dropped from one root group to another.
 To restrict this operation, you can use the following methods:
 
+* Set a panel to be non draggable.
+
+  ```ts
+  bottomGroup.addPanel({
+    title: 'PORTS',
+    tooltip: 'Ports',
+    name: 'bottom.ports',
+    draggable: false, //No dragging allowed
+  });
+  ```
+
 1. By using `accept` to limit the root groups that panels can be placed in, for example, the panel below is set to accept, which limits the panel to only be placed in the bottom panel root group.
 
   ```ts
@@ -482,7 +497,7 @@ const config = reactive<CodeLayoutConfig>({
 });
 ```
 
-Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). Therefore, loading layout data requires calling the `loadLayout` method on the instance to instantiate the panel based on its name.
+Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). So you also need to fill in these data based on the panel name in the callback of loadLayout to instantiated the panel.
 
 ```ts
 const data = localStorage.getItem('LayoutData');
@@ -561,7 +576,7 @@ If your application requires a main menu, you can refer to the following example
 
 The menu is based on [vue3-context-menu](https://github.com/imengyu/vue3-context-menu), Please refer to its [documentation](https://docs.imengyu.top/vue3-context-menu-docs) for configuration.
 
-```vue preview
+```vue
 <template>
   <CodeLayout 
     ref="codeLayout"
@@ -688,4 +703,6 @@ Tip: Vue may unmont and recreate your components in the following two situations
 
 At this point, Vue may unmont and recreate your component, causing the component state to be lost. Therefore, you need to handle your own component and save the relevant state.
 
+::: tip
 **Tip:** In development mode, when you modify the code, HMR overloading may also unmount `CodeLayout`. If you only add panels in the `onMounted` callback, it will not be triggered again, so panel data within the component will be lost. To solve this problem, you can move the logic of add panels in the `onMounted` callback to the `canLoadLayout` event callback in `CodeLayout` to recreate the data.
+:::

@@ -5,8 +5,12 @@ import 'vitepress-plugin-sandpack/dist/style.css';
 
 export default {
   ...DefaultTheme,
-  enhanceApp(ctx) {
+  async enhanceApp(ctx) {
     DefaultTheme.enhanceApp(ctx);
+    if (!import.meta.env.SSR) {
+      const plugin = await import('../../../library')
+      ctx.app.use(plugin.default)
+    }
     ctx.app.component('Sandbox', Sandbox);
     ctx.app.component('MySandbox', MySandbox);
   },

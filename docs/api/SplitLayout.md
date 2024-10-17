@@ -29,7 +29,7 @@
 | tabContentRender | 面板内容渲染插槽 | `{ panel: CodeLayoutSplitNPanelInternal }` |
 | tabEmptyContentRender | 当不收缩网格没有子面板时的渲染插槽 | `{ grid: CodeLayoutSplitNGridInternal }` |
 | tabHeaderExtraRender | TAB头部额外区域渲染插槽 | `{ grid: CodeLayoutSplitNGridInternal }` |
-| tabItemRender | TAB标签的自定义渲染 | `{ index: number, panel: CodeLayoutSplitNPanelInternal, active: boolean }` |
+| tabItemRender | TAB标签的自定义渲染 | `{ index: number, panel: CodeLayoutSplitNPanelInternal, active: boolean, onTabClick: () => void, onContextMenu: (e: MouseEvent) => void }` |
 | tabRender | 自定义TAB渲染，通常你不需要自定义 | `{ grid: CodeLayoutSplitNGridInternal }` |
 | gridRender | 当 `showTabHeader` 为 `false` 时，仅支持网格分割不支持面板与拖拽功能，在此插槽中自己渲染内容 | `{ grid: CodeLayoutSplitNGridInternal }` |
 
@@ -159,7 +159,7 @@ if (data) {
 
 ## CodeLayoutSplitNPanelInternal
 
-Panel type definition of SplitLayout.
+面板实例。
 
 | 属性 | 描述 | 类型 | 默认值 |
 | :----: | :----: | :----: | :----: |
@@ -253,7 +253,7 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 ## CodeLayoutSplitNGridInternal
 
-Grid type definition of SplitLayout.
+网格数据实例。
 
 | 属性 | 描述 | 类型 | 默认值 |
 | :----: | :----: | :----: | :----: |

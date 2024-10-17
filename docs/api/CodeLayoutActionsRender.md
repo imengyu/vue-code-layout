@@ -12,11 +12,11 @@
 
 ## CodeLayoutActionButton
 
-Panel Action button Type Definition.
+操作按钮数据定义。
 
 | 属性 | 描述 | 类型 | 默认值 |
 | :----: | :----: | :----: | :----: |
-| render | 自己渲染这个按钮的全部内容 | `() => VNode` | - |
+| render | 自己渲染这个按钮的全部内容，使用后下方的属性无效 | `() => VNode` | - |
 | icon | 渲染按钮的图标 | `() => VNode` | - |
 | text | 按钮的文字 | `string` | - |
 | tooltip | 按钮的鼠标悬浮提示文字 | `string` | - |

@@ -5,6 +5,11 @@ nav:
   order: 5
 ---
 
+## v1.1.0 - 2024/10/17
+
+* [Add] 为 SplitLayout 添加了自定义渲染标签页功能。
+* [Docs] 文档细节修改。
+
 ## v1.0.9 - 2024/10/10
 
 * [Add] 为 SplitLayout 每个面板添加了 `splitCopy` 用于实现分割编辑器的功能。

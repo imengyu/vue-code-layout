@@ -5,7 +5,11 @@ order: 2
 
 # Introduce
 
-Tip: This component is not a wrapper of the original VScode component, but a re implemented component in Vue, so its functionality may differ from the original VScode.
+::: info
+Tip: This component library is not packaging the original VScode code, but is a component re implemented on Vue based on the original functionality, so the functionality may differ from the original VScode logic.
+
+If this component library missing some features, you can submit an issue on Github.
+::: 
 
 ## CodeLayout
 

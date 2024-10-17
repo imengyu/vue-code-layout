@@ -260,6 +260,7 @@ Due to the use of the same data instance for groups and panels, some properties 
 | iconLarge | Large icon of panel (usually displayed in the activity bar) | `() => VNode` | - |
 | resizeable | Set user can resize this panel. | `boolean` | `true` |
 | visible | Show panel? | `boolean` | `true` |
+| draggable | Specify whether the current panel allows dragging | `boolean` | `true` |
 | showBadge | Specify whether the current panel's badge is displayed | `boolean` | `true` |
 | size | The size of the current panel (in pixels), specified as 0 when created, will be automatically allocated by the component | `number` | 0 |
 | parentGroup | Parent grid instance of this panel. | `CodeLayoutPanelInternal` | - |

@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitepress';
 import { renderSandbox } from 'vitepress-plugin-sandpack';
+import MarkdownPreview, { } from 'vite-plugin-markdown-preview'
 import container from 'markdown-it-container';
+import { resolve } from 'path';
 
 export default defineConfig({
   base: '/vue-code-layout-docs/',
@@ -58,6 +60,7 @@ export default defineConfig({
             { text: 'CodeLayout', link: '/en/api/CodeLayout' },
             { text: 'SplitLayout', link: '/en/api/SplitLayout' },
             { text: 'SplitN', link: '/en/api/SplitN' },
+            { text: 'SplitTabItem', link: '/en/api/SplitTabItem' },
             { text: 'CodeLayoutScrollbar', link: '/en/api/CodeLayoutScrollbar' },
             { text: 'CodeLayoutActionsRender', link: '/en/api/CodeLayoutActionsRender' },
             { text: 'CodeLayoutCustomizeLayout', link: '/en/api/CodeLayoutCustomizeLayout' },
@@ -118,6 +121,7 @@ export default defineConfig({
             { text: 'CodeLayout', link: '/api/CodeLayout' },
             { text: 'SplitLayout', link: '/api/SplitLayout' },
             { text: 'SplitN', link: '/api/SplitN' },
+            { text: 'SplitTabItem', link: '/api/SplitTabItem' },
             { text: 'CodeLayoutScrollbar', link: '/api/CodeLayoutScrollbar' },
             { text: 'CodeLayoutActionsRender', link: '/api/CodeLayoutActionsRender' },
             { text: 'CodeLayoutCustomizeLayout', link: '/api/CodeLayoutCustomizeLayout' },
@@ -130,6 +134,17 @@ export default defineConfig({
       provider: 'local'
     },
   },  
+  vite: {
+    plugins: [ MarkdownPreview() as any ],
+    ssr: {
+      noExternal: ['@imengyu/vue3-context-menu','vue']
+    },
+    resolve: {
+      alias: {
+        'vue-code-layout': resolve(__dirname, '../../library')
+      },
+    },
+  },
   markdown: {
     config(md) {
       md

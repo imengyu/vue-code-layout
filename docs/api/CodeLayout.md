@@ -268,6 +268,7 @@ const config = reactive<CodeLayoutConfig>({
 | resizeable | 指定当前面板是否可以调整大小 | `boolean` | `true` |
 | visible | 指定当前面板是否显示 | `boolean` | `true` |
 | showBadge | 指定当前面板的标记（badge）是否显示 | `boolean` | `true` |
+| draggable | 指定当前面板是否允许拖拽 | `boolean` | `true` |
 | size | 当前面板的大小（像素），创建时指定为0将由组件自动分配大小 | `number` | 0 |
 | parentGroup | 获取当前面板的父级组 | `CodeLayoutPanelInternal` | - |
 | parentGrid | 获取当前面板所属的顶级组 | `CodeLayoutGrid` | - |
