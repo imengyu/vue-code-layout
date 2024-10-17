@@ -32,17 +32,19 @@
       </div>
 
       <!-- base area -->
-      <SplitLayout 
-        ref="splitLayoutRef"
-        rootGridType="rootGrid"
-        :showTabHeader="false"
-        @canLoadLayout="loadLayout"
-        @canSaveLayout="saveGridLayoutDataToConfig"
-      >
-        <template #gridRender="{ grid }">
-          <slot :name="grid.name" />
-        </template>
-      </SplitLayout>
+      <div class="code-layout-inner-0">
+        <SplitLayout 
+          ref="splitLayoutRef"
+          rootGridType="rootGrid"
+          :showTabHeader="false"
+          @canLoadLayout="loadLayout"
+          @canSaveLayout="saveGridLayoutDataToConfig"
+        >
+          <template #gridRender="{ grid }">
+            <slot :name="grid.name" />
+          </template>
+        </SplitLayout>
+      </div>
       
       <!--activity bar (right)-->
       <div 

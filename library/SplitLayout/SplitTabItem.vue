@@ -18,23 +18,33 @@
     @click="emit('click')"
   >
     <!-- icon and title -->
-    <span class="icon"> 
-      <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge" />
-    </span>
-    <span class="title">{{ panel.title }}</span>
-    <span v-if="panel.badge" class="badge">
-      <CodeLayoutVNodeStringRender :content="panel.badge" />
-    </span>
+    <slot name="icon">
+      <span class="icon"> 
+        <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge" />
+      </span>
+    </slot>
+
+    <slot name="title">
+      <span class="title">{{ panel.title }}</span>
+    </slot>
+
+    <slot name="badge">
+      <span v-if="panel.badge" class="badge">
+        <CodeLayoutVNodeStringRender :content="panel.badge" />
+      </span>
+    </slot>
 
     <!-- close -->
-    <span 
-      v-if="panel.closeType !== 'none'"
-      class="close"
-      @click.stop="panel.closePanel()"
-    >
-      <IconClose v-if="panel.closeType === 'close'" class="close-icon" />
-      <IconDot v-if="panel.closeType === 'unSave'" class="unsave-dot" />
-    </span>
+    <slot name="close">
+      <span 
+        v-if="panel.closeType !== 'none'"
+        class="close"
+        @click.stop="panel.closePanel()"
+      >
+        <IconClose v-if="panel.closeType === 'close'" class="close-icon" />
+        <IconDot v-if="panel.closeType === 'unSave'" class="unsave-dot" />
+      </span>
+    </slot>
   </div>
 </template>
 

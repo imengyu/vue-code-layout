@@ -27,6 +27,18 @@
       <template #tabHeaderExtraRender="{ grid }">
         <button @click="onAddPanel(grid)">+ Add Panel</button>
       </template>
+      <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+        <SplitTabItem 
+          :panel="(panel as CodeLayoutSplitNPanelInternal)"
+          :active="active"
+          @click="onTabClick"
+          @contextmenu="onContextMenu($event)"
+        >
+          <template #title>
+            <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
+          </template>
+        </SplitTabItem>
+      </template>
     </SplitLayout>
     <div v-if="showData" class="demo-pre">
       <button @click="onPanelReset()">Reset All Panel</button>
@@ -45,7 +57,7 @@ import IconFile from '../assets/icons/IconFile.vue';
 import { ref, onMounted, nextTick, h, onBeforeUnmount } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
-import { SplitLayout } from 'vue-code-layout';
+import { SplitLayout, SplitTabItem } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
 
 const colors = [

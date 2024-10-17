@@ -20,6 +20,7 @@ import OverflowCollapseList from './Components/OverflowCollapseList.vue'
 import SimpleTooltip from './Components/SimpleTooltip.vue'
 import SplitLayout from './SplitLayout/SplitLayout.vue'
 import SplitTab from './SplitLayout/SplitTab.vue'
+import SplitTabItem from './SplitLayout/SplitTabItem.vue'
 import SplitN from './SplitLayout/SplitN.vue'
 
 export {
@@ -33,6 +34,7 @@ export {
   SimpleTooltip,
   SplitLayout,
   SplitTab,
+  SplitTabItem,
   SplitN,
 }
 

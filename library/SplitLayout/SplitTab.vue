@@ -27,12 +27,14 @@
             :panel="panel" 
             :index="index"
             :active="panel === grid.activePanel"
+            :onTabClick="() => onTabClick(panel as CodeLayoutSplitNPanelInternal)"
+            :onContextMenu="(e: MouseEvent) => emit('tabItemContextMenu', panel, e)"
             name="tabItemRender" 
           >
             <SplitTabItem 
-              :panel="panel"
+              :panel="(panel as CodeLayoutSplitNPanelInternal)"
               :active="panel === grid.activePanel"
-              @click="onTabClick(panel)"
+              @click="onTabClick(panel as CodeLayoutSplitNPanelInternal)"
               @contextmenu="emit('tabItemContextMenu', panel, $event)"
             />
           </slot>
