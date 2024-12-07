@@ -5,6 +5,15 @@ nav:
   order: 5
 ---
 
+## v1.1.1 - 2024/12/07
+
+* [Change] 为导出包增加了 es 模块定义。。
+* [Change] 更新 vue3-context-menu 至最新。
+
+---
+
+* [Change] Add es module and update vue3-context-menu.
+
 ## v1.1.0 - 2024/10/17
 
 * [Add] 为 SplitLayout 添加了自定义渲染标签页功能。
