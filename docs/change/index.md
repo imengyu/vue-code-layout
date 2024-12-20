@@ -5,6 +5,14 @@ nav:
   order: 5
 ---
 
+## v1.1.2 - 2024/12/20
+
+* [Add] 增加回调事件允许处理拖拽进入组件的非面板数据。
+
+---
+
+* [Add] Adding callback events allows handling non panel data dragged into components.
+
 ## v1.1.1 - 2024/12/07
 
 * [Change] 为导出包增加了 es 模块定义。。

@@ -126,7 +126,7 @@ const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
-  bottomPanelMaximize: false
+  bottomPanelMaximize: false,
 };
 const config = reactive<CodeLayoutConfig>({
   ...defaultCodeLayoutConfig,
@@ -140,6 +140,17 @@ const config = reactive<CodeLayoutConfig>({
       return false;
     }
     return false
+  },
+  onNonPanelDrag(e, sourcePosition) {
+    e.preventDefault();
+    //如果用户拖拽进入的是文件，则允许
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+      return true;
+    return false;
+  },
+  onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
+    //处理放置事件
+    console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
   },
 });
 

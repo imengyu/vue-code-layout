@@ -239,6 +239,8 @@ const config = reactive<CodeLayoutConfig>({
 | onGridFirstDrop | 当用户拖拽面板至一个组时，触发此回调，可以自定义修改最终加入组的面板数据 | `(grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal` | - |
 | onNoAutoShinkTabGroup | 当设置了不收缩的TAB组尝试收缩时，会触发此回调 | `(group: CodeLayoutPanelInternal) => void` | - |
 | onNoAutoShinkNormalGroup | 当设置了不收缩的普通组尝试收缩时，会触发此回调 | `(group: CodeLayoutPanelInternal) => void` | - |
+| onNonPanelDrag | 当用户将非面板数据拖动到组件中时，会触发此回调。您可以在此处检查是否允许拖动。 | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean` | - |
+| onNonPanelDrop | 当用户将非面板数据拖放入组件时，会触发此回调。 | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal︱undefined, referencePosition: CodeLayoutDragDropReferencePosition︱undefined) => void` | - |
 
 ## CodeLayoutLangConfig
 

@@ -2,6 +2,7 @@
   <div class="full-container demo">
     <SplitLayout
       ref="splitLayoutRef"
+      :layoutConfig="config"
       @panelClose="onPanelClose"
       @panelDrop="onPanelDrop"
       @panelActive="onPanelActive"
@@ -54,10 +55,10 @@ import IconSearch from '../assets/icons/IconSearch.vue';
 import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
-import { ref, onMounted, nextTick, h, onBeforeUnmount } from 'vue';
-import type { CodeLayoutPanelInternal, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
+import { ref, onMounted, nextTick, h, onBeforeUnmount, reactive } from 'vue';
+import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
-import { SplitLayout, SplitTabItem } from 'vue-code-layout';
+import { defaultSplitLayoutConfig, SplitLayout, SplitTabItem } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
 
 const colors = [
@@ -101,6 +102,21 @@ function getRandomIcon() {
 
 const debugGridTreeText = ref('');
 const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
+
+const config = reactive<CodeLayoutSplitNConfig>({
+  ...defaultSplitLayoutConfig,
+  onNonPanelDrag(e, sourcePosition) {
+    e.preventDefault();
+    //如果用户拖拽进入的是文件，则允许
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+      return true;
+    return false;
+  },
+  onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
+    //处理放置事件
+    console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
+  },
+});
 
 let count = 0;
 

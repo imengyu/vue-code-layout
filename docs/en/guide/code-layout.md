@@ -373,6 +373,8 @@ const groupExplorer = codeLayout.value.addGroup({
 
 ## Drag control
 
+### Panel drag control
+
 By default, all panels can be dragged and dropped from one root group to another.
 To restrict this operation, you can use the following methods:
 
@@ -421,6 +423,36 @@ To restrict this operation, you can use the following methods:
       },
     });
     ```
+
+### Custom data drag and drop control
+
+You can handle non panel data dragged into components, such as users dragging a file into component.
+
+You can handle it in the `onNonPanelDrop` and `onNonPanelDrop` events of `layoutConfig`, where:
+
+* `onNonPanelDrop` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
+* `onNonPanelDrop` is a drop callback that can perform drop operations within it. At the same time, the panel instance and reference position placed by the current user will be passed in.
+
+::: tip
+The component will not prevent the default browser behavior. For example, to open a dragged file, please call `e.preventDefault()` in the check callback to prevent the default browser behavior.
+:::
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...defaultCodeLayoutConfig,
+  onNonPanelDrag(e, sourcePosition) {
+    e.preventDefault();
+    //If the user drags in a file, it is allowed
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+      return true;
+    return false;
+  },
+  onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
+    //Handling drag events
+    console.log('User drop', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
+  },
+});
+```
 
 ## Saving and Loading Data
 

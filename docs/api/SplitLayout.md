@@ -9,6 +9,7 @@
 | saveBeforeUnload | 是否应该在 `window.beforeunload` 时触发 `canSaveLayout` 事件 | `boolean` | `true` |
 | showTabHeader | 是否显示TAB分组组件，当为 `true` 时，支持一个网格多个子面板，应该在tabContentRender插槽中渲染组件；当为 `false` 时，仅支持网格分割不支持面板与拖拽功能，应该在gridRender中自己渲染内容。 | `boolean` | `true` |
 | rootGridType | 指定根网格的类型，通常用于在多个组件中设置不同的类型以限制互相拖拽 | `CodeLayoutGrid` | `'centerArea'` |
+| layoutConfig | 基础布局数据 | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
 
 ## Events
 
@@ -32,6 +33,15 @@
 | tabItemRender | TAB标签的自定义渲染 | `{ index: number, panel: CodeLayoutSplitNPanelInternal, active: boolean, onTabClick: () => void, onContextMenu: (e: MouseEvent) => void }` |
 | tabRender | 自定义TAB渲染，通常你不需要自定义 | `{ grid: CodeLayoutSplitNGridInternal }` |
 | gridRender | 当 `showTabHeader` 为 `false` 时，仅支持网格分割不支持面板与拖拽功能，在此插槽中自己渲染内容 | `{ grid: CodeLayoutSplitNGridInternal }` |
+
+## CodeLayoutSplitNConfig
+
+组件的额外配置类。
+
+| 属性 | 描述 | 类型 | 默认值 |
+| :----: | :----: | :----: | :----: |
+| onNonPanelDrag | 当用户将非面板数据拖动到组件中时，会触发此回调。您可以在此处检查是否允许拖动。 | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean` | - |
+| onNonPanelDrop | 当用户将非面板数据拖放入组件时，会触发此回调。 | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal︱undefined, referencePosition: CodeLayoutDragDropReferencePosition︱undefined) => void` | - |
 
 ## CodeLayoutSplitNInstance
 

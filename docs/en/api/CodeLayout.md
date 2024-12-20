@@ -232,6 +232,8 @@ const config = reactive<CodeLayoutConfig>({
 | onGridFirstDrop | When the user drags a panel to a group, this callback is triggered to customize and modify the panel data that will eventually be added to the group | `(grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => CodeLayoutPanelInternal` | - |
 | onNoAutoShinkTabGroup | When a non shrinking TAB group is set to attempt to shrink, this callback will be triggered | `(group: CodeLayoutPanelInternal) => void` | - |
 | onNoAutoShinkNormalGroup | This callback is triggered when a regular group that is set to not shrink attempts to shrink | `(group: CodeLayoutPanelInternal) => void` | - |
+| onNonPanelDrag | This callback is triggered when  user drag a non-panel data into component. You can check here whether dragging is allowed or not. | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean` | - |
+| onNonPanelDrop | This callback is triggered when user drop a non-panel data into component.  | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal︱undefined, referencePosition: CodeLayoutDragDropReferencePosition︱undefined) => void` | - |
 
 ## CodeLayoutLangConfig
 

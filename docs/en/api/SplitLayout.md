@@ -9,6 +9,7 @@ Split layout components in the file editor center.
 | saveBeforeUnload | Should the canSaveLayout event be triggered when window. beforeupload | `boolean` | `true` |
 | showTabHeader | Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender. | `boolean` | `true` |
 | rootGridType | Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging | `CodeLayoutGrid` | `'centerArea'` |
+| layoutConfig | SplitLayout other config | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
 
 ## Events
 
@@ -32,6 +33,15 @@ Split layout components in the file editor center.
 | tabItemRender | Custom rendering of Tab item | `{ index: number, panel: CodeLayoutSplitNPanelInternal, active: boolean }` |
 | tabRender | Custom Tab component rendering, usually you don't need to customize | `{ grid: CodeLayoutSplitNGridInternal }` |
 | gridRender | When `showTabHeader` is `false`, render the content in this slot yourself | `{ grid: CodeLayoutSplitNGridInternal }` |
+
+## CodeLayoutSplitNConfig
+
+SplitLayout other config.
+
+| Property | Description | Type | Default |
+| :----: | :----: | :----: | :----: |
+| onNonPanelDrag | This callback is triggered when  user drag a non-panel data into component. You can check here whether dragging is allowed or not. | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean` | - |
+| onNonPanelDrop | This callback is triggered when user drop a non-panel data into component.  | `(e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal︱undefined, referencePosition: CodeLayoutDragDropReferencePosition︱undefined) => void` | - |
 
 ## CodeLayoutSplitNInstance
 

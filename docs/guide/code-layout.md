@@ -330,6 +330,8 @@ const groupExplorer = codeLayout.value.addGroup({
 
 ## 拖拽控制
 
+### 面板拖拽控制
+
 默认情况下所有面板都可以互相拖拽，可以从一个根组拖拽至另一个根组。
 
 要对这个操作进行限制，你可以使用一下方法：
@@ -379,6 +381,36 @@ const groupExplorer = codeLayout.value.addGroup({
       },
     });
     ```
+
+### 自定义数据拖拽控制
+
+你可以处理拖拽到组件中的非面板数据，例如用户将一个文件拖拽进入组件的某些位置。
+
+你可以在 `layoutConfig` 的 `onNonPanelDrop` 和 `onNonPanelDrop` 事件中处理，其中 ：
+
+* `onNonPanelDrop` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
+* `onNonPanelDrop` 为放置回调，可以在其中中执行放置操作。同时会传入当前用户放置的面板实例和参考位置。
+
+::: tip
+组件不会阻止默认浏览器行为，例如将拖拽进入的文件打开，请在检查回调中调用 `e.preventDefault()` 来阻止浏览器的默认行为。
+:::
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...defaultCodeLayoutConfig,
+  onNonPanelDrag(e, sourcePosition) {
+    e.preventDefault();
+    //如果用户拖拽进入的是文件，则允许
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+      return true;
+    return false;
+  },
+  onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
+    //处理放置事件
+    console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
+  },
+});
+```
 
 ## 保存与加载数据
 
