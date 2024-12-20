@@ -562,11 +562,13 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragOverState,
   resetDragState,
 } = usePanelDragOverDetector(
   container, group, horizontal, 
   () => {},
+  (e) => context.dragDropNonPanel(e, false, 'empty'),
   (dragPanel) => {
     return (
       group.value.lastLayoutSizeCounter < group.value.lastRelayoutSize //仅容器有空白区域时才有效
@@ -590,6 +592,12 @@ function handleDrop(e: DragEvent) {
         'empty'
       );
     }
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const reference = group.value.getLastChildOrSelf();
+    context.dragDropNonPanel(e, true, 'empty', reference, 'right');
   }
   resetDragOverState();
   resetDragState();

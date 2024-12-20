@@ -1,5 +1,5 @@
 import { nextTick, reactive, type Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition } from "../CodeLayout";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType } from "../CodeLayout";
 
 
 export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
@@ -369,6 +369,32 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
 }
 
 /**
+ * Default SplitLayout config
+ */
+export const defaultSplitLayoutConfig : CodeLayoutSplitNConfig = {
+
+};
+
+/**
+ * SplitLayout other config
+ */
+export interface CodeLayoutSplitNConfig {
+  /**
+   * This callback is triggered when  user drag a non-panel data into component. You can check here whether dragging is allowed or not.
+   * @param e Raw DragEvent
+   * @returns Return true allows drop, false prevent drop.
+   */
+  onNonPanelDrag?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean;
+  /**
+   * This callback is triggered when user drop a non-panel data into component. 
+   * @param e Raw DragEvent
+   * @param reference Drop source panel.
+   * @param referencePosition Drop source position.
+   */
+  onNonPanelDrop?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal|undefined, referencePosition: CodeLayoutDragDropReferencePosition|undefined) => void;
+}
+
+/**
  * Instance of SplitLayout.
  * 
  * Can use like this:
@@ -429,4 +455,5 @@ export interface CodeLayoutSplitLayoutContext {
   currentActiveGrid: Ref<CodeLayoutSplitNGridInternal|null>,
   activeGrid(grid: CodeLayoutSplitNGridInternal) : void;
   dragDropToPanel(referencePanel: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panel: CodeLayoutPanelInternal, toTab?: boolean) : void;
+  dragDropNonPanel(e: DragEvent, isDrop: boolean, sourcePosition: CodeLayoutDragDropReferenceAreaType, referencePanel?: CodeLayoutPanelInternal, referencePosition?: CodeLayoutDragDropReferencePosition): boolean;
 }

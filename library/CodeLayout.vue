@@ -130,7 +130,7 @@ import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
 import { usePanelDraggerRoot } from './Composeable/DragDrop';
-import type { CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
+import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
@@ -286,6 +286,14 @@ const codeLayoutInstance : CodeLayoutInstance = {
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
   dragDropToPanelNear,
+  dragDropNonPanel(e, isDrop, sourcePosition, reference, referencePosition) {
+    if (isDrop) {
+      props.layoutConfig.onNonPanelDrop?.(e, sourcePosition, reference, referencePosition);
+      return false;
+    } else {
+      return props.layoutConfig.onNonPanelDrag?.(e, sourcePosition) ?? false;
+    }
+  },
   relayoutTopGridProp(grid, visible) {
     const _layoutConfig = props.layoutConfig;
     switch (grid) {
@@ -359,7 +367,7 @@ function dragDropToPanelNear(
   reference: CodeLayoutPanelInternal,
   referencePosition: CodeLayoutDragDropReferencePosition, 
   panel: CodeLayoutPanelInternal, 
-  dropTo: 'normal'|'empty'|'tab-header'|'activiy-bar'
+  dropTo: CodeLayoutDragDropReferenceAreaType
 ) {
   const userCancel = layoutConfig.value.onDropToPanel?.(reference, referencePosition, panel, dropTo) ?? false;
   if (userCancel)

@@ -147,7 +147,7 @@ export interface CodeLayoutConfig {
     reference: CodeLayoutPanelInternal,
     referencePosition: CodeLayoutDragDropReferencePosition, 
     panel: CodeLayoutPanelInternal, 
-    dropTo: 'normal'|'empty'|'tab-header'|'activiy-bar'
+    dropTo: CodeLayoutDragDropReferenceAreaType
   ) => boolean;
   /**
    * When the user drags a panel to a group, this callback is triggered to customize and modify the panel data that will eventually be added to the group
@@ -161,6 +161,19 @@ export interface CodeLayoutConfig {
    * This callback is triggered when a regular group that is set to not shrink attempts to shrink
    */
   onNoAutoShinkNormalGroup?: (group: CodeLayoutPanelInternal) => void,
+  /**
+   * This callback is triggered when  user drag a non-panel data into component. You can check here whether dragging is allowed or not.
+   * @param e Raw DragEvent
+   * @returns Return true allows drop, false prevent drop.
+   */
+  onNonPanelDrag?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType) => boolean;
+  /**
+   * This callback is triggered when user drop a non-panel data into component. 
+   * @param e Raw DragEvent
+   * @param reference Drop source panel.
+   * @param referencePosition Drop source position.
+   */
+  onNonPanelDrop?: (e: DragEvent, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference: CodeLayoutPanelInternal|undefined, referencePosition: CodeLayoutDragDropReferencePosition|undefined) => void;
 }
 /**
  * Language Layout Definition
@@ -904,7 +917,16 @@ export interface CodeLayoutActionButton {
 }
 
 //运行时类型定义
+
+/**
+ * Drop source postition Definition
+ */
 export type CodeLayoutDragDropReferencePosition = ''|'up'|'down'|'left'|'right'|'center'|'';
+
+/**
+ * Drop source area Definition
+ */
+export type CodeLayoutDragDropReferenceAreaType = 'normal'|'empty'|'tab-header'|'tab-content'|'activiy-bar';
 
 export interface CodeLayoutContext {
   dragDropToGrid: (grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) => void,
@@ -912,8 +934,9 @@ export interface CodeLayoutContext {
     reference: CodeLayoutPanelInternal, 
     referencePosition: CodeLayoutDragDropReferencePosition, 
     panel: CodeLayoutPanelInternal, 
-    dropTo: 'normal'|'empty'|'tab-header'|'activiy-bar',
-  ) => void,
+    dropTo: CodeLayoutDragDropReferenceAreaType,
+  ) => void, 
+  dragDropNonPanel(e: DragEvent, isDrop: boolean, sourcePosition: CodeLayoutDragDropReferenceAreaType, reference?: CodeLayoutPanelInternal, referencePosition?: CodeLayoutDragDropReferencePosition, ): boolean;
   relayoutTopGridProp: (grid: CodeLayoutGrid, visible: boolean) => void,
   instance: CodeLayoutInstance;
 }

@@ -31,8 +31,8 @@
 
 <script setup lang="ts">
 import { ref, provide, type Ref, type PropType, watch, onMounted, nextTick, onBeforeUnmount } from 'vue';
-import type { CodeLayoutPanelInternal, CodeLayoutPanelHosterContext, CodeLayoutGrid, CodeLayoutDragDropReferencePosition } from '../CodeLayout';
-import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal } from './SplitN';
+import { type CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutGrid, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig } from '../CodeLayout';
+import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { usePanelDraggerRoot } from '../Composeable/DragDrop';
@@ -67,6 +67,13 @@ const props = defineProps({
   saveBeforeUnload: {
     type: Boolean,
     default: true,
+  },
+  /**
+   * Base layout config
+   */
+  layoutConfig: {
+    type: Object as PropType<CodeLayoutSplitNConfig>,
+    default: () => defaultSplitLayoutConfig
   },
 })
 
@@ -192,6 +199,14 @@ const context : CodeLayoutSplitLayoutContext = {
     }
   },
   dragDropToPanel,
+  dragDropNonPanel(e, isDrop, sourcePosition, reference, referencePosition) {
+    if (isDrop) {
+      props.layoutConfig.onNonPanelDrop?.(e, sourcePosition, reference, referencePosition);
+      return false;
+    } else {
+      return props.layoutConfig.onNonPanelDrag?.(e, sourcePosition) ?? false;
+    }
+  },
 };
 
 usePanelDraggerRoot();

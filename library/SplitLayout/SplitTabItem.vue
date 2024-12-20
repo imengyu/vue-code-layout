@@ -84,11 +84,13 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragOverState,
   resetDragState,
 } = usePanelDragOverDetector(
   container, panel, horizontal, 
   () => emit('click'),
+  (e) => context.dragDropNonPanel(e, false, 'tab-header'),
   (dragPanel) => checkDropPanelDefault(dragPanel, panel.value, dragOverState)
 );
 
@@ -102,6 +104,11 @@ function handleDrop(e: DragEvent) {
       dragOverState.value, 
       dropPanel,
       true
+    );
+  } else if (handleDropPreCheck(e)) {
+    context.dragDropNonPanel(
+      e, true, 'tab-header', 
+      panel.value, dragOverState.value
     );
   }
   resetDragOverState();

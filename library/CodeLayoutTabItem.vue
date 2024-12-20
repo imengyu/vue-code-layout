@@ -73,11 +73,13 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragState,
   resetDragOverState,
 } = usePanelDragOverDetector(
   container, panel, horizontal, 
   () => emit('focusSelf'),
+  (e) => context.dragDropNonPanel(e, false, 'tab-header'),
   (dragPanel) => checkDropPanelDefault(dragPanel, panel.value, dragOverState)
 );
 
@@ -87,6 +89,10 @@ function handleDrop(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanelNear(panel.value, dragOverState.value, dropPanel, 'tab-header');
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'tab-header', panel.value, dragOverState.value);
   }
   resetDragOverState();
   resetDragState();

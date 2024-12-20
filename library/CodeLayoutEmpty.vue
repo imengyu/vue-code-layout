@@ -39,11 +39,13 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragOverState,
   resetDragState,
 } = usePanelDragOverDetector(
   container, panel, horizontal,
   () => {}, 
+  (e) => context.dragDropNonPanel(e, false, 'empty'),
   (dragPanel) => {
     return (
       (!dragPanel.accept || dragPanel.accept.includes(props.grid))
@@ -61,6 +63,10 @@ function handleDrop(e: DragEvent) {
       context.dragDropToPanelNear(props.panel, 'right', dropPanel, 'empty');
     else
       context.dragDropToGrid(props.grid, dropPanel);
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'empty', props.panel, 'right');
   }
   resetDragOverState();
   resetDragState();

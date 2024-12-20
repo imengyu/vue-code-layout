@@ -77,6 +77,7 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragOverState,
   resetDragState,
 } = usePanelDragOverDetector(
@@ -87,6 +88,7 @@ const {
       return;
     emit('activeItem')
   },
+  (e) => context.dragDropNonPanel(e, false, 'activiy-bar'),
   (dragPanel) => checkDropPanelDefault(dragPanel, item.value, dragOverState)
 );
 
@@ -96,6 +98,10 @@ function handleDrop(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanelNear(item.value, dragOverState.value, dropPanel, 'activiy-bar');
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'activiy-bar', item.value, dragOverState.value);
   }
   resetDragOverState();
   resetDragState();

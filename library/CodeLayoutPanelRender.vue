@@ -158,11 +158,13 @@ const {
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
+  handleDropPreCheck,
   resetDragOverState,
   resetDragState,
 } = usePanelDragOverDetector(
   element, panel, horizontal,
   () => {},
+  (e) => context.dragDropNonPanel(e, false, 'normal'),
   (dragPanel) => checkDropPanelDefault(dragPanel, panel.value, dragOverState)
 );
 
@@ -172,6 +174,10 @@ function handleDrop(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanelNear(panel.value, dragOverState.value, dropPanel, 'normal');
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'normal', panel.value, dragOverState.value);
   }
   resetDragOverState();
   resetDragState();

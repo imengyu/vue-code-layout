@@ -32,8 +32,7 @@ export function usePanelDraggerRoot() {
   });
   provide('resetDragPanelState', () => {
     dragPanelState.value = false;
-    console.log('resetDragPanelState');
-    
+    //console.log('resetDragPanelState');
   });
 }
 
@@ -96,6 +95,7 @@ export function usePanelDragOverDetector(
   selfPanel: Ref<CodeLayoutPanelInternal>|undefined,
   horizontal: Ref<boolean>|'four'|'center',
   focusPanel: (dragPanel: CodeLayoutPanelInternal) => void,
+  dragCustomHandler: (e: DragEvent) => boolean,
   dragoverChecking?: ((dragPanel: CodeLayoutPanelInternal) => boolean)|undefined,
 ) {
   
@@ -126,16 +126,19 @@ export function usePanelDragOverDetector(
     if (panel)
       e.preventDefault();
     if (
-      panel
-      && selfPanel && panel !== selfPanel.value 
-      && !panel.children.includes(selfPanel.value)
-      && (!dragoverChecking || dragoverChecking(panel))
+      (
+        panel
+        && selfPanel && panel !== selfPanel.value 
+        && !panel.children.includes(selfPanel.value)
+        && (!dragoverChecking || dragoverChecking(panel))
+      )
+      || dragCustomHandler(e)
     ) {
-      if (!container.value)
-        return;
-
       e.stopPropagation();
       e.dataTransfer.dropEffect = 'copy';
+
+      if (!container.value)
+        return;
 
       if (horizontal === 'four') {
         const posX = (e.x - currentDropBaseScreenPosX);
@@ -219,6 +222,9 @@ export function usePanelDragOverDetector(
     dragPanelState,
     dragEnterState,
     dragOverState,
+    handleDropPreCheck(e: DragEvent) {
+      return dragCustomHandler(e);
+    },
     handleDragOver,
     handleDragEnter,
     handleDragLeave,

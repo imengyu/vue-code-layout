@@ -102,6 +102,7 @@ function onTabClick(panel: CodeLayoutSplitNPanelInternal) {
 const tabHeaderDragOverDetector = usePanelDragOverDetector(
   tabScroll, grid, horizontal,
   () => {}, 
+  (e) => context.dragDropNonPanel(e, false, 'tab-header'),
   (dragPanel) => {
     return (
       (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
@@ -116,6 +117,8 @@ function handleTabHeaderDrop(e: DragEvent) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanel(props.grid, 'center', dropPanel, true);
+  } else if (tabHeaderDragOverDetector.handleDropPreCheck(e)) {
+    context.dragDropNonPanel(e, true, 'tab-header', props.grid, 'center');
   }
   tabHeaderDragOverDetector.resetDragOverState();
 }
@@ -123,6 +126,7 @@ function handleTabHeaderDrop(e: DragEvent) {
 const tabContentDragOverDetector = usePanelDragOverDetector(
   tabContent, grid, 'four',
   () => {}, 
+  (e) => context.dragDropNonPanel(e, false, 'tab-content'),
   (dragPanel) => {
     return (
       (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
@@ -141,6 +145,12 @@ function handleTabContentDrop(e: DragEvent) {
       grid.value, 
       tabContentDragOverDetector.dragOverState.value, 
       dropPanel
+    );
+  } else if (tabContentDragOverDetector.handleDropPreCheck(e)) {
+    context.dragDropNonPanel(
+      e, true, 'tab-content', 
+      grid.value, 
+      tabContentDragOverDetector.dragOverState.value
     );
   }
   tabContentDragOverDetector.resetDragOverState();
