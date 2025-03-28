@@ -38,8 +38,8 @@ html, body, #app {
 
   .test-host {
     margin-top: 10px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 0;
+    margin-right: 0;
     height: 86vh;
   }
   .test-top {

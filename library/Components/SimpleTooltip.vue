@@ -7,11 +7,24 @@
         ref="tooltip"
         :class="'code-layout-tooltip ' + arrowDirection"
         :style="{
-          left: `${positionX}px`,
-          top: `${positionY}px`,
+          left: `${positionX + positionXOffset}px`,
+          top: `${positionY + positionYOffset}px`,
         }"
       >
         {{ content }}
+
+        <div class="arrow1" 
+          :style="{
+            marginLeft: `${-positionXOffset}px`,
+            marginTop: `${-positionYOffset}px`,
+          }"
+        />
+        <div class="arrow2" 
+          :style="{
+            marginLeft: `${-positionXOffset}px`,
+            marginTop: `${-positionYOffset}px`,
+          }"
+        />
       </div>
     </Teleport>
   </span>
@@ -71,6 +84,8 @@ const container = ref<HTMLElement>();
 const tooltip = ref<HTMLElement>();
 const positionX = ref(0);
 const positionY = ref(0);
+const positionXOffset = ref(0);
+const positionYOffset = ref(0);
 const arrowDirection = ref('');
 const show = ref(false);
 
@@ -114,15 +129,18 @@ function onChildLeave() {
 function calcTooltipPosition() {
   positionX.value = 0;
   positionY.value = 0;
+  positionXOffset.value = 0;
+  positionYOffset.value = 0;
   nextTick(() => {
     const child = getChildEle();
-    if (!child || !tooltip.value) 
+    const teleport = document.querySelector(props.teleport) as HTMLElement;
+    if (!child || !tooltip.value || !teleport) 
       return;
 
     let direction = props.direction;
 
-    const eleLeft = HtmlUtils.getLeft(child);
-    const eleTop = HtmlUtils.getTop(child);
+    const eleLeft = HtmlUtils.getLeft(child, teleport);
+    const eleTop = HtmlUtils.getTop(child, teleport);
 
     if (direction === 'top' && eleTop < window.innerHeight / 3)
       direction = 'bottom';
@@ -154,6 +172,17 @@ function calcTooltipPosition() {
         positionY.value = eleTop + child.offsetHeight + props.offset;
         break;
     }
+
+    nextTick(() => {
+      const teleportLeft = HtmlUtils.getLeft(tooltip.value, teleport);
+      const teleportTop = HtmlUtils.getTop(tooltip.value, teleport);
+
+      console.log('teleportLeft', teleportLeft, 'teleportTop', teleportTop);
+      
+
+      positionXOffset.value = teleportLeft < 0 ? -teleportLeft : 0;
+      positionYOffset.value = teleportTop < 0 ? -teleportTop : 0;
+    });
   });
 }
 
@@ -197,9 +226,9 @@ onBeforeUnmount(() => {
   z-index: 10;
   font-size: var(--code-layout-font-size);
 
-  &::after, &::before {
+  .arrow1, .arrow2 {
     position: absolute;
-    content: '';
+    display: block;
     width: 0;
     height: 0;
     z-index: 11;
@@ -209,7 +238,7 @@ onBeforeUnmount(() => {
   $triangle-size2: 4px;
 
   &.right {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid var(--code-layout-color-background-second);
       border-bottom: $triangle-size solid transparent;
@@ -217,7 +246,7 @@ onBeforeUnmount(() => {
       left: -$triangle-size * 2;
       top: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid var(--code-layout-color-border);
       border-bottom: $triangle-size2 solid transparent;
@@ -227,7 +256,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.left {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid transparent;
@@ -235,7 +264,7 @@ onBeforeUnmount(() => {
       right: -$triangle-size * 2;
       top: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid transparent;
@@ -245,7 +274,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.top {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid var(--code-layout-color-background-second);
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid transparent;
@@ -253,7 +282,7 @@ onBeforeUnmount(() => {
       bottom: -$triangle-size * 2;
       left: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid var(--code-layout-color-border);
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid transparent;
@@ -263,7 +292,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.bottom {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid var(--code-layout-color-background-second);
@@ -271,7 +300,7 @@ onBeforeUnmount(() => {
       top: -$triangle-size * 2;
       left: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid var(--code-layout-color-border);
