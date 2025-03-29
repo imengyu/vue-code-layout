@@ -428,9 +428,9 @@ To restrict this operation, you can use the following methods:
 
 You can handle non panel data dragged into components, such as users dragging a file into component.
 
-You can handle it in the `onNonPanelDrop` and `onNonPanelDrop` events of `layoutConfig`, where:
+You can handle it in the `onNonPanelDrag` and `onNonPanelDrop` events of `layoutConfig`, where:
 
-* `onNonPanelDrop` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
+* `onNonPanelDrag` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
 * `onNonPanelDrop` is a drop callback that can perform drop operations within it. At the same time, the panel instance and reference position placed by the current user will be passed in.
 
 ::: tip

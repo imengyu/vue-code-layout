@@ -28,6 +28,7 @@ Editor shell layout component.
 | titleBarMenu | Title bar rendering main menu position | - |
 | titleBarCenter | Title bar center position | - |
 | titleBarRight | Right position of title bar | - |
+| titleBarRight | Bottom position of title bar | - |
 | activityBarTopBar | At the btopottom of the main activity bar | - |
 | activityBarBottom | At the bottom of the main activity bar | - |
 | activityBarSecondaryTopBar | At the btopottom of the secondary activity bar | - |

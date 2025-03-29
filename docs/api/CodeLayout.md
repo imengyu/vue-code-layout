@@ -35,6 +35,7 @@ nav:
 | titleBarMenu | 标题栏渲染主菜单位置 | - |
 | titleBarCenter | 标题栏中心位置 | - |
 | titleBarRight | 标题栏右侧位置 | - |
+| titleBarBottom | 标题栏下方位置 | - |
 | activityBarTopBar | 主活动栏顶部 | - |
 | activityBarBottom | 主活动栏底部 | - |
 | activityBarSecondaryTopBar | 副活动栏顶部 | - |
