@@ -174,11 +174,8 @@ function calcTooltipPosition() {
     }
 
     nextTick(() => {
-      const teleportLeft = HtmlUtils.getLeft(tooltip.value, teleport);
-      const teleportTop = HtmlUtils.getTop(tooltip.value, teleport);
-
-      console.log('teleportLeft', teleportLeft, 'teleportTop', teleportTop);
-      
+      const teleportLeft = HtmlUtils.getLeft(tooltip.value!, teleport);
+      const teleportTop = HtmlUtils.getTop(tooltip.value!, teleport);
 
       positionXOffset.value = teleportLeft < 0 ? -teleportLeft : 0;
       positionYOffset.value = teleportTop < 0 ? -teleportTop : 0;

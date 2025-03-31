@@ -2,6 +2,7 @@ import { inject, provide, ref, type Ref } from "vue";
 import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutPanelInternal } from "../CodeLayout";
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMiniTimeOut } from "./MiniTimeout";
+import { useDragEnterLeaveFilter } from "./DragEnterLeaveFilter";
 
 export function checkDropPanelDefault(
   dragPanel: CodeLayoutPanelInternal,
@@ -97,6 +98,7 @@ export function usePanelDragOverDetector(
   focusPanel: (dragPanel: CodeLayoutPanelInternal) => void,
   dragCustomHandler: (e: DragEvent) => boolean,
   dragoverChecking?: ((dragPanel: CodeLayoutPanelInternal) => boolean)|undefined,
+  tag?: string,
 ) {
   
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
@@ -113,6 +115,32 @@ export function usePanelDragOverDetector(
   });
   let currentDropBaseScreenPosX = 0;
   let currentDropBaseScreenPosY = 0;
+
+  const {
+    onDragEnter: handleDragEnter,
+    onDragLeave: handleDragLeave,
+    reset: handleDragReset,
+  } = useDragEnterLeaveFilter((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    focusTimer.start();
+    delayLeaveTimer.stop();
+
+    currentDropBaseScreenPosX = HtmlUtils.getLeft(container.value!);
+    currentDropBaseScreenPosY = HtmlUtils.getTop(container.value!);
+    dragEnterState.value = true;
+
+    handleDragOver(e);    
+  }, (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  
+    dragEnterState.value = false;
+    dragOverState.value = '';
+    focusTimer.stop();
+    delayLeaveTimer.start();
+  }, container, 'CodeLayoutDragDropDetector')
 
   function handleDragOver(e: DragEvent) {
     if (!e.dataTransfer)
@@ -180,41 +208,14 @@ export function usePanelDragOverDetector(
       e.dataTransfer.dropEffect = 'none';
     }
   }
-  function handleDragEnter(e: DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    focusTimer.start();
-    delayLeaveTimer.stop();
-
-    currentDropBaseScreenPosX = HtmlUtils.getLeft(container.value!);
-    currentDropBaseScreenPosY = HtmlUtils.getTop(container.value!);
-    dragEnterState.value = true;
-
-    handleDragOver(e);    
-  }
-  function handleDragLeave(e: DragEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-  
-    let node = e.target;
-    while(node) {
-      if (node === container.value) {
-        dragEnterState.value = false;
-        dragOverState.value = '';
-        focusTimer.stop();
-        delayLeaveTimer.start();
-        return;
-      }
-      node = (node as HTMLElement).parentNode;
-    }
-  }
   function resetDragOverState() {
+    handleDragReset();
     focusTimer.stop();
     dragEnterState.value = false;
     dragOverState.value = '';
   }
   function resetDragState() {
+    handleDragReset();
     resetDragPanelState();
   }
 
