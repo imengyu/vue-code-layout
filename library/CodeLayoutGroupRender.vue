@@ -19,6 +19,7 @@
   <!-- 正常页面 -->
   <div 
     v-else-if="show" 
+    ref="container"
     :class="[
       'code-layout-group',
       'tab-' + group.tabStyle,
@@ -28,7 +29,16 @@
     <!-- TAB栏 -->
     <div 
       v-if="group.tabStyle && group.tabStyle != 'none' && group.tabStyle != 'single'"
-      :class="'tab ' + group.tabStyle"
+      :class="[
+        'tab', 
+        group.tabStyle,
+        dragEnterState ? 'drag-active' : '',
+      ]"
+      data-dropable="true"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @dragenter="handleDragEnter"
+      @drop="handleDrop"
     >
       <OverflowCollapseList 
         class="tab-container"
@@ -122,17 +132,18 @@
 
 <script setup lang="ts">
 import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance } from 'vue';
-import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutPanelInternal } from './CodeLayout';
+import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import CodeLayoutTabItem from './CodeLayoutTabItem.vue';
 import OverflowCollapseList from './Components/OverflowCollapseList.vue';
-import { usePanelDragger } from './Composeable/DragDrop';
+import { getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
 import { usePanelMenuControl } from './Composeable/PanelMenu';
 import { useCodeLayoutLang } from './Language';
 import IconActionClose from './Icons/IconActionClose.vue';
 import IconActionMax from './Icons/IconActionMax.vue';
+import { toRefs } from 'vue';
 
 const props = defineProps({
   group: {
@@ -154,6 +165,9 @@ const props = defineProps({
 });
 
 const layoutConfig = inject('codeLayoutConfig') as Ref<CodeLayoutConfig>;
+const context = inject('codeLayoutContext') as CodeLayoutContext;
+const container = ref<HTMLElement>();
+const { horizontal, group } = toRefs(props);
   
 //标签点击函数
 
@@ -168,6 +182,41 @@ const {
   handleDragStart,
   handleDragEnd,
 } = usePanelDragger();
+
+const {
+  dragEnterState,
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleDropPreCheck,
+  resetDragOverState,
+  resetDragState,
+} = usePanelDragOverDetector(
+  container, group, horizontal,
+  () => {}, 
+  (e) => context.dragDropNonPanel(e, false, 'empty'),
+  (dragPanel) => {
+    return (
+      (!dragPanel.accept || dragPanel.accept.includes(props.group.parentGrid))
+      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.group.parentGrid))
+    );
+  }, 'tab'
+);
+
+function handleDrop(e: DragEvent) {
+  const dropPanel = getCurrentDragPanel();
+  if (dropPanel) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropToPanelNear(props.group, 'right', dropPanel, 'empty');
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'empty', props.group, 'right');
+  }
+  resetDragOverState();
+  resetDragState();
+}
 
 //菜单处理
 const {
@@ -362,6 +411,17 @@ defineExpose({
         line-height: var(--tab-font-size);
         background-color: var(--code-layout-color-background-light);
       }
+    }
+    &.drag-active::after {
+      background-color: var(--code-layout-color-background-mask-light);
+      position: absolute;
+      content: '';
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      pointer-events: none;
     }
   }
 
