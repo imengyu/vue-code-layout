@@ -323,9 +323,9 @@ if (panel != null) {
 
 你可以处理拖拽到组件中的非面板数据，例如用户将一个文件拖拽进入组件的某些位置。
 
-你可以在 `layoutConfig` 的 `onNonPanelDrop` 和 `onNonPanelDrop` 事件中处理，其中 ：
+你可以在 `layoutConfig` 的 `onNonPanelDrag` 和 `onNonPanelDrop` 事件中处理，其中 ：
 
-* `onNonPanelDrop` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
+* `onNonPanelDrag` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
 * `onNonPanelDrop` 为放置回调，可以在其中中执行放置操作。同时会传入当前用户放置的面板实例和参考位置。
 
 ::: tip
