@@ -56,6 +56,7 @@ import CodeLayoutVNodeStringRender from '../Components/CodeLayoutVNodeStringRend
 import IconClose from '../Icons/IconClose.vue';
 import IconDot from '../Icons/IconDot.vue';
 import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from '../Composeable/DragDrop';
+import SimpleTooltip from '../Components/SimpleTooltip.vue';
 
 const props = defineProps({
   panel: {

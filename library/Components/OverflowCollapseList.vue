@@ -81,7 +81,7 @@ function doCalcItemOverflow() {
 
   const activeItem = props.activeItem;
   const horizontal = props.direction === 'horizontal';
-  const width = (horizontal ? container.value.offsetWidth : container.value.offsetHeight) - props.itemCollapseMergin;
+  const width = (horizontal ? container.value.offsetWidth  : container.value.offsetHeight) - props.itemCollapseMergin;
   const children = container.value.children;
   let x = 0, firstOverflow = -1;
 
@@ -104,10 +104,15 @@ function doCalcItemOverflow() {
 function onOverflowItemClicked() {
   if (!overflowItem.value)
     return;
+  const horizontal = props.direction === 'horizontal';
   ContextMenu.showContextMenu({
     theme: 'code-layout',
-    x: HtmlUtils.getLeft(overflowItem.value),
-    y: HtmlUtils.getTop(overflowItem.value) + overflowItem.value?.offsetHeight,
+    x: horizontal ? 
+        HtmlUtils.getLeft(overflowItem.value) :
+        (HtmlUtils.getLeft(overflowItem.value) + overflowItem.value.clientWidth),
+    y: horizontal ?
+      HtmlUtils.getTop(overflowItem.value) + overflowItem.value?.offsetHeight : 
+      HtmlUtils.getTop(overflowItem.value),
     items: props.items.slice(overflowIndex.value).map((p) => ({
       label: props.itemMenuLabel?.(p) || '',
       onClick() {
@@ -158,7 +163,6 @@ onBeforeUnmount(() => {
 
   .OverflowItem {
     position: relative;
-    padding: 2px 4px;
     color: var(--code-layout-color-text);
     border-radius: var(--code-layout-border-radius-small);
     background-color: transparent;
@@ -166,6 +170,9 @@ onBeforeUnmount(() => {
     border: none;
     outline: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
       background-color: var(--code-layout-color-background-hover);

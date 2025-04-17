@@ -179,6 +179,10 @@
     overflow-y: hidden;
     transition: all ease-in-out 0.25s;
 
+    .code-layout-tooltip-ref {
+      height: 100%;
+    }
+
     .item {
       position: relative;
       display: inline-flex;
