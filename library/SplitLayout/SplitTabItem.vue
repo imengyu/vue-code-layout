@@ -1,51 +1,52 @@
 <template>
-  <div 
-    ref="container"
-    :class="[
-      'item',
-      active ? 'active' : '',
-      dragEnterState ? 'drag-active' : '',
-      `drag-over-${dragOverState}`,
-    ]"
-    :title="panel.tooltip"
-    :draggable="panel.draggable"
-    @dragstart="handleDragStart(panel, $event)"
-    @dragend="handleDragEnd"
-    @dragover="handleDragOver"
-    @dragleave="handleDragLeave"
-    @dragenter="handleDragEnter"
-    @drop="handleDrop"
-    @click="emit('click')"
-  >
-    <!-- icon and title -->
-    <slot name="icon">
-      <span class="icon"> 
-        <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge" />
-      </span>
-    </slot>
+  <SimpleTooltip direction="mouse" :content="panel.tooltip">
+    <div 
+      ref="container"
+      :class="[
+        'item',
+        active ? 'active' : '',
+        dragEnterState ? 'drag-active' : '',
+        `drag-over-${dragOverState}`,
+      ]"
+      :draggable="panel.draggable"
+      @dragstart="handleDragStart(panel, $event)"
+      @dragend="handleDragEnd"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @dragenter="handleDragEnter"
+      @drop="handleDrop"
+      @click="emit('click')"
+    >
+      <!-- icon and title -->
+      <slot name="icon">
+        <span class="icon"> 
+          <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge" />
+        </span>
+      </slot>
 
-    <slot name="title">
-      <span class="title">{{ panel.title }}</span>
-    </slot>
+      <slot name="title">
+        <span class="title">{{ panel.title }}</span>
+      </slot>
 
-    <slot name="badge">
-      <span v-if="panel.badge" class="badge">
-        <CodeLayoutVNodeStringRender :content="panel.badge" />
-      </span>
-    </slot>
+      <slot name="badge">
+        <span v-if="panel.badge" class="badge">
+          <CodeLayoutVNodeStringRender :content="panel.badge" />
+        </span>
+      </slot>
 
-    <!-- close -->
-    <slot name="close">
-      <span 
-        v-if="panel.closeType !== 'none'"
-        class="close"
-        @click.stop="panel.closePanel()"
-      >
-        <IconClose v-if="panel.closeType === 'close'" class="close-icon" />
-        <IconDot v-if="panel.closeType === 'unSave'" class="unsave-dot" />
-      </span>
-    </slot>
-  </div>
+      <!-- close -->
+      <slot name="close">
+        <span 
+          v-if="panel.closeType !== 'none'"
+          class="close"
+          @click.stop="panel.closePanel()"
+        >
+          <IconClose v-if="panel.closeType === 'close'" class="close-icon" />
+          <IconDot v-if="panel.closeType === 'unSave'" class="unsave-dot" />
+        </span>
+      </slot>
+    </div>
+  </SimpleTooltip>
 </template>
 
 <script setup lang="ts">

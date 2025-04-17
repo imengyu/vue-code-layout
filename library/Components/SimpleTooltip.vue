@@ -54,9 +54,11 @@ const props = defineProps({
    * The direction of the tooltip.
    * 
    * Default is 'right'.
+   * 
+   * * mouse: follow the mouse position and no arrow.
    */
   direction: {
-    type: String as PropType<'left'|'top'|'bottom'|'right'>,
+    type: String as PropType<'left'|'top'|'bottom'|'right'|'mouse'>,
     default: 'right',
   },
   /**
@@ -114,19 +116,19 @@ function unmountChildEvents() {
   child.removeEventListener('mouseleave', onChildLeave);
   child.removeEventListener('click', onChildLeave);
 }
-function onChildEnter() {
+function onChildEnter(e: MouseEvent) {
   if (props.enable && props.content) {
     onEnter(() => {
       show.value = true;
-      calcTooltipPosition();
+      calcTooltipPosition(e);
     });
   }
 }
-function onChildLeave() {
+function onChildLeave(e: MouseEvent) {
   show.value = false;
   onLeave();
 }
-function calcTooltipPosition() {
+function calcTooltipPosition(e: MouseEvent) {
   positionX.value = 0;
   positionY.value = 0;
   positionXOffset.value = 0;
@@ -156,6 +158,12 @@ function calcTooltipPosition() {
       case 'bottom':
         positionX.value = eleLeft - tooltip.value.offsetWidth / 2 + child.offsetWidth / 2;
         break;
+      case 'bottom':
+        positionX.value = eleLeft - tooltip.value.offsetWidth / 2 + child.offsetWidth / 2;
+        break;
+      case 'mouse':
+        positionX.value = e.x + 5;
+        break;
     }
 
     switch (direction) {
@@ -171,6 +179,9 @@ function calcTooltipPosition() {
       case 'bottom':
         positionY.value = eleTop + child.offsetHeight + props.offset;
         break;
+      case 'mouse':
+        positionY.value = e.y + 5;
+      break;
     }
 
     nextTick(() => {
@@ -207,6 +218,15 @@ onBeforeUnmount(() => {
 <style lang="scss">
 @use 'sass:math';
 
+@keyframes code-layout-tooltip-fade-show {
+  from {
+    opacity: 0;
+  } 
+  to {
+    opacity: 1; 
+  }
+}
+
 .code-layout-tooltip-ref {
   display: block;
   height: auto;
@@ -222,6 +242,7 @@ onBeforeUnmount(() => {
   width: auto;
   z-index: 10;
   font-size: var(--code-layout-font-size);
+  animation: code-layout-tooltip-fade-show 0.3s;
 
   .arrow1, .arrow2 {
     position: absolute;

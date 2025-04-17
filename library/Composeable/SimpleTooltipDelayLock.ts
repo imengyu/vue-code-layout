@@ -32,7 +32,7 @@ export function useSimpleTooltipDelayLock() {
     hideDelayTimer = setTimeout(() => {
       showState = false;
       leaveState = true;
-    }, 50) as any;
+    }, 250) as any;
   }
 
   return {
