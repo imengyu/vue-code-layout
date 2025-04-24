@@ -92,6 +92,8 @@ const props = defineProps({
 const currentBottom = ref<CodeLayoutSplitNGridInternal>();
 
 function loadLayout() {
+  if (isNextNoChangeLayout())
+    return;
   if (splitLayoutRef.value) {
     const rootGrid = splitLayoutRef.value.getRootGrid();
     const config = props.config;
@@ -105,6 +107,7 @@ function loadLayout() {
         minSize: inversePrimary ? config.primarySideBarMinWidth : config.secondarySideBarMinWidth,
         canMinClose: true,
         onMinCloseChanged(grid, visible) {
+          setNextNoChangeLayout();
           inversePrimary ? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
         },
       });
@@ -117,6 +120,7 @@ function loadLayout() {
         minSize: inversePrimary ? config.secondarySideBarMinWidth : config.primarySideBarMinWidth,
         canMinClose: true,
         onMinCloseChanged(grid, visible) {
+          setNextNoChangeLayout();
           inversePrimary ? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
         },
       });
@@ -131,6 +135,7 @@ function loadLayout() {
         minSize: config.bottomPanelMinHeight,
         canMinClose: true,
         onMinCloseChanged(grid, visible) {
+          setNextNoChangeLayout();
           config.bottomPanel = visible;
         },
       });
@@ -223,14 +228,23 @@ function loadLayout() {
 
 let nextNoChangeLayout = false;
 
-watch(() => props.config.bottomPanel, loadLayout);
-watch(() => props.config.secondarySideBar, loadLayout);
-watch(() => props.config.primarySideBar, loadLayout);
-watch(() => props.config.bottomPanelMaximize, (v) => {
+function setNextNoChangeLayout() {
+  nextNoChangeLayout = true;
+}
+function isNextNoChangeLayout() {
   if (nextNoChangeLayout) {
     nextNoChangeLayout = false;
-    return;
+    return true;
   }
+  return false;
+}
+
+watch(() => props.config.bottomPanel, () => loadLayout());
+watch(() => props.config.secondarySideBar, () => loadLayout());
+watch(() => props.config.primarySideBar, () => loadLayout());
+watch(() => props.config.bottomPanelMaximize, (v) => {
+  if (isNextNoChangeLayout())
+    return;
   if (v)
     relayoutAfterVarChange();
   else
@@ -243,14 +257,14 @@ watch(() => currentBottom.value?.size, (v) => {
     config.bottomPanelMaximize = false;
   }
 });
-watch(() => props.config.bottomAlignment, loadLayout);
-watch(() => props.config.bottomPanelHeight, loadLayout);
-watch(() => props.config.bottomPanelMinHeight, relayoutAfterVarChange);
-watch(() => props.config.primarySideBarMinWidth, relayoutAfterVarChange);
-watch(() => props.config.primarySideBarPosition, relayoutAfterVarChange);
-watch(() => props.config.primarySideBarWidth, loadLayout);
-watch(() => props.config.secondarySideBarMinWidth, relayoutAfterVarChange);
-watch(() => props.config.secondarySideBarWidth, loadLayout);
+watch(() => props.config.bottomAlignment, () => loadLayout());
+watch(() => props.config.bottomPanelHeight, () => loadLayout());
+watch(() => props.config.bottomPanelMinHeight, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarMinWidth, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarPosition, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarWidth, () => loadLayout());
+watch(() => props.config.secondarySideBarMinWidth, () => relayoutAfterVarChange());
+watch(() => props.config.secondarySideBarWidth, () => loadLayout());
 
 function relayoutAfterVarChange() {
   saveGridLayoutDataToConfig();

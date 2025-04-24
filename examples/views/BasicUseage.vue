@@ -121,7 +121,7 @@ const defaultCodeLayoutConfig : CodeLayoutConfig = {
   titleBar: true,
   titleBarShowCustomizeLayout: true,
   activityBar: true,
-  primarySideBar: true,
+  primarySideBar: false,
   secondarySideBar: false,
   bottomPanel: true,
   statusBar: true,

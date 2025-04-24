@@ -10,13 +10,13 @@
       v-for="(child, index) in grid.childGrid"
       :key="child.name"
       :style="{
-        width: horizontal && child.visible ? `calc(${child.size}% - ${draggerSize}px)` : undefined,
-        height: horizontal ? undefined : (child.visible ? `calc(${child.size}% - ${draggerSize}px)` : undefined),
+        width: horizontal ? `calc(${child.visible ? child.size : 0}% - ${draggerSize}px)` : undefined,
+        height: horizontal ? undefined : (`calc(${child.visible ? child.size : 0}% - ${draggerSize}px)`),
       }"
       class="split-n-container"
     >
       <div 
-        v-if="child.visible && index !== 0"
+        v-if="(child.visible || child.canMinClose) && index !== 0"
         :class="[
           'code-layout-split-dragger resize inner',
           splitDragging[index] || forceDraggerActiveState === index ? 'active' : '',
@@ -110,76 +110,126 @@ const splitBase = ref<HTMLElement>();
 const splitDragging = ref<boolean[]>([]);
 
 let baseLeft = 0;
-let prevPanelsSize = 0;
+let dragPanelSplitIndex = 0;
+let dragPanelLeftSize = 0;
+let dragPanelArray : PanelResizePanelData[] = [];
 let dragging = false;
 let orthogonalNeedUnHovering = false;
-const prevOpenedPanels = [] as PanelResizePanelData[];
-const nextOpenedPanels = [] as PanelResizePanelData[];
 
 interface PanelResizePanelData {
   panel: CodeLayoutSplitNGridInternal, 
-  size: number;
+  intitalSize: number;
 }
 
+/**
+ * 根据面板的最小值或是否可以折叠来调整面板大小
+ * @param containerSize 容器大小
+ * @param panel 面板
+ * @param intitalSize 面板初始大小
+ * @param increaseSize 增量大小（正数放大，负数缩小）
+ * @returns 返回调整结果
+ */
 function adjustAndReturnAdjustedSize(
   containerSize: number, 
   panel: CodeLayoutSplitNGridInternal, 
   intitalSize: number, 
   increaseSize: number
 ) {
-  
   let visibleChangedSize = 0;
+  let visibleChanged = false;
+
 
   const intitalSizePx = intitalSize / 100 * containerSize; // to px
-  const targetSize = intitalSizePx + increaseSize;
+  const oldSize = (panel.visible ? intitalSizePx : 0); // to px
+  const targetSize = oldSize + increaseSize;
   const minSize = panel?.minSize || 0;
   const panelSize = Math.max(minSize, targetSize);
 
-  if (panel.canMinClose && minSize > 0) {
-    const newValue = targetSize > minSize / 2;
-    if (newValue != panel.visible) {
-      panel.visible = newValue;
-      panel.onMinCloseChanged?.(panel, newValue);
-    }
-    if (!panel.visible)
-      visibleChangedSize += panelSize;
-  }
-
   panel.size = panelSize / containerSize * 100; //to precent
 
-  return { 
-    adjustedSize: panelSize - intitalSizePx,
+  if (panel.canMinClose && minSize > 0) {
+    const newValue = targetSize > minSize / 2;
+    visibleChanged = newValue != panel.visible;
+    if (visibleChanged) { 
+      panel.visible = newValue;
+      panel.onMinCloseChanged?.(panel, newValue);
+      if (panel.visible) {
+        visibleChangedSize += targetSize
+      } else {
+        visibleChangedSize -= targetSize
+      }
+    }
+  }
+
+  const resultRealNewSize = (panel.visible ? panelSize : 0);
+
+  //if (panel.name === 'primarySideBar') {
+  //  console.log('resultRealNewSize', resultRealNewSize, 'oldSize', oldSize, 'panelSize', panelSize, 'targetSize', targetSize);
+  //}
+
+  return {
+    minSize,
+    /**
+     * 面板的显示状态是否更改
+     */
+    visibleChanged,
+    /**
+     * 实际面板占用大小
+     */
+    resultRealNewSize,
+    /**
+     * 实际调整的大小(缩小了为负数，放大了为正数)
+     */
+    adjustedSize: resultRealNewSize - oldSize,
+    /**
+     * 可见性改变的大小(
+     *    面板显示有新空间被占用，为正数；
+     *    面板隐藏有新空间被腾出，为负数
+     * )
+     */
     visibleChangedSize,
   };
 }
+/**
+ * 获取网格最小大小的百分比
+ * @param grid 面板
+ * @returns 返回百分比
+ */
 function getGridMinSize(grid: CodeLayoutSplitNGridInternal) {
   if (!splitBase.value)
     throw new Error('!splitBase.value');
-  const containerSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
+  const containerSize = props.horizontal ? 
+    splitBase.value.offsetWidth : 
+    splitBase.value.offsetHeight;
   if (!grid.minSize)
     return 0;
   return grid.minSize / containerSize * 100;
 }
+/**
+ * 获取拖拽左侧面板的大小
+ */
+function calcDraggerLeftSize() {
+  let leftSize = 0;
+  dragPanelArray = [];
+  for (let i = 0; i < props.grid.childGrid.length; i++) {
+    const panel = props.grid.childGrid[i];
+    if (i < dragPanelSplitIndex && panel.visible)
+      leftSize += panel.size;
+    dragPanelArray.push({
+      panel,
+      intitalSize: panel.size, 
+    })
+  }
+  return leftSize;
+}
 
 function onDraggerDown(e: MouseEvent, index: number) {
-  baseLeft = props.horizontal ? HtmlUtils.getLeft(splitBase.value!) : HtmlUtils.getTop(splitBase.value!);
+  baseLeft = props.horizontal ? 
+    HtmlUtils.getLeft(splitBase.value!) : 
+    HtmlUtils.getTop(splitBase.value!);
   splitDragging.value[index] = true;
-  prevPanelsSize = 0;
-  prevOpenedPanels.splice(0);
-  nextOpenedPanels.splice(0);
-  for (let i = index - 1; i >= 0; i--) {
-    const p = props.grid.childGrid[i];
-    if (!p.visible)
-      continue;
-    prevPanelsSize += p.size;
-    prevOpenedPanels.push({ panel: p, size: p.size });
-  }
-  for (let i = index; i < props.grid.childGrid.length; i++) {
-    const p = props.grid.childGrid[i];
-    if (!p.visible)
-      continue;
-    nextOpenedPanels.push({ panel: p, size: p.size });
-  }
+  dragPanelSplitIndex = index;
+  dragPanelLeftSize = calcDraggerLeftSize();
 }
 function onDraggerMove(e: MouseEvent, index: number) {
   if (!splitBase.value)
@@ -187,74 +237,130 @@ function onDraggerMove(e: MouseEvent, index: number) {
 
   /**
    * 拖拽步骤：
-   * 1. 通过鼠标坐标算出当前向上/下，以及移了多少
-   * 2. 向上/下数组按顺序分配移动的距离
+   * 1. 在数组中进行执行面板缩放或者放大操作
+   *   1.1 按鼠标移动方向分配移动的大小。
+   *   1.2 两侧，获取是否存在继续缩放余量。
+   *   1.3 计算两侧是否超出预定大小（无余量），
+   *      若有一侧超出预定大小，则调整有余量的一侧。
+   *   1.4 若有一侧小于预定大小，则扩展填充空缺空间。
    */
 
-  const containerSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
+  const containerSize = props.horizontal ? 
+    splitBase.value.offsetWidth : 
+    splitBase.value.offsetHeight;
 
-  let dragSize = ((props.horizontal ? e.x : e.y) - baseLeft);
-  let movedSize = dragSize - prevPanelsSize / 100 * containerSize; //to px
+  const dragPanelLeftSizePx = dragPanelLeftSize / 100 * containerSize; //to px
+  const dragSize = ((props.horizontal ? e.x : e.y) - baseLeft);
+  /**
+   * 移动大小像素左负右正
+   */
+  const movedSize = dragSize - dragPanelLeftSizePx;
   if (movedSize === 0) 
     return;
-  const moveDown = movedSize > 0;
-  const resizeDown = (overflow: number) => {
-    let needResizeSize = movedSize - overflow;
+
+  let allHasVisibleChanged = false;
+
+  let leftTargetSize = dragPanelLeftSizePx + movedSize;
+  let rightTargetSize = containerSize - leftTargetSize;
+
+  let leftResult = resizeGroup(-movedSize, index, false);
+  let rightResult = resizeGroup(movedSize, index, true);
+
+  const leftCompressOverflow = leftResult.allVisibleSize - leftTargetSize > 0;
+  const rightCompressOverflow = rightResult.allVisibleSize - rightTargetSize > 0;
+  const leftClampInsufficient = leftResult.allVisibleSize < leftTargetSize;
+  const rightClampInsufficient = rightResult.allVisibleSize < rightTargetSize;
+
+  if (leftCompressOverflow || leftClampInsufficient) {
+    rightTargetSize = containerSize - leftResult.allVisibleSize;
+    leftTargetSize = containerSize - rightTargetSize;
+    resetGroup(index, true);
+    rightResult = resizeGroup(containerSize - rightTargetSize - dragPanelLeftSizePx, index, true);
+  } 
+  if (rightCompressOverflow || rightClampInsufficient) {
+    leftTargetSize = containerSize - rightResult.allVisibleSize;
+    rightTargetSize = containerSize - leftTargetSize;
+    resetGroup(index, false);
+    leftResult = resizeGroup(leftTargetSize - dragPanelLeftSizePx, index, false);
+  }
+
+  /*console.log(
+    'leftOverflow', leftCompressOverflow,
+    'rightOverflow', rightCompressOverflow,
+    'leftClamp', leftClampInsufficient,
+    'rightClamp', rightClampInsufficient,
+  );*/
+
+  //如果有面板显示状态更新，则刷新大小记录
+  if (allHasVisibleChanged)
+    dragPanelLeftSize = calcDraggerLeftSize();
+
+  /**
+   * 重置面板大小
+   * @param startIndex 起始索引
+   * @param forward 调整方向
+   */
+  function resetGroup(startIndex: number, forward: boolean) {
+    function resizeLoop(panel: PanelResizePanelData) {
+      panel.panel.size = panel.intitalSize;
+    }
+    if (forward) {
+      for (let i = startIndex; i < dragPanelArray.length; i++) 
+        resizeLoop(dragPanelArray[i]);
+    } else {
+      for (let i = startIndex - 1; i >= 0; i--) 
+        resizeLoop(dragPanelArray[i]);
+    }
+  }
+  /**
+   * 调整面板大小
+   * @param ineedResizeSize 调整大小 (+ 放大 - 缩小)
+   * @param startIndex 起始索引
+   * @param forward 调整方向
+   * @returns 返回调整结果
+   */
+  function resizeGroup(ineedResizeSize: number, startIndex: number, forward: boolean) {
+    let needResizeSize = ineedResizeSize;
+    let allMinSize = 0;
+    let allVisibleSize = 0;
     let allVisibleChangedSize = 0;
-    for (let i = 0; i < nextOpenedPanels.length; i++) {
-      const p = nextOpenedPanels[i];
-      const { adjustedSize, visibleChangedSize } = adjustAndReturnAdjustedSize(
+
+    function resizeLoop(panel: PanelResizePanelData) {
+      const { 
+        minSize,
+        visibleChanged,
+        adjustedSize,
+        resultRealNewSize, 
+        visibleChangedSize,
+      } = adjustAndReturnAdjustedSize(
         containerSize, 
-        p.panel, 
-        p.size, 
-        -needResizeSize
+        panel.panel, 
+        panel.intitalSize,
+        -needResizeSize,
       );
-      allVisibleChangedSize += visibleChangedSize;
+      if (visibleChanged)
+        allHasVisibleChanged = true;
+      allMinSize += minSize;
       needResizeSize += adjustedSize;
-      if (moveDown ? needResizeSize <= 0 : needResizeSize >= 0)
-        break;
-    }
-    return {
-      overflowSize: needResizeSize,
-      visibleChangedSize: allVisibleChangedSize
-    };
-  }
-  const resizeUp = (overflow: number) => {
-    let needResizeSize = movedSize - overflow;
-    let allVisibleChangedSize = 0;
-    for (let i = 0; i < prevOpenedPanels.length; i++) {
-      const p = prevOpenedPanels[i];
-      const { adjustedSize, visibleChangedSize } = adjustAndReturnAdjustedSize(
-        containerSize,
-        p.panel, 
-        p.size, 
-        needResizeSize
-      );
-      needResizeSize -= adjustedSize;
+      allVisibleSize += resultRealNewSize;
       allVisibleChangedSize += visibleChangedSize;
-      if (moveDown ? needResizeSize <= 0 : needResizeSize >= 0)
-        break;
     }
+    
+    if (forward) {
+      for (let i = startIndex; i < dragPanelArray.length; i++) 
+        resizeLoop(dragPanelArray[i]);
+    } else {
+      for (let i = startIndex - 1; i >= 0; i--) 
+        resizeLoop(dragPanelArray[i]);
+    }
+
     return {
-      overflowSize: needResizeSize,
-      visibleChangedSize: allVisibleChangedSize
-    };
+      needResizeSize,
+      allMinSize,
+      allVisibleSize,
+      allVisibleChangedSize,
+    }
   }
-
-  if (moveDown) {
-    //向下，下方减少大小，上方增加大小
-    const { overflowSize, visibleChangedSize } = resizeDown(0);
-    if (visibleChangedSize !== 0)
-      movedSize += visibleChangedSize;
-    resizeUp(overflowSize);
-  } else {
-    //向上
-    const { overflowSize, visibleChangedSize } = resizeUp(0);
-    if (visibleChangedSize !== 0)
-      movedSize -= visibleChangedSize;
-    resizeDown(overflowSize);
-  }
-
 }
 function onDraggerUp(e: MouseEvent, index: number) {
   splitDragging.value[index] = false;
@@ -307,6 +413,7 @@ const dragHandler = createMouseDragHandler<number>({
 function getCanAllocSize() {
   if (!splitBase.value)
     throw new Error('!splitBase.value');
+
 
   const containerSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
   let notAllocSpaceAndOpenCount = 0;
@@ -389,6 +496,7 @@ function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
 //当容器添加时，重新布局已存在面板
 function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referencePanel?: CodeLayoutSplitNGridInternal) {
 
+  console.log('relayoutAllWithNewPanel');
   if (
     panels.length === 1 && referencePanel 
     && referencePanel.size > getGridMinSize(referencePanel) + getGridMinSize(panels[0])
@@ -406,6 +514,7 @@ function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referen
 } 
 //当容器移除时，重新布局已存在面板
 function relayoutAllWithRemovePanel(panel: CodeLayoutSplitNGridInternal) {
+  console.log('relayoutAllWithRemovePanel');
   relayoutAllWithResizedSize(-panel.size);
 } 
 //重新布局
