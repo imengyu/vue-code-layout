@@ -268,16 +268,30 @@ function onDraggerMove(e: MouseEvent, index: number) {
 
   const leftCompressOverflow = leftResult.allVisibleSize - leftTargetSize > 0;
   const rightCompressOverflow = rightResult.allVisibleSize - rightTargetSize > 0;
-  const leftClampInsufficient = leftResult.allVisibleSize < leftTargetSize;
-  const rightClampInsufficient = rightResult.allVisibleSize < rightTargetSize;
 
-  if (leftCompressOverflow || leftClampInsufficient) {
+  if (leftCompressOverflow) {
     rightTargetSize = containerSize - leftResult.allVisibleSize;
     leftTargetSize = containerSize - rightTargetSize;
     resetGroup(index, true);
     rightResult = resizeGroup(containerSize - rightTargetSize - dragPanelLeftSizePx, index, true);
   } 
-  if (rightCompressOverflow || rightClampInsufficient) {
+  if (rightCompressOverflow) {
+    leftTargetSize = containerSize - rightResult.allVisibleSize;
+    rightTargetSize = containerSize - leftTargetSize;
+    resetGroup(index, false);
+    leftResult = resizeGroup(leftTargetSize - dragPanelLeftSizePx, index, false);
+  }
+
+  const leftClampInsufficient = leftResult.allVisibleSize < leftTargetSize;
+  const rightClampInsufficient = rightResult.allVisibleSize < rightTargetSize;
+
+  if (leftClampInsufficient) {
+    rightTargetSize = containerSize - leftResult.allVisibleSize;
+    leftTargetSize = containerSize - rightTargetSize;
+    resetGroup(index, true);
+    rightResult = resizeGroup(containerSize - rightTargetSize - dragPanelLeftSizePx, index, true);
+  } 
+  if (rightClampInsufficient) {
     leftTargetSize = containerSize - rightResult.allVisibleSize;
     rightTargetSize = containerSize - leftTargetSize;
     resetGroup(index, false);
