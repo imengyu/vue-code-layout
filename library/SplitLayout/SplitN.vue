@@ -248,6 +248,8 @@ function calcDraggerLeftSize() {
 }
 
 function onDraggerDown(e: MouseEvent, index: number) {
+  e.preventDefault();
+  e.stopPropagation();
   baseLeft = props.horizontal ? 
     HtmlUtils.getLeft(splitBase.value!) : 
     HtmlUtils.getTop(splitBase.value!);
@@ -258,6 +260,8 @@ function onDraggerDown(e: MouseEvent, index: number) {
 function onDraggerMove(e: MouseEvent, index: number) {
   if (!splitBase.value)
     return;
+  e.preventDefault();
+  e.stopPropagation();
 
   /**
    * 拖拽步骤：
