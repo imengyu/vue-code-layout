@@ -136,7 +136,7 @@ function onOverflowItemClicked() {
     y: horizontal ?
       HtmlUtils.getTop(overflowItem.value) + (up ? overflowItem.value?.offsetHeight : 0) : 
       HtmlUtils.getTop(overflowItem.value),
-    direction: up ? 't' : 'b',
+    direction: up ? 'tr' : 'br',
     items: props.items.slice(overflowIndex.value).map((p) => ({
       label: props.itemMenuLabel?.(p) || '',
       onClick() {
