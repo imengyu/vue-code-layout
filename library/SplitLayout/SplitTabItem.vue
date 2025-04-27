@@ -29,7 +29,7 @@
       </slot>
 
       <slot name="badge">
-        <span v-if="panel.badge" class="badge">
+        <span v-if="panel.badge && panel.showBadge" class="badge">
           <CodeLayoutVNodeStringRender :content="panel.badge" />
         </span>
       </slot>

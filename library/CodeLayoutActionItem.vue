@@ -24,7 +24,7 @@
       <div class="icon">
         <CodeLayoutVNodeStringRender :content="item.iconLarge" :fallback="item.title ?? item.name" />
       </div>
-      <span v-if="item.badge" class="badge">
+      <span v-if="item.badge && item.showBadge" class="badge">
         <CodeLayoutVNodeStringRender :content="item.badge" />
       </span>
     </div>
