@@ -20,7 +20,7 @@
     "docs:build": "vitepress build ./docs"
   },
   "dependencies": {
-    "@imengyu/vue3-context-menu": "^1.4.4"
+    "@imengyu/vue3-context-menu": "^1.4.8"
   },
   "devDependencies": {
     "@guolao/vue-monaco-editor": "^1.5.1",
