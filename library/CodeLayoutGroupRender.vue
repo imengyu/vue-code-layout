@@ -39,6 +39,7 @@
       @dragleave="handleDragLeave"
       @dragenter="handleDragEnter"
       @drop="handleDrop"
+      @contextmenu="onContextMenu(group.activePanel, $event)"
     >
       <OverflowCollapseList 
         class="tab-container"
