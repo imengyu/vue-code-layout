@@ -50,6 +50,14 @@ export interface CodeLayoutConfig {
    */
   bottomPanelMinHeight: number,
   /**
+   * The minimum Height of center area in pixels
+   */
+  centerMinHeight: number,
+  /**
+   * The minimum Width of center area in pixels
+   */
+  centerMinWidth: number,
+  /**
    * The layout position of the bottomPanel
    * * left: At the bottom left
    * * center: At the bottom center
@@ -208,6 +216,8 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanelMinHeight: 40,
   bottomPanelMaximize: false,
   bottomAlignment: 'center',
+  centerMinWidth: 300,
+  centerMinHeight: 100,
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -383,7 +393,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   tabStyle?: CodeLayoutPanelTabStyle;
   noAutoShink = false;
   noHide = false;
-  minSize?: number|undefined;
+  minSize?: number|number[]|undefined;
   startOpen?: boolean|undefined;
   iconLarge?: string|(() => VNode)|undefined;
   iconSmall?: string|(() => VNode)|undefined;
@@ -844,8 +854,13 @@ export interface CodeLayoutPanel {
   size?: number|undefined;
   /**
    * Min size of this gird/panel. (In pixel)
+   * 
+   * * If is a array, means x and y minium size.
+   * * 0 means no limit.
+   *
+   * Default: 0
    */
-  minSize?: number|undefined;
+  minSize?: number|number[]|undefined;
   /**
    * Is the sub panel in an open state when added to a grid.
    * 

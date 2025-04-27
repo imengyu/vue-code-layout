@@ -112,6 +112,10 @@ const splitDragging = ref<boolean[]>([]);
 let baseLeft = 0;
 let dragPanelSplitIndex = 0;
 let dragPanelLeftSize = 0;
+let dragPanelRightSize = 0;
+
+let dragPanelLastLeftSize = 0;
+let dragPanelLastRightSize = 0;
 let dragPanelArray : PanelResizePanelData[] = [];
 let dragging = false;
 let orthogonalNeedUnHovering = false;
@@ -142,7 +146,7 @@ function adjustAndReturnAdjustedSize(
   const intitalSizePx = intitalSize / 100 * containerSize; // to px
   const oldSize = (panel.visible ? intitalSizePx : 0); // to px
   const targetSize = oldSize + increaseSize;
-  const minSize = panel?.minSize || 0;
+  const minSize = getGridMinSizePx(panel);
   const panelSize = Math.max(minSize, targetSize);
 
   panel.size = panelSize / containerSize * 100; //to precent
@@ -201,26 +205,46 @@ function getGridMinSize(grid: CodeLayoutSplitNGridInternal) {
   const containerSize = props.horizontal ? 
     splitBase.value.offsetWidth : 
     splitBase.value.offsetHeight;
+  const sizePx = getGridMinSizePx(grid);
+  if (!sizePx)
+    return 0;
+  return sizePx / containerSize * 100;
+}
+/**
+ * 获取网格最小大小(像素)
+ * @param grid 面板
+ * @returns 返回像素
+ */
+function getGridMinSizePx(grid: CodeLayoutSplitNGridInternal) {
   if (!grid.minSize)
     return 0;
-  return grid.minSize / containerSize * 100;
+  let minSize = 0;
+  if (typeof grid.minSize === 'number') 
+    minSize = grid.minSize; 
+  else if (props.horizontal)
+    minSize = grid.minSize[0];
+  else
+    minSize = grid.minSize[1];
+  return minSize;
 }
 /**
  * 获取拖拽左侧面板的大小
  */
 function calcDraggerLeftSize() {
-  let leftSize = 0;
+  dragPanelLeftSize = 0;
+  dragPanelRightSize = 0;
   dragPanelArray = [];
   for (let i = 0; i < props.grid.childGrid.length; i++) {
     const panel = props.grid.childGrid[i];
     if (i < dragPanelSplitIndex && panel.visible)
-      leftSize += panel.size;
+      dragPanelLeftSize += panel.size;
+    else if (i >= dragPanelSplitIndex && panel.visible)
+      dragPanelRightSize += panel.size;
     dragPanelArray.push({
       panel,
       intitalSize: panel.size, 
     })
   }
-  return leftSize;
 }
 
 function onDraggerDown(e: MouseEvent, index: number) {
@@ -229,7 +253,7 @@ function onDraggerDown(e: MouseEvent, index: number) {
     HtmlUtils.getTop(splitBase.value!);
   splitDragging.value[index] = true;
   dragPanelSplitIndex = index;
-  dragPanelLeftSize = calcDraggerLeftSize();
+  calcDraggerLeftSize();
 }
 function onDraggerMove(e: MouseEvent, index: number) {
   if (!splitBase.value)
@@ -249,7 +273,9 @@ function onDraggerMove(e: MouseEvent, index: number) {
     splitBase.value.offsetWidth : 
     splitBase.value.offsetHeight;
 
-  const dragPanelLeftSizePx = dragPanelLeftSize / 100 * containerSize; //to px
+  
+  const dragPanelLeftSizePx = Math.min(dragPanelLeftSize / 100 * containerSize, containerSize); //to px
+  const dragPanelRightSizePx = Math.min(dragPanelRightSize / 100 * containerSize, containerSize); //to px
   const dragSize = ((props.horizontal ? e.x : e.y) - baseLeft);
   /**
    * 移动大小像素左负右正
@@ -263,78 +289,71 @@ function onDraggerMove(e: MouseEvent, index: number) {
   let leftTargetSize = dragPanelLeftSizePx + movedSize;
   let rightTargetSize = containerSize - leftTargetSize;
 
-  let leftResult = resizeGroup(-movedSize, index, false);
-  let rightResult = resizeGroup(movedSize, index, true);
+  checkSize();
 
-  const leftCompressOverflow = leftResult.allVisibleSize - leftTargetSize > 0;
-  const rightCompressOverflow = rightResult.allVisibleSize - rightTargetSize > 0;
+  let leftResult = resizeGroup(true);
+  let rightResult = resizeGroup(false);
 
+  const leftCompressOverflow = 
+    leftResult.allVisibleSize != leftTargetSize
+    || leftResult.allVisibleSize == dragPanelLastLeftSize;
+  const rightCompressOverflow = 
+    rightResult.allVisibleSize != rightTargetSize
+    || rightResult.allVisibleSize == dragPanelLastRightSize;
+
+  dragPanelLastLeftSize = leftResult.allVisibleSize;
+  dragPanelLastRightSize = rightResult.allVisibleSize;
+
+  function checkSize() {
+    if (leftTargetSize < 0)
+      throw new Error('leftTargetSize < 0');
+    if (rightTargetSize < 0)
+      throw new Error('rightTargetSize < 0'); 
+  }
   if (leftCompressOverflow) {
     rightTargetSize = containerSize - leftResult.allVisibleSize;
-    leftTargetSize = containerSize - rightTargetSize;
-    resetGroup(index, true);
-    rightResult = resizeGroup(containerSize - rightTargetSize - dragPanelLeftSizePx, index, true);
+    leftTargetSize = leftResult.allVisibleSize;
+    checkSize();
+    resetGroup(false);
+    leftResult = resizeGroup(false);
   } 
   if (rightCompressOverflow) {
     leftTargetSize = containerSize - rightResult.allVisibleSize;
-    rightTargetSize = containerSize - leftTargetSize;
-    resetGroup(index, false);
-    leftResult = resizeGroup(leftTargetSize - dragPanelLeftSizePx, index, false);
+    rightTargetSize = rightResult.allVisibleSize; 
+    checkSize();
+    resetGroup(true);
+    rightResult = resizeGroup(true);
   }
-
-  const leftClampInsufficient = leftResult.allVisibleSize < leftTargetSize;
-  const rightClampInsufficient = rightResult.allVisibleSize < rightTargetSize;
-
-  if (leftClampInsufficient) {
-    rightTargetSize = containerSize - leftResult.allVisibleSize;
-    leftTargetSize = containerSize - rightTargetSize;
-    resetGroup(index, true);
-    rightResult = resizeGroup(containerSize - rightTargetSize - dragPanelLeftSizePx, index, true);
-  } 
-  if (rightClampInsufficient) {
-    leftTargetSize = containerSize - rightResult.allVisibleSize;
-    rightTargetSize = containerSize - leftTargetSize;
-    resetGroup(index, false);
-    leftResult = resizeGroup(leftTargetSize - dragPanelLeftSizePx, index, false);
-  }
-
-  /*console.log(
-    'leftOverflow', leftCompressOverflow,
-    'rightOverflow', rightCompressOverflow,
-    'leftClamp', leftClampInsufficient,
-    'rightClamp', rightClampInsufficient,
-  );*/
 
   //如果有面板显示状态更新，则刷新大小记录
   if (allHasVisibleChanged)
-    dragPanelLeftSize = calcDraggerLeftSize();
+    calcDraggerLeftSize();
 
   /**
    * 重置面板大小
-   * @param startIndex 起始索引
-   * @param forward 调整方向
    */
-  function resetGroup(startIndex: number, forward: boolean) {
+  function resetGroup(left: boolean) {
     function resizeLoop(panel: PanelResizePanelData) {
       panel.panel.size = panel.intitalSize;
     }
-    if (forward) {
-      for (let i = startIndex; i < dragPanelArray.length; i++) 
+    if (left) {
+      for (let i = index - 1; i >= 0; i--) 
         resizeLoop(dragPanelArray[i]);
     } else {
-      for (let i = startIndex - 1; i >= 0; i--) 
+      for (let i = index; i < dragPanelArray.length; i++) 
         resizeLoop(dragPanelArray[i]);
     }
   }
   /**
    * 调整面板大小
-   * @param ineedResizeSize 调整大小 (+ 放大 - 缩小)
    * @param startIndex 起始索引
    * @param forward 调整方向
    * @returns 返回调整结果
    */
-  function resizeGroup(ineedResizeSize: number, startIndex: number, forward: boolean) {
-    let needResizeSize = ineedResizeSize;
+  function resizeGroup(left: boolean) {
+    let needResizeSize = left ? 
+      leftTargetSize - dragPanelLeftSizePx : 
+      rightTargetSize - dragPanelRightSizePx;
     let allMinSize = 0;
     let allVisibleSize = 0;
     let allVisibleChangedSize = 0;
@@ -350,21 +369,21 @@ function onDraggerMove(e: MouseEvent, index: number) {
         containerSize, 
         panel.panel, 
         panel.intitalSize,
-        -needResizeSize,
+        needResizeSize,
       );
       if (visibleChanged)
         allHasVisibleChanged = true;
       allMinSize += minSize;
-      needResizeSize += adjustedSize;
+      needResizeSize -= adjustedSize;
       allVisibleSize += resultRealNewSize;
       allVisibleChangedSize += visibleChangedSize;
     }
     
-    if (forward) {
-      for (let i = startIndex; i < dragPanelArray.length; i++) 
+    if (left) {
+      for (let i = index - 1; i >= 0; i--) 
         resizeLoop(dragPanelArray[i]);
     } else {
-      for (let i = startIndex - 1; i >= 0; i--) 
+      for (let i = index; i < dragPanelArray.length; i++) 
         resizeLoop(dragPanelArray[i]);
     }
 
@@ -427,9 +446,9 @@ const dragHandler = createMouseDragHandler<number>({
 function getCanAllocSize() {
   if (!splitBase.value)
     throw new Error('!splitBase.value');
-
-
-  const containerSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
+  const containerSize = props.horizontal ? 
+    splitBase.value.offsetWidth : 
+    splitBase.value.offsetHeight;
   let notAllocSpaceAndOpenCount = 0;
   let canAllocSize = 100;
   for (const grid of props.grid.childGrid) {
@@ -439,7 +458,6 @@ function getCanAllocSize() {
     else
       notAllocSpaceAndOpenCount++;
   }
-
   return { 
     canAllocSize: Math.max(canAllocSize, 0), 
     notAllocSpaceAndOpenCount,
@@ -456,8 +474,12 @@ function getAvgAllocSize() {
 function allocZeroGridSize() {
   const allocSize = getAvgAllocSize();
   for (const grid of props.grid.childGrid) {
-    if (grid.size <= 0)
-    grid.size = Math.max(allocSize, getGridMinSize(grid));
+    if (grid.size <= 0) {
+      grid.size = Math.max(allocSize, getGridMinSize(grid));
+      console.log('allocZeroGridSize', grid.name, grid.size);
+      if (isNaN(grid.size))
+        throw new Error('bad grid.size in ' + grid.name);
+    }
   }
 }
 
@@ -472,6 +494,8 @@ function allocZeroGridSize() {
  */
 function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
 
+  console.log('relayoutAllWithResizedSize', resizedContainerSizePrecent);
+  
   if (!splitBase.value)
     throw new Error('!splitBase.value');
 

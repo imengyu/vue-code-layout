@@ -82,7 +82,8 @@ import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'v
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
 import { 
   CodeLayout, CodeLayoutScrollbar, SplitLayout, type CodeLayoutSplitNInstance, 
-  type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal 
+  type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal, 
+  defaultCodeLayoutConfig
 } from 'vue-code-layout';
 import TestContent1 from '../assets/text/Useage.vue?raw';
 //import TestContent1 from '../assets/text/Useage2.vue?raw';
@@ -103,36 +104,23 @@ const MONACO_EDITOR_OPTIONS = {
   formatOnType: true,
   formatOnPaste: true,
 }; 
-const defaultCodeLayoutConfig : CodeLayoutConfig = {
-  primarySideBarSwitchWithActivityBar: true,
-  primarySideBarPosition: 'left',
-  primarySideBarWidth: 20,
-  primarySideBarMinWidth: 170,
-  activityBarPosition: 'side',
-  secondarySideBarWidth: 20,
-  secondarySideBarMinWidth: 170,
-  secondaryActivityBarPosition: 'side',
-  secondarySideBarAsActivityBar: false,
-  bottomPanelHeight: 30,
-  bottomPanelMinHeight: 40,
-  bottomAlignment: 'center',
-  panelHeaderHeight: 24,
-  panelMinHeight: 150,
+const codeLayoutConfig : CodeLayoutConfig = {
+  ...defaultCodeLayoutConfig,
   titleBar: true,
   titleBarShowCustomizeLayout: true,
   activityBar: true,
-  primarySideBar: false,
-  secondarySideBar: false,
+  primarySideBar: true,
+  secondarySideBar: true,
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
   bottomPanelMaximize: false,
 };
 const config = reactive<CodeLayoutConfig>({
-  ...defaultCodeLayoutConfig,
+  ...codeLayoutConfig,
   onResetDefault() {
-    for (const key in defaultCodeLayoutConfig) {
-      (config as Record<string, any>)[key] = (defaultCodeLayoutConfig as Record<string, any>)[key];
+    for (const key in codeLayoutConfig) {
+      (config as Record<string, any>)[key] = (codeLayoutConfig as Record<string, any>)[key];
     }
   },
   onDropToPanel(reference, referencePosition, panel, dropTo) {

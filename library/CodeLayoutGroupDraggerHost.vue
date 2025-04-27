@@ -63,9 +63,16 @@ const { group, horizontal } = toRefs(props);
 
 const opening = ref(false);
 
-function getPanelMinSize(minSize: number|undefined) {
-  if (!minSize)
+function getPanelMinSize(_minSize: number|number[]|undefined) {
+  if (!_minSize)
     return layoutConfig.value.panelMinHeight;
+  let minSize = 0;
+  if (typeof _minSize === 'number') 
+    minSize = _minSize; 
+  else if (props.horizontal)
+    minSize = _minSize[0];
+  else
+    minSize = _minSize[1];
   return minSize;
 }
 function adjustAndReturnAdjustedSize(panel: CodeLayoutPanelInternal, intitalSize: number, increaseSize: number) {

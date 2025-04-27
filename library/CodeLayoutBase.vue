@@ -146,15 +146,20 @@ function loadLayout() {
         name: 'centerArea',
         visible: true,
         size: 0,
-        minSize: 0,
+        minSize: [ config.centerMinWidth, config.centerMinHeight ],
       });
     }   
-    const buildGroup = (parent: CodeLayoutSplitNGridInternal, name: string, direction?: "vertical" | "horizontal") => {
+    const buildGroup = (
+      parent: CodeLayoutSplitNGridInternal, 
+      name: string, 
+      direction: "vertical" | "horizontal",
+      minSize: number|number[]
+    ) => {
       const grid = parent.addGrid({
         name,
         visible: true,
         size: 0,
-        minSize: 0,
+        minSize: minSize,
       }, direction);
       grid.notifyRelayout();
       return grid;
@@ -165,8 +170,8 @@ function loadLayout() {
 
     switch (props.config.bottomAlignment) {
       case 'left': {
-        const baseLeft = buildGroup(rootGrid, 'group1', 'vertical'); {
-          const baseTop = buildGroup(baseLeft, 'group2', 'horizontal'); {
+        const baseLeft = buildGroup(rootGrid, 'group1', 'vertical', [ config.centerMinWidth, config.centerMinHeight ]); {
+          const baseTop = buildGroup(baseLeft, 'group2', 'horizontal', [ config.centerMinWidth, config.centerMinHeight ]); {
             buildPrimary(baseTop);
             buildCenter(baseTop);
           }
@@ -177,8 +182,8 @@ function loadLayout() {
       }
       case 'right': {
         buildPrimary(rootGrid)
-        const baseLeft = buildGroup(rootGrid, 'group1', 'vertical'); {
-          const baseTop = buildGroup(baseLeft, 'group2', 'horizontal'); {
+        const baseLeft = buildGroup(rootGrid, 'group1', 'vertical', [ config.centerMinWidth, config.centerMinHeight ]); {
+          const baseTop = buildGroup(baseLeft, 'group2', 'horizontal', [ config.centerMinWidth, config.centerMinHeight ]); {
             buildCenter(baseTop);
             buildSecondary(baseTop);
           }
@@ -187,8 +192,8 @@ function loadLayout() {
         break;
       }
       case 'justify': {
-        const group = buildGroup(rootGrid, 'group1', 'vertical'); {
-          const group2 = buildGroup(group, 'group2', 'horizontal'); {
+        const group = buildGroup(rootGrid, 'group1', 'vertical', 0); {
+          const group2 = buildGroup(group, 'group2', 'horizontal', [ config.centerMinWidth, config.centerMinHeight ]); {
             buildPrimary(group2);
             buildCenter(group2);
             buildSecondary(group2);
@@ -199,7 +204,7 @@ function loadLayout() {
       }
       case 'center': {
         buildPrimary(rootGrid);
-        const group = buildGroup(rootGrid, 'group1', 'vertical'); {
+        const group = buildGroup(rootGrid, 'group1', 'vertical', [ config.centerMinWidth, config.centerMinHeight ]); {
           buildCenter(group);
           buildBottom(group);
         }
