@@ -50,4 +50,4 @@ SplitLayout is designed for split layouts in multiple editors, supporting infini
 
 CodeLayoutScrollbar is a Vue scrollbar component. If you feel that the system scrollbar does not match CodeLayout, you can try using CodeLayoutScrollbar, which has a unified style built-in.
 
-[👉 CodeLayoutScrollbar reference](../api/CodeLayoutScrollbar.md)
+[👉 CodeLayoutScrollbar reference](https://docs.imengyu.top/vue-scroll-rect-docs/en/)

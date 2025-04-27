@@ -52,4 +52,4 @@ SplitLayout专用于多个编辑器的分割布局，它支持无限层级面板
 
 CodeLayoutScrollbar是一个Vue的滚动条封装组件，如果你觉得系统内置滚动条与CodeLayout用起来不搭，可以试试使用CodeLayoutScrollbar，它内置了统一的样式。
 
-[👉 CodeLayoutScrollbar参考](../api/CodeLayoutScrollbar.md)
+[👉 CodeLayoutScrollbar参考](https://docs.imengyu.top/vue-scroll-rect-docs/)

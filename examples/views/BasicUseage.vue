@@ -36,19 +36,19 @@
       </template>
       <template #panelRender="{ panel }">
         <template v-if="panel.name === 'explorer.file'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'explorer.outline'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder2.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'search'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder5.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'debug.a'">
           <h1>debug.a</h1>
@@ -81,10 +81,11 @@ import IconVue from '../assets/icons/IconVue.vue';
 import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
 import { 
-  CodeLayout, CodeLayoutScrollbar, SplitLayout, type CodeLayoutSplitNInstance, 
+  CodeLayout, SplitLayout, type CodeLayoutSplitNInstance, 
   type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal, 
   defaultCodeLayoutConfig
 } from 'vue-code-layout';
+import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import TestContent1 from '../assets/text/Useage.vue?raw';
 //import TestContent1 from '../assets/text/Useage2.vue?raw';
 import TestContent2 from '../../README.md?raw';

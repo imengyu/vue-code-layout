@@ -20,7 +20,7 @@
       @drop="handleTabHeaderDrop"
     >
       <slot name="tabHeaderRender">
-        <CodeLayoutScrollbar scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
+        <ScrollRect scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
           <slot
             v-for="(panel, index) in grid.children"
             :key="panel.name"
@@ -39,7 +39,7 @@
             />
           </slot>
           <slot name="tabHeaderEndRender" :grid="grid" />
-        </CodeLayoutScrollbar>
+        </ScrollRect>
       </slot>
       <div class="code-layout-split-tab-list-extra">
         <slot name="tabHeaderExtraRender" :grid="grid" />
@@ -70,10 +70,11 @@
 <script setup lang="ts">
 import { ref, type PropType, inject, toRefs } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLayoutSplitNPanelInternal } from './SplitN';
-import SplitTabItem from './SplitTabItem.vue'
 import { getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { ScrollRect } from '@imengyu/vue-scroll-rect';
+import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
-import CodeLayoutScrollbar from '../Components/CodeLayoutScrollbar.vue';
+import SplitTabItem from './SplitTabItem.vue'
 
 const props = defineProps({
   grid: {

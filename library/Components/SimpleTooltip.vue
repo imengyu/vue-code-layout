@@ -180,8 +180,9 @@ function calcTooltipPosition(e: MouseEvent) {
         positionY.value = eleTop + child.offsetHeight + props.offset;
         break;
       case 'mouse':
-        positionY.value = e.y + 5;
-      break;
+        positionX.value = e.x + 15;
+        positionY.value = e.y + 25;
+        break;
     }
 
     nextTick(() => {
