@@ -1,7 +1,182 @@
 import ContextMenu, { type MenuItem } from "@imengyu/vue3-context-menu";
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from "../CodeLayout";
-import { useCodeLayoutLang } from "../Language";
+import { useCodeLayoutLang, type CodeLayoutLangDefine } from "../Language";
 import { inject, type Ref } from "vue";
+
+export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
+  'toggleVisible': {
+    create: (panel, t, data) => {
+      return [
+        { 
+          label: `${t(panel.visible ? 'hide' : 'show')} '${panel.name}'`, 
+          disabled: panel.noHide || data.showCount <= 1,
+          onClick: () => {
+            panel.visible = !panel.visible;
+            panel.relayoutAfterToggleVisible();
+          }
+        }
+      ]
+    }
+  },
+  'toggleBdge': { 
+    create: (panel, t, data) => {
+      return [
+        { 
+          label: `${t(panel.showBadge ? 'hide' : 'show')} ${t('badge')}`,
+          hidden: !panel.parentGroup?.getIsTopGroup(),
+          divided: 'down',
+          onClick: () => {
+            panel.showBadge = !panel.showBadge;
+          }
+        }
+      ]
+    }
+  },
+  'otherPanelsCheck': { 
+    create: (panel, t, data) => {
+      return data.parentArray.map(othersPanel => {
+        return {
+          label: othersPanel.name,
+          checked: othersPanel.visible,
+          disabled: othersPanel.noHide || (data.showCount <= 1 && othersPanel.visible),
+          onClick() {
+            othersPanel.visible = !othersPanel.visible;
+            othersPanel.relayoutAfterToggleVisible();
+          },
+        } as MenuItem
+      })
+    }
+  },
+  'panelPosition': { 
+    create: (panel, t, data) => {
+      return [
+        ...(panel.parentGrid === 'primarySideBar' ? [
+          { 
+            label: t('activityBarPosition'),
+            divided: 'up',
+            children: [
+              { 
+                label: t('side'),
+                checked: data.layoutConfig.value.activityBarPosition === 'side',
+                onClick() { data.layoutConfig.value.activityBarPosition = 'side';}
+              },
+              { 
+                label: t('top'),
+                checked: data.layoutConfig.value.activityBarPosition === 'top',
+                onClick() { data.layoutConfig.value.activityBarPosition = 'top';}
+              },
+              { 
+                label: t('hidden'),
+                checked: data.layoutConfig.value.activityBarPosition === 'hidden',
+                onClick() { data.layoutConfig.value.activityBarPosition = 'hidden';}
+              },
+            ]
+          },
+          { 
+            label: data.layoutConfig.value.primarySideBarPosition === 'left' ? 
+              t('movePrimarySideBarRight') : t('movePrimarySideBarLeft'),
+            onClick() {
+              data.layoutConfig.value.primarySideBarPosition =
+                (data.layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
+            }
+          },
+          { 
+            label:`${t('hide')} ${t('primarySideBar')}`,
+            onClick() {
+              data.context.relayoutTopGridProp('primarySideBar', false);
+            }
+          },
+        ] as MenuItem[] : []),
+        ...(panel.parentGrid === 'secondarySideBar' ? [
+          { 
+            label: t('activityBarPosition'),
+            divided: 'up',
+            children: [
+              { 
+                label: t('side'),
+                checked: data.layoutConfig.value.secondaryActivityBarPosition === 'side',
+                onClick() { data.layoutConfig.value.secondaryActivityBarPosition = 'side';}
+              },
+              { 
+                label: t('top'),
+                checked: data.layoutConfig.value.secondaryActivityBarPosition === 'top',
+                onClick() { data.layoutConfig.value.secondaryActivityBarPosition = 'top';}
+              },
+              { 
+                label: t('hidden'),
+                checked: data.layoutConfig.value.secondaryActivityBarPosition === 'hidden',
+                onClick() { data.layoutConfig.value.secondaryActivityBarPosition = 'hidden';}
+              },
+            ]
+          },
+          { 
+            label: data.layoutConfig.value.primarySideBarPosition === 'left' ? 
+              t('moveSecondarySideBarLeft') : t('moveSecondarySideBarRight'),
+            onClick() {
+              data.layoutConfig.value.primarySideBarPosition =
+                (data.layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
+            }
+          },
+          { 
+            label:`${t('hide')} ${t('secondarySideBar')}`,
+            onClick() {
+              data.context.relayoutTopGridProp('secondarySideBar', false);
+            }
+          },
+        ] as MenuItem[] : []),
+        ...(panel.parentGrid === 'bottomPanel' ? [ 
+          { 
+            label: t('alignPanel'),
+            divided: 'up',
+            children: [
+              { 
+                label: t('center'),
+                checked: data.layoutConfig.value.bottomAlignment === 'center',
+                onClick() { data.layoutConfig.value.bottomAlignment = 'center';}
+              },
+              { 
+                label: t('justify'),
+                checked: data.layoutConfig.value.bottomAlignment === 'justify',
+                onClick() { data.layoutConfig.value.bottomAlignment = 'justify';}
+              },
+              { 
+                label: t('left'),
+                checked: data.layoutConfig.value.bottomAlignment === 'left',
+                onClick() { data.layoutConfig.value.bottomAlignment = 'left';}
+              },
+              { 
+                label: t('right'),
+                checked: data.layoutConfig.value.bottomAlignment === 'right',
+                onClick() { data.layoutConfig.value.bottomAlignment = 'right';}
+              },
+            ]
+          },
+          { 
+            label:`${t('hide')} ${t('panel')}`,
+            onClick() {
+              data.context.relayoutTopGridProp('bottomPanel', false);
+            }
+          },
+        ] as MenuItem[] : [])
+      ]
+    }
+  },
+}
+
+export type PanelMenuRegistryItem = {
+  create: (
+    panel: CodeLayoutPanelInternal, 
+    t: (key: keyof CodeLayoutLangDefine) => string,
+    data: {
+      context: CodeLayoutContext,
+      layoutConfig: Ref<CodeLayoutConfig>,
+      parent: CodeLayoutPanelInternal,
+      parentArray: CodeLayoutPanelInternal[],
+      showCount: number,
+    }
+  ) => MenuItem[],
+  insertIndex?: number,
+}
 
 export function usePanelMenuControl() {
 
@@ -9,9 +184,9 @@ export function usePanelMenuControl() {
   const context = inject('codeLayoutContext') as CodeLayoutContext;
   const layoutConfig = inject('codeLayoutConfig') as Ref<CodeLayoutConfig>;
 
-  function onContextMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
-    e.preventDefault();
-
+  function onContextMenu(panel: CodeLayoutPanelInternal|null, e: MouseEvent) {
+    if (!panel)
+      return;
     const parent = panel.getParent();
     if (!parent)
       return;
@@ -23,147 +198,34 @@ export function usePanelMenuControl() {
     for (const iterator of parentArray)
       showCount += iterator.visible ? 1 : 0;
 
+    e.preventDefault();
+
+    //Add menus
+    const createMenuData = {
+      context,
+      layoutConfig,
+      parent,
+      parentArray,
+      showCount,
+    };
+    const items: MenuItem[] = [];
+    for (const key in PanelMenuBuiltins)
+      if (layoutConfig.value.menuConfigs.builtinMenus.includes(key))
+        items.push(...PanelMenuBuiltins[key].create(panel, t, createMenuData)) 
+    for (const item of layoutConfig.value.menuConfigs.customMenus) {
+      const iitems = item.create(panel, t, createMenuData)
+      if (item.insertIndex)
+        items.splice(item.insertIndex, 0, ...iitems);
+      else
+        items.push(...iitems);
+    }
+
+    //Show context menu
     ContextMenu.showContextMenu({
       x: e.x,
       y: e.y,
       theme: 'code-layout',
-      items: [
-        { 
-          label: `${t(panel.visible ? 'hide' : 'show')} '${panel.name}'`, 
-          disabled: panel.noHide || showCount <= 1,
-          onClick: () => {
-            panel.visible = !panel.visible;
-            panel.relayoutAfterToggleVisible();
-          }
-        },
-        { 
-          label: `${t(panel.showBadge ? 'hide' : 'show')} ${t('badge')}`,
-          hidden: !panel.parentGroup?.getIsTopGroup(),
-          divided: 'down',
-          onClick: () => {
-            panel.showBadge = !panel.showBadge;
-          }
-        },
-        ...parentArray.map(othersPanel => {
-          return {
-            label: othersPanel.name,
-            checked: othersPanel.visible,
-            disabled: othersPanel.noHide || (showCount <= 1 && othersPanel.visible),
-            onClick() {
-              othersPanel.visible = !othersPanel.visible;
-              othersPanel.relayoutAfterToggleVisible();
-            },
-          } as MenuItem
-        }),
-        ...(panel.parentGrid === 'primarySideBar' ? [
-          { 
-            label: t('activityBarPosition'),
-            divided: 'up',
-            children: [
-              { 
-                label: t('side'),
-                checked: layoutConfig.value.activityBarPosition === 'side',
-                onClick() { layoutConfig.value.activityBarPosition = 'side';}
-              },
-              { 
-                label: t('top'),
-                checked: layoutConfig.value.activityBarPosition === 'top',
-                onClick() { layoutConfig.value.activityBarPosition = 'top';}
-              },
-              { 
-                label: t('hidden'),
-                checked: layoutConfig.value.activityBarPosition === 'hidden',
-                onClick() { layoutConfig.value.activityBarPosition = 'hidden';}
-              },
-            ]
-          },
-          { 
-            label: layoutConfig.value.primarySideBarPosition === 'left' ? 
-              t('movePrimarySideBarRight') : t('movePrimarySideBarLeft'),
-            onClick() {
-              layoutConfig.value.primarySideBarPosition =
-                (layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
-            }
-          },
-          { 
-            label:`${t('hide')} ${t('primarySideBar')}`,
-            onClick() {
-              context.relayoutTopGridProp('primarySideBar', false);
-            }
-          },
-        ] as MenuItem[] : []),
-        ...(panel.parentGrid === 'secondarySideBar' ? [
-          { 
-            label: t('activityBarPosition'),
-            divided: 'up',
-            children: [
-              { 
-                label: t('side'),
-                checked: layoutConfig.value.secondaryActivityBarPosition === 'side',
-                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'side';}
-              },
-              { 
-                label: t('top'),
-                checked: layoutConfig.value.secondaryActivityBarPosition === 'top',
-                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'top';}
-              },
-              { 
-                label: t('hidden'),
-                checked: layoutConfig.value.secondaryActivityBarPosition === 'hidden',
-                onClick() { layoutConfig.value.secondaryActivityBarPosition = 'hidden';}
-              },
-            ]
-          },
-          { 
-            label: layoutConfig.value.primarySideBarPosition === 'left' ? 
-              t('moveSecondarySideBarLeft') : t('moveSecondarySideBarRight'),
-            onClick() {
-              layoutConfig.value.primarySideBarPosition =
-                (layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
-            }
-          },
-          { 
-            label:`${t('hide')} ${t('secondarySideBar')}`,
-            onClick() {
-              context.relayoutTopGridProp('secondarySideBar', false);
-            }
-          },
-        ] as MenuItem[] : []),
-        ...(panel.parentGrid === 'bottomPanel' ? [ 
-          { 
-            label: t('alignPanel'),
-            divided: 'up',
-            children: [
-              { 
-                label: t('center'),
-                checked: layoutConfig.value.bottomAlignment === 'center',
-                onClick() { layoutConfig.value.bottomAlignment = 'center';}
-              },
-              { 
-                label: t('justify'),
-                checked: layoutConfig.value.bottomAlignment === 'justify',
-                onClick() { layoutConfig.value.bottomAlignment = 'justify';}
-              },
-              { 
-                label: t('left'),
-                checked: layoutConfig.value.bottomAlignment === 'left',
-                onClick() { layoutConfig.value.bottomAlignment = 'left';}
-              },
-              { 
-                label: t('right'),
-                checked: layoutConfig.value.bottomAlignment === 'right',
-                onClick() { layoutConfig.value.bottomAlignment = 'right';}
-              },
-            ]
-          },
-          { 
-            label:`${t('hide')} ${t('panel')}`,
-            onClick() {
-              context.relayoutTopGridProp('bottomPanel', false);
-            }
-          },
-        ] as MenuItem[] : [])
-      ]
+      items 
     });
   }
 

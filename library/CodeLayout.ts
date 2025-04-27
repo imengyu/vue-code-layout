@@ -2,6 +2,7 @@ import { reactive, type VNode } from "vue";
 import { LateClass } from "./Composeable/LateClass";
 import type { CodeLayoutLangDefine } from "./Language";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import { PanelMenuBuiltins, type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
 
 /**
  * Layout Type Definition
@@ -129,6 +130,19 @@ export interface CodeLayoutConfig {
    * Show menuBar?
    */
   menuBar: boolean,
+  /**
+   * Panel Menu configuration
+   */
+  menuConfigs: {
+    /**
+     * Set the built-in menu items.
+     */
+    builtinMenus: string[],
+    /**
+     * Add custom menu items.
+     */
+    customMenus: PanelMenuRegistryItem[],
+  };
 
   //Events
 
@@ -228,6 +242,10 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
+  menuConfigs: {
+    builtinMenus: Object.keys(PanelMenuBuiltins),
+    customMenus: [],
+  }
 }
 
 //用户接口定义
