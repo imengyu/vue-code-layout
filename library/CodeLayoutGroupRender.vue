@@ -24,6 +24,7 @@
       'code-layout-group',
       'tab-' + group.tabStyle,
       type === 'primary' ? 'primary' : '',
+      group.tabStyle && (group.tabStyle == 'text-bottom' || group.tabStyle == 'icon-bottom') ? 'reverse-header' : '',
     ]"
   > 
     <!-- TAB栏 -->
@@ -46,6 +47,8 @@
         :items="group.children"
         :activeItem="group.activePanel"
         :itemMenuLabel="(p) => (p as CodeLayoutPanelInternal).title"
+        :menuDirection="group.tabStyle === 'text-bottom' || group.tabStyle === 'icon-bottom'? 'up' : 'down'"
+        visibleKey="visible"
         @overflowItemClicked="(p) => group.setActiveChild(p as CodeLayoutPanelInternal)"
       >
         <template #item="{ item: panel }">
@@ -292,6 +295,17 @@ defineExpose({
 
   &.primary {
     background-color: var(--code-layout-color-background-second);
+  }
+  &.reverse-header {
+    flex-direction: column-reverse;
+
+    > .tab {
+      border-top: 1px solid var(--code-layout-color-border);
+
+      .tab-item {
+        padding: var(--tab-padding);
+      }
+    }
   }
 
   //Tab header

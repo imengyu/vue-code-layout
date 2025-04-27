@@ -74,7 +74,7 @@ export interface CodeLayoutConfig {
    * * top: In primarySideBar top
    * * hidden: No activityBar
    */
-  activityBarPosition: 'side'|'top'|'hidden',
+  activityBarPosition: 'side'|'top'|'hidden'|'bottom',
   /**
    * The height of the panel title in pixels
    */
@@ -113,7 +113,7 @@ export interface CodeLayoutConfig {
    * * top: In primarySideBar top
    * * hidden: No activityBar
    */
-  secondaryActivityBarPosition: 'side'|'top'|'hidden',
+  secondaryActivityBarPosition: 'side'|'top'|'hidden'|'bottom',
   /**
    * Show bottomPanel?
    */
@@ -767,7 +767,7 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
   }
 }
 
-export type CodeLayoutPanelTabStyle = 'none'|'single'|'text'|'icon'|'hidden';
+export type CodeLayoutPanelTabStyle = 'none'|'single'|'text'|'text-bottom'|'icon'|'icon-bottom'|'hidden';
 
 /**
  * Panel User Type Definition

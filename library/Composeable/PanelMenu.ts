@@ -50,7 +50,10 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
   'panelPosition': { 
     create: (panel, t, data) => {
       return [
-        ...(panel.parentGrid === 'primarySideBar' ? [
+        ...((panel.parentGrid === 'primarySideBar' || (
+          panel.parentGrid === 'secondarySideBar' && 
+          !data.layoutConfig.value.secondarySideBarAsActivityBar)
+        ) ? [
           { 
             label: t('activityBarPosition'),
             divided: 'up',
@@ -64,6 +67,11 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
                 label: t('top'),
                 checked: data.layoutConfig.value.activityBarPosition === 'top',
                 onClick() { data.layoutConfig.value.activityBarPosition = 'top';}
+              },
+              { 
+                label: t('bottom'),
+                checked: data.layoutConfig.value.activityBarPosition === 'bottom',
+                onClick() { data.layoutConfig.value.activityBarPosition = 'bottom';}
               },
               { 
                 label: t('hidden'),
@@ -87,9 +95,9 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
             }
           },
         ] as MenuItem[] : []),
-        ...(panel.parentGrid === 'secondarySideBar' ? [
+        ...((panel.parentGrid === 'secondarySideBar' && data.layoutConfig.value.secondarySideBarAsActivityBar) ? [
           { 
-            label: t('activityBarPosition'),
+            label: t('secondaryActivityBarPosition'),
             divided: 'up',
             children: [
               { 
@@ -101,6 +109,11 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
                 label: t('top'),
                 checked: data.layoutConfig.value.secondaryActivityBarPosition === 'top',
                 onClick() { data.layoutConfig.value.secondaryActivityBarPosition = 'top';}
+              },
+              { 
+                label: t('bottom'),
+                checked: data.layoutConfig.value.secondaryActivityBarPosition === 'bottom',
+                onClick() { data.layoutConfig.value.secondaryActivityBarPosition = 'bottom';}
               },
               { 
                 label: t('hidden'),

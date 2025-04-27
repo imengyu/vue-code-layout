@@ -269,6 +269,7 @@ watch(() => props.config.primarySideBarMinWidth, () => relayoutAfterVarChange())
 watch(() => props.config.primarySideBarPosition, () => relayoutAfterVarChange());
 watch(() => props.config.primarySideBarWidth, () => loadLayout());
 watch(() => props.config.secondarySideBarMinWidth, () => relayoutAfterVarChange());
+watch(() => props.config.secondaryActivityBarPosition, () => relayoutAfterVarChange());
 watch(() => props.config.secondarySideBarWidth, () => loadLayout());
 
 function relayoutAfterVarChange() {

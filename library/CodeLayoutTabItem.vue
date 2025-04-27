@@ -20,8 +20,8 @@
       @drop="handleDrop"
       @contextmenu="onContextMenu(panel, $event)"
     >
-      <span v-if="tabStyle == 'text'" class="title">{{ panel.title }}</span>
-      <span v-if="tabStyle == 'icon'" class="icon">
+      <span v-if="tabStyle == 'text' || tabStyle == 'text-bottom'" class="title">{{ panel.title }}</span>
+      <span v-if="tabStyle == 'icon' || tabStyle == 'icon-bottom'" class="icon">
         <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge || panel.title" />
       </span>
       <span v-if="panel.badge" class="badge">

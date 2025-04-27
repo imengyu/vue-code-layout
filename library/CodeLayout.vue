@@ -239,6 +239,9 @@ function loadActivityBarPosition() {
     case 'top':
       panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
       break;
+    case 'bottom':
+      panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
+      break;
   }
   if (layoutConfig.value.secondarySideBarAsActivityBar)
   {
@@ -250,10 +253,27 @@ function loadActivityBarPosition() {
       case 'top':
         panels.value.secondary.tabStyle = 'icon';
         break;
+      case 'bottom':
+        panels.value.secondary.tabStyle = 'icon-bottom';
+        break;
     }
   }
-  else
-    panels.value.secondary.tabStyle = 'icon';
+  else {
+    switch (layoutConfig.value.activityBarPosition) {
+      case 'side':
+        panels.value.secondary.tabStyle = 'icon';
+        break;
+      case 'hidden':
+        panels.value.secondary.tabStyle = 'hidden';
+        break;
+      case 'top':
+        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
+        break;
+      case 'bottom':
+        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
+        break;
+    }
+  }
 }
 
 watch(() => layoutConfig.value.secondarySideBarAsActivityBar, loadActivityBarPosition);
