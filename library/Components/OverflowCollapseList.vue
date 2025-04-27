@@ -6,13 +6,17 @@
       direction,
     ]"
   >
-    <slot 
+    <template
       v-for="(item, index) in items"
       :key="item.key ?? index"
-      :item="item"
-      :index="index"
-      name="item"
-    />
+    >
+      <slot 
+        v-if="!visibleKey || item[visibleKey]"
+        :item="item"
+        :index="index"
+        name="item"
+      />
+    </template>
     <slot v-if="overflowIndex >= 0" name="overflowItem">
       <div ref="overflowItem" class="OverflowItem" @click="onOverflowItemClicked">
         <IconMore />
@@ -35,6 +39,20 @@ const props = defineProps({
   items: {
     type: Object as PropType<Array<any>>,
     default: () => ([] as object)
+  },
+  /**
+   * Key of the item.visible, used to identify the item visibility
+   */
+  visibleKey: {
+    type: String,
+    default: '',
+  },
+  /**
+   * Direction of the menu
+   */
+  menuDirection: {  
+    type: String as PropType<'up'|'down'>,
+    default: 'down',
   },
   /**
    * Activated item, activated item will not be hidden
@@ -79,6 +97,7 @@ function doCalcItemOverflow() {
   if (!container.value)
     return;
 
+  const visibleKey = props.visibleKey;
   const activeItem = props.activeItem;
   const horizontal = props.direction === 'horizontal';
   const width = (horizontal ? container.value.offsetWidth  : container.value.offsetHeight) - props.itemCollapseMergin;
@@ -88,8 +107,11 @@ function doCalcItemOverflow() {
   for (let i = 0; i < children.length && i < props.items.length; i++) {
     const element = children[i] as HTMLElement;
     element.style.display = '';
+
+    if (visibleKey && !props.items[i][visibleKey])
+      continue;
+
     x += horizontal ? element.offsetWidth : element.offsetHeight;
-    
     element.style.display = (x < width || props.items[i] === activeItem) ? '' : 'none';
 
     if (x >= width && firstOverflow === -1) {
@@ -105,14 +127,16 @@ function onOverflowItemClicked() {
   if (!overflowItem.value)
     return;
   const horizontal = props.direction === 'horizontal';
+  const up = props.menuDirection === 'up';
   ContextMenu.showContextMenu({
     theme: 'code-layout',
     x: horizontal ? 
         HtmlUtils.getLeft(overflowItem.value) :
         (HtmlUtils.getLeft(overflowItem.value) + overflowItem.value.clientWidth),
     y: horizontal ?
-      HtmlUtils.getTop(overflowItem.value) + overflowItem.value?.offsetHeight : 
+      HtmlUtils.getTop(overflowItem.value) + (up ? overflowItem.value?.offsetHeight : 0) : 
       HtmlUtils.getTop(overflowItem.value),
+    direction: up ? 't' : 'b',
     items: props.items.slice(overflowIndex.value).map((p) => ({
       label: props.itemMenuLabel?.(p) || '',
       onClick() {
