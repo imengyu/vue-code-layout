@@ -58,8 +58,11 @@
           <p>../assets/images/placeholder5.png</p>
         </template>
         <template v-else-if="panel.name === 'bottom.ports'">
+          <div class="test-buttons">
+            <button @click="testPanelActive">Test active debug b</button>
+            <button @click="testFindPanel">Test find panel</button>
+          </div>
           <img src="../assets/images/placeholder3.png">
-          <button @click="testPanelActive">Test active debug b</button>
         </template>
         <template v-else-if="panel.name === 'bottom.terminal'">
           <img src="../assets/images/placeholder4.png">
@@ -228,16 +231,24 @@ function loadInnerLayout() {
       name: 'split2',
     });
     splitRight.addPanel({
-      title: 'BasicUseage.vue',
+      title: 'BasicUseage.vue (1)',
       tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue',
       name: 'file1',
+      iconSmall: () => h(IconVue),
+      data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
+    });
+    splitRight.addPanel({
+      title: 'BasicUseage.vue (2)',
+      tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue',
+      name: 'file2',
+      badge: '2',
       iconSmall: () => h(IconVue),
       data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
     });
     splitLeft.addPanel({
       title: 'CodeLayoutHelp.md',
       tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md',
-      name: 'file2',
+      name: 'file3',
       data: { value: TestContent2, language: 'markdown', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md', },
       closeType: 'close',
       iconSmall: () => h(IconMarkdown),
@@ -496,6 +507,15 @@ function saveLayout() {
 
 function testPanelActive() {
   codeLayout.value?.getPanelByName('debug.b')?.activeSelf();
+}
+function testFindPanel() {
+  if (!splitLayout.value)
+    throw new Error('splitLayout is null');
+  console.log(
+    splitLayout.value.getPanelByName("file1"), 
+    splitLayout.value.getPanelByName("file2"),
+    splitLayout.value.getPanelByName("file3")
+  );
 }
 
 onMounted(() => {

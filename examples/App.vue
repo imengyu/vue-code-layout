@@ -77,6 +77,14 @@ html, body, #app {
     }
   }
 }
+.test-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;;
+}
 
 .full-container {
   position: relative;

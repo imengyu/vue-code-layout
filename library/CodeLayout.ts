@@ -366,11 +366,14 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   /**
    * Show panel?
    * 
-   * * Only used in CodeLayout.
+   * * Used in CodeLayout/SplitLayout.
    * 
    * After changed, need call `relayoutAfterToggleVisible` to apply.
    */
   visible = true;
+  /**
+   * Show badge?
+   */
   showBadge = true;
   /**
    * Size of this panel.
@@ -446,9 +449,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   
     if (startOpen || panel.startOpen)
       panelResult.openPanel();
-  
-    this.context.panelInstances.set(panelInternal.name, panelResult as CodeLayoutPanelInternal);
-  
     return panelResult;
   }
   /**
@@ -463,7 +463,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       this.context.removePanelInternal(panel);
     else
       this.removeChild(panel);
-    this.context.panelInstances.delete(panel.name);
     return panel;
   }
   /**
@@ -637,6 +636,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
+    this.context.panelInstances.set(child.name, child);
   }
   addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number) {
     for (const child of childs) {
@@ -652,6 +652,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
         throw new Error('Try add self');
       child.parentGroup = this;
       child.parentGrid = this.parentGrid;
+      this.context.panelInstances.set(child.name, child);
     }
     if (!this.activePanel)
       this.activePanel = this.children[0];
@@ -662,6 +663,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (child.name === this.activePanel?.name)
       this.reselectActiveChild();
+    this.context.panelInstances.delete(child.name);
   }
   replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) {
     this.children.splice(
@@ -672,6 +674,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
+    
+    this.context.panelInstances.delete(oldChild.name);
+    this.context.panelInstances.set(child.name, child);
     child.parentGroup = this;
     child.parentGrid = this.parentGrid;
   }
