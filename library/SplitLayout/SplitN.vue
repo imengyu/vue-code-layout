@@ -13,6 +13,7 @@
         width: horizontal ? `calc(${child.visible ? child.size : 0}% - ${draggerSize}px)` : undefined,
         height: horizontal ? undefined : (`calc(${child.visible ? child.size : 0}% - ${draggerSize}px)`),
       }"
+      :data-panel-name="child.name"
       class="split-n-container"
     >
       <div 
@@ -59,6 +60,7 @@ import HtmlUtils from '../Utils/HtmlUtils';
 import { createMouseDragHandler } from '../Composeable/MouseHandler';
 import { ref, type PropType, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import type { CodeLayoutSplitNGridInternal } from './SplitN';
+import type { CodeLayoutPanel, CodeLayoutPanelInternal } from '@/CodeLayout';
 
 export interface SplitNInstance {
   applyOrthogonalDragger(type: string, e: MouseEvent): void;
@@ -480,13 +482,12 @@ function allocZeroGridSize() {
   for (const grid of props.grid.childGrid) {
     if (grid.size <= 0) {
       grid.size = Math.max(allocSize, getGridMinSize(grid));
-      console.log('allocZeroGridSize', grid.name, grid.size);
+      //console.log('allocZeroGridSize', grid.name, grid.size);
       if (isNaN(grid.size))
         throw new Error('bad grid.size in ' + grid.name);
     }
   }
 }
-
 
 /**
  * 当容器大小或者容器添加/删除时，重新布局已存在面板

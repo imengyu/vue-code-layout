@@ -2,6 +2,10 @@
   <CodeLayoutBase 
     ref="codeLayoutBase"
     :config="layoutConfig"
+    :primary="panels.primary"
+    :secondary="panels.secondary"
+    :bottom="panels.bottom"
+    @layoutChange="emit('baseLayoutChange')"
   >
     <template #titleBarBottom>
       <slot name="titleBarBottom" />
@@ -142,6 +146,7 @@ const activityBarGroup = ref();
 const emit = defineEmits([	
   'canLoadLayout',
   'canSaveLayout',
+  'baseLayoutChange'
 ]);
 const props = defineProps({
   /**

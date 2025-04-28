@@ -65,7 +65,7 @@
           <img src="../assets/images/placeholder3.png">
         </template>
         <template v-else-if="panel.name === 'bottom.terminal'">
-          <img src="../assets/images/placeholder4.png">
+          <img ref="testResizeFit" style="width:100%;height:100%" src="../assets/images/placeholder4.png">
         </template>
         <span v-else>Panel {{ panel.name }}, no content</span>
       </template>
@@ -81,12 +81,12 @@ import IconFile from '../assets/icons/IconFile.vue';
 import IconSearch from '../assets/icons/IconSearch.vue';
 import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
-import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'vue';
+import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw, watch } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
 import { 
   CodeLayout, SplitLayout, type CodeLayoutSplitNInstance, 
   type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal, 
-  defaultCodeLayoutConfig
+  defaultCodeLayoutConfig, useResizeChecker
 } from 'vue-code-layout';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import TestContent1 from '../assets/text/Useage.vue?raw';
@@ -485,6 +485,10 @@ function loadLayout() {
           },
         ]
       });
+
+      bottomGroup.onResize = () => {
+        console.log('bottomGroup resized!', bottomGroup.size);
+      };
     }
   }
   //Load layout config
@@ -518,15 +522,27 @@ function testFindPanel() {
   );
 }
 
+const testResizeFit = ref<HTMLElement>();
+
+const { startResizeChecker, stopResizeChecker } = useResizeChecker(testResizeFit, (newWidth) => {
+  console.log('testResizeFit Width changed!', newWidth);
+}, (newHeight) => {
+  console.log('testResizeFit Height changed!', newHeight);
+});
+
+
+
 onMounted(() => {
   nextTick(() => {
     loadLayout();
+    startResizeChecker();
   });
   window.addEventListener('beforeunload', saveLayout);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', saveLayout);
   saveLayout();
+  stopResizeChecker();
 })
 
 defineExpose({

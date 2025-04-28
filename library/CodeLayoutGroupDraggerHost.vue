@@ -81,7 +81,6 @@ function adjustAndReturnAdjustedSize(panel: CodeLayoutPanelInternal, intitalSize
   return panel.size - intitalSize;
 }
 
-
 interface PanelResizePanelData {
   panel: CodeLayoutPanelInternal, 
   size: number;

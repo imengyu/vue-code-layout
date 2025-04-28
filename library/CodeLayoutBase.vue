@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import { ref, type PropType, watch } from 'vue';
-import type { CodeLayoutConfig } from './CodeLayout';
+import type { CodeLayoutConfig, CodeLayoutGridInternal, CodeLayoutPanelInternal } from './CodeLayout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
 
@@ -87,7 +87,22 @@ const props = defineProps({
     type: Object as PropType<CodeLayoutConfig>,
     required: true,
   },
+  bottom: {
+    type: Object as PropType<CodeLayoutGridInternal>,
+    required: false,
+  },
+  primary: {
+    type: Object as PropType<CodeLayoutGridInternal>,
+    required: false,
+  },
+  secondary: {
+    type: Object as PropType<CodeLayoutGridInternal>,
+    required: false,
+  },
 });
+const emit = defineEmits([
+  'layoutChanged',
+]);
 
 const currentBottom = ref<CodeLayoutSplitNGridInternal>();
 
@@ -101,6 +116,7 @@ function loadLayout() {
 
     const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
       return parent.addGrid({
+        ...(inversePrimary ? props.primary : props.secondary)?.toCopiedEvents(),
         name: inversePrimary ? 'primarySideBar' : 'secondarySideBar',
         visible: inversePrimary ? config.primarySideBar : config.secondarySideBar,
         size: inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth,
@@ -114,6 +130,7 @@ function loadLayout() {
     }
     const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
       return parent.addGrid({
+        ...(inversePrimary ? props.secondary : props.primary)?.toCopiedEvents(),
         name: inversePrimary ? 'secondarySideBar' : 'primarySideBar',
         visible: inversePrimary ? config.secondarySideBar : config.primarySideBar,
         size: inversePrimary ? config.secondarySideBarWidth : config.primarySideBarWidth,
@@ -127,6 +144,7 @@ function loadLayout() {
     }
     const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
       currentBottom.value = parent.addGrid({
+        ...props.bottom?.toCopiedEvents(),
         name: 'bottomPanel',
         visible: config.bottomPanel,
         size: config.bottomPanelMaximize ? 100 : (
@@ -139,6 +157,8 @@ function loadLayout() {
           config.bottomPanel = visible;
         },
       });
+      console.log(props.bottom?.toCopiedEvents());
+      
       return currentBottom.value;
     }    
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
@@ -228,6 +248,7 @@ function loadLayout() {
     }
       
     rootGrid.notifyRelayout();
+    emit('layoutChanged');
   }
 }
 

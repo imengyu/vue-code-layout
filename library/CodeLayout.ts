@@ -333,6 +333,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     this.context = context;
   }
 
+  private _size = 0;
+  private _open = false;
+  private _visible = true;
+
   context: CodeLayoutPanelHosterContext;
   /**
    * Title of this panel.
@@ -356,7 +360,15 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * * Only used in CodeLayout. 
    * In SplitLayout, all panels are always in open state.
    */
-  open = false;
+  get open() {
+    return this._open;
+  }
+  set open(value: boolean) {
+    if (value === this._open)
+      return; 
+    this._open = value;
+    this.onOpenChange?.call(this, this.open);
+  }
   /**
    * Set user can resize this panel.
    * 
@@ -370,18 +382,28 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * 
    * After changed, need call `relayoutAfterToggleVisible` to apply.
    */
-  visible = true;
+  get visible() {
+    return this._visible;
+  }
+  set visible(value: boolean) {
+    if (value === this._visible)
+      return; 
+    this._visible = value;
+    this.onVisibleChange?.call(this, this.visible);
+  }
   /**
    * Show badge?
    */
   showBadge = true;
-  /**
-   * Size of this panel.
-   * 
-   * * In CodeLayout, it's pixel size.
-   * * In SplitLayout, it's percentage size.
-   */
-  size = 0;
+  get size() {
+    return this._size;
+  }
+  set size(value: number) {
+    if (value === this._size)
+      return;
+    this._size = value;
+    this.onResize?.call(this, this.size);
+  }
   /**
    * Child panel of this grid.
    */
@@ -411,6 +433,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     referencePanel?: CodeLayoutPanel|undefined,
     referencePosition?: CodeLayoutDragDropReferencePosition|undefined,
   ) => boolean;
+  onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+  onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+  onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
+
   tabStyle?: CodeLayoutPanelTabStyle;
   noAutoShink = false;
   noHide = false;
@@ -713,6 +739,13 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     return this.children.length > 0 ? this.children : [ this ];
   }
 
+  toCopiedEvents(): object {
+    return {
+      onResize: this.onResize,
+      onVisibleChange: this.onVisibleChange,
+      onOpenChange: this.onOpenChange,
+    }
+  }
   toJson() : any {
     return {
       name: this.name,
@@ -802,8 +835,6 @@ export interface CodeLayoutPanel {
   badge?: string|(() => VNode)|undefined;
   /**
    * Show panel?
-   * 
-   * * Only used in CodeLayout.
    */
   visible?: boolean;
   /**
@@ -835,6 +866,23 @@ export interface CodeLayoutPanel {
     referencePanel?: CodeLayoutPanel|undefined,
     referencePosition?: CodeLayoutDragDropReferencePosition|undefined,
   ) => boolean;
+  /**
+   * Resize callback for this panel
+   * @param size New size
+   * @returns 
+   */
+  onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+  /**
+   * Visible change callback for this panel.
+   * @param visible New visible state.
+   */
+  onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+  /**
+   * Open state change callback for this panel.
+   * 
+   * * Only used in CodeLayout.
+   */
+  onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
 
   /**
    * Set tab style of this grid.
