@@ -136,6 +136,7 @@ import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-co
 import { usePanelDraggerRoot } from './Composeable/DragDrop';
 import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
+import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
 const primarySideBarGroup = ref();
@@ -198,7 +199,7 @@ const hosterContext : CodeLayoutPanelHosterContext = {
 }
 
 const panels = ref({
-  primary: new CodeLayoutGridInternal('primarySideBar', 'hidden', hosterContext, 
+  primary: new CodeLayoutSplitNGridInternal(hosterContext, 'primarySideBar', 'hidden', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.primarySideBar = open;
@@ -207,7 +208,7 @@ const panels = ref({
     primarySideBarGroup.value.forceUpdate();
     activityBarGroup.value.forceUpdate();
   }),
-  secondary: new CodeLayoutGridInternal('secondarySideBar', 'icon', hosterContext,
+  secondary: new CodeLayoutSplitNGridInternal(hosterContext,'secondarySideBar', 'icon', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.secondarySideBar = open;
@@ -215,7 +216,7 @@ const panels = ref({
   () => {
     secondarySideBarGroup.value.forceUpdate();
   }),
-  bottom: new CodeLayoutGridInternal('bottomPanel', 'text', hosterContext,
+  bottom: new CodeLayoutSplitNGridInternal(hosterContext,'bottomPanel', 'text', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.bottomPanel = open;
@@ -224,9 +225,9 @@ const panels = ref({
     bottomPanelGroup.value.forceUpdate();
   }),
 }) as Ref<{
-  primary: CodeLayoutGridInternal,
-  secondary: CodeLayoutGridInternal,
-  bottom: CodeLayoutGridInternal,
+  primary: CodeLayoutSplitNGridInternal,
+  secondary: CodeLayoutSplitNGridInternal,
+  bottom: CodeLayoutSplitNGridInternal,
 }>;
 
 //设置默认的面板拖拽允许
@@ -308,30 +309,6 @@ const codeLayoutInstance : CodeLayoutInstance = {
   clearLayout,
   loadLayout,
   saveLayout,
-  getGridTreeDebugText: () => {
-    let str = '';
-    function loop(g: CodeLayoutPanelInternal, intent = 0) {
-      str += '\n└';
-      for (let i = 0; i < intent; i++)
-        str += '─';
-      str += `─${g.name} : ${g.size}`;
-      for (const child of g.children) {
-        loop(child, intent + 1);
-        if (!child.parentGroup)
-          str += '\n└───ERROR ▲────';
-      }
-      for (const child of g.children) {
-        str += '\n└';
-        for (let i = 0; i < intent + 1; i++)
-          str += '─';
-        str += `┷─${child.name}`;
-      }
-    }
-    loop(panels.value.primary);
-    loop(panels.value.secondary);
-    loop(panels.value.bottom);
-    return str;
-  },
 };
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
@@ -749,6 +726,7 @@ function onActivityBarAcitve2(panelGroup: CodeLayoutPanelInternal) {
 
 function getRootGrid(target: CodeLayoutGrid) : CodeLayoutGridInternal {
   switch (target) {
+    case 'rootGrid': return codeLayoutBase.value?.getSplitLayoutRef()?.getRootGrid()!;
     case 'primarySideBar': return panels.value.primary as CodeLayoutGridInternal;
     case 'secondarySideBar': return panels.value.secondary as CodeLayoutGridInternal;
     case 'bottomPanel': return panels.value.bottom as CodeLayoutGridInternal;

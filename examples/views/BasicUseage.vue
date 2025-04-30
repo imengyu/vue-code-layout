@@ -492,6 +492,7 @@ function loadLayout() {
 
       console.log(bottomGroup);
       
+      console.log(codeLayout.value?.getRootGrid('rootGrid'))
     }
   }
   //Load layout config

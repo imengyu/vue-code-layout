@@ -1,5 +1,5 @@
 import { nextTick, reactive, type Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType } from "../CodeLayout";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid } from "../CodeLayout";
 
 
 export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
@@ -35,7 +35,6 @@ export interface CodeLayoutSplitNPanel extends Omit<CodeLayoutPanel, 'visible'|'
 }
 
 export type CodeLayoutSplitCopyDirection = 'left'|'top'|'bottom'|'right';
-
 
 
 /**
@@ -201,8 +200,14 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
  */
 export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal implements CodeLayoutSplitNGrid {
 
-  public constructor(context: CodeLayoutPanelHosterContext) {
-    super('centerArea', 'text', context, () => {}, () => {});
+  public constructor(
+    context: CodeLayoutPanelHosterContext,
+    name : CodeLayoutGrid = 'centerArea',
+    tabStyle: CodeLayoutPanelTabStyle = 'text',
+    onSwitchCollapse: (open: boolean) => void = () => {},
+    onActiveSelf: () => void = () => {},
+  ) {
+    super(name, tabStyle, context, onSwitchCollapse, onActiveSelf);
     this.open = true;
   }
 
@@ -320,6 +325,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
       this.childGrid.push(child);
     child.parentGroup = this;
     child.parentGrid = this.parentGrid;
+    return child;
   }
   addChildGrids(childs: CodeLayoutSplitNGridInternal[], startIndex?: number) {
     if (typeof startIndex === 'number')

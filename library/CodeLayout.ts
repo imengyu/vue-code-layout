@@ -264,7 +264,6 @@ export type CodeLayoutPanelCloseType = 'unSave'|'close'|'none';
  * ```
  */
 export interface CodeLayoutInstance {
-  getGridTreeDebugText(): string;
   /**
    * Get panel instance by name.
    * @param name The panel name.
@@ -749,13 +748,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
 
   toString() {
     return `Panel: ${this.name} size: ${this.size}`
-  }
-  toCopiedEvents(): object {
-    return {
-      onResize: this.onResize,
-      onVisibleChange: this.onVisibleChange,
-      onOpenChange: this.onOpenChange,
-    }
   }
   toJson() : any {
     return {

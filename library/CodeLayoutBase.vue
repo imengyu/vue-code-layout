@@ -70,12 +70,13 @@
 
 <script setup lang="ts">
 import { ref, type PropType, watch } from 'vue';
-import type { CodeLayoutConfig, CodeLayoutGridInternal, CodeLayoutPanelInternal } from './CodeLayout';
-import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
+import type { CodeLayoutConfig, CodeLayoutGridInternal } from './CodeLayout';
+import { type CodeLayoutSplitNGridInternal, type CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
 
 export interface CodeLayoutBaseInstance {
   getRef: () => HTMLElement | undefined;
+  getSplitLayoutRef: () => CodeLayoutSplitNInstance | undefined;
   saveGridLayoutDataToConfig: () => void;
 }
 
@@ -88,15 +89,15 @@ const props = defineProps({
     required: true,
   },
   bottom: {
-    type: Object as PropType<CodeLayoutGridInternal>,
+    type: Object as PropType<CodeLayoutSplitNGridInternal>,
     required: false,
   },
   primary: {
-    type: Object as PropType<CodeLayoutGridInternal>,
+    type: Object as PropType<CodeLayoutSplitNGridInternal>,
     required: false,
   },
   secondary: {
-    type: Object as PropType<CodeLayoutGridInternal>,
+    type: Object as PropType<CodeLayoutSplitNGridInternal>,
     required: false,
   },
 });
@@ -109,54 +110,50 @@ const currentBottom = ref<CodeLayoutSplitNGridInternal>();
 function loadLayout() {
   if (isNextNoChangeLayout())
     return;
+  if (!props.primary || !props.secondary || !props.bottom)
+    throw new Error('CodeLayoutBase: primary, secondary or bottom is not defined');
   if (splitLayoutRef.value) {
     const rootGrid = splitLayoutRef.value.getRootGrid();
     const config = props.config;
     const inversePrimary = props.config.primarySideBarPosition === 'right';
 
     const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
-      return parent.addGrid({
-        ...(inversePrimary ? props.primary : props.secondary)?.toCopiedEvents(),
-        name: inversePrimary ? 'primarySideBar' : 'secondarySideBar',
-        visible: inversePrimary ? config.primarySideBar : config.secondarySideBar,
-        size: inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth,
-        minSize: inversePrimary ? config.primarySideBarMinWidth : config.secondarySideBarMinWidth,
-        canMinClose: true,
-        onMinCloseChanged(grid, visible) {
-          setNextNoChangeLayout();
-          inversePrimary ? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
-        },
-      });
+      const panel = (inversePrimary ? props.primary : props.secondary)!;
+      panel.visible = inversePrimary ? config.primarySideBar : config.secondarySideBar;
+      panel.size = inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth;
+      panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
+      panel.canMinClose = true;
+      panel.onMinCloseChanged = (grid, visible) => {
+        setNextNoChangeLayout();
+        inversePrimary? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
+      };
+      return parent.addChildGrid(panel);
     }
     const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
-      return parent.addGrid({
-        ...(inversePrimary ? props.secondary : props.primary)?.toCopiedEvents(),
-        name: inversePrimary ? 'secondarySideBar' : 'primarySideBar',
-        visible: inversePrimary ? config.secondarySideBar : config.primarySideBar,
-        size: inversePrimary ? config.secondarySideBarWidth : config.primarySideBarWidth,
-        minSize: inversePrimary ? config.secondarySideBarMinWidth : config.primarySideBarMinWidth,
-        canMinClose: true,
-        onMinCloseChanged(grid, visible) {
-          setNextNoChangeLayout();
-          inversePrimary ? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
-        },
-      });
+      const panel = (inversePrimary? props.secondary : props.primary)!;
+      panel.visible = inversePrimary? config.secondarySideBar : config.primarySideBar;
+      panel.size = inversePrimary? config.secondarySideBarWidth : config.primarySideBarWidth;
+      panel.minSize = inversePrimary? config.secondarySideBarMinWidth : config.primarySideBarMinWidth;
+      panel.canMinClose = true;
+      panel.onMinCloseChanged = (grid, visible) => {
+        setNextNoChangeLayout();
+        inversePrimary? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
+      };
+      return parent.addChildGrid(panel);
     }
     const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
-      currentBottom.value = parent.addGrid({
-        ...props.bottom?.toCopiedEvents(),
-        name: 'bottomPanel',
-        visible: config.bottomPanel,
-        size: config.bottomPanelMaximize ? 100 : (
-          config.bottomPanelHeight < 100 ? config.bottomPanelHeight : 20
-        ),
-        minSize: config.bottomPanelMinHeight,
-        canMinClose: true,
-        onMinCloseChanged(grid, visible) {
-          setNextNoChangeLayout();
-          config.bottomPanel = visible;
-        },
-      });
+      const panel = props.bottom!;
+      panel.visible = config.bottomPanel;
+      panel.size = config.bottomPanelMaximize? 100 : (
+        config.bottomPanelHeight < 100? config.bottomPanelHeight : 20
+      );
+      panel.minSize = config.bottomPanelMinHeight;
+      panel.canMinClose = true;
+      panel.onMinCloseChanged = (grid, visible) => {
+        setNextNoChangeLayout();
+        config.bottomPanel = visible;
+      };
+      currentBottom.value = parent.addChildGrid(panel);
       return currentBottom.value;
     }    
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
@@ -318,6 +315,7 @@ function saveGridLayoutDataToConfig() {
 
 defineExpose<CodeLayoutBaseInstance>({
   getRef: () => container.value,
+  getSplitLayoutRef: () => splitLayoutRef.value,
   saveGridLayoutDataToConfig,
 });
 
