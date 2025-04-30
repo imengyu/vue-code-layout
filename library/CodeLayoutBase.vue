@@ -116,6 +116,7 @@ function loadLayout() {
     const rootGrid = splitLayoutRef.value.getRootGrid();
     const config = props.config;
     const inversePrimary = props.config.primarySideBarPosition === 'right';
+    rootGrid.parentGrid = 'none';
 
     const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
       const panel = (inversePrimary ? props.primary : props.secondary)!;
@@ -123,6 +124,7 @@ function loadLayout() {
       panel.size = inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth;
       panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
       panel.canMinClose = true;
+      panel.inhertParentGrid = false;
       panel.parentGrid = inversePrimary ? 'primarySideBar' : 'secondarySideBar';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
@@ -135,6 +137,7 @@ function loadLayout() {
       panel.visible = inversePrimary? config.secondarySideBar : config.primarySideBar;
       panel.size = inversePrimary? config.secondarySideBarWidth : config.primarySideBarWidth;
       panel.minSize = inversePrimary? config.secondarySideBarMinWidth : config.primarySideBarMinWidth;
+      panel.inhertParentGrid = false;
       panel.parentGrid = inversePrimary ? 'secondarySideBar' : 'primarySideBar';
       panel.canMinClose = true;
       panel.onMinCloseChanged = (grid, visible) => {
@@ -151,6 +154,7 @@ function loadLayout() {
       );
       panel.minSize = config.bottomPanelMinHeight;
       panel.canMinClose = true;
+      panel.inhertParentGrid = false;
       panel.parentGrid = 'bottomPanel';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
@@ -160,12 +164,15 @@ function loadLayout() {
       return currentBottom.value;
     }    
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
-      return parent.addGrid({
+      const panel = parent.addGrid({
         name: 'centerArea',
         visible: true,
         size: 0,
         minSize: [ config.centerMinWidth, config.centerMinHeight ],
       });
+      panel.inhertParentGrid = false;
+      panel.parentGrid = 'centerArea';
+      return panel;
     }   
     const buildGroup = (
       parent: CodeLayoutSplitNGridInternal, 

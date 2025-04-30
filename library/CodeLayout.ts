@@ -234,6 +234,7 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanelMinHeight: 40,
   bottomPanelMaximize: false,
   panelAlignment: 'center',
+  panelPosition: 'bottom',
   centerMinWidth: 300,
   centerMinHeight: 100,
   panelHeaderHeight: 24,
@@ -432,6 +433,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * Parent toplevel grid name of this panel.
    */
   parentGrid: CodeLayoutGrid = 'none';
+
+  inhertParentGrid = true;
  
   tooltip?: string;
   badge?: string|(() => VNode)|undefined;
@@ -480,7 +483,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     panelResult.open = panel.startOpen ?? false;
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
-    panelResult.parentGrid = this.parentGrid;
     this.addChild(panelResult as CodeLayoutPanelInternal, index);
   
     if (startOpen || panel.startOpen)
@@ -669,7 +671,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     else
       this.children.push(child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
     this.context.panelInstances.set(child.name, child);
@@ -687,7 +690,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       if (this.name === child.name)
         throw new Error('Try add self');
       child.parentGroup = this;
-      child.parentGrid = this.parentGrid;
+      if (child.inhertParentGrid)
+        child.parentGrid = this.parentGrid;
       this.context.panelInstances.set(child.name, child);
     }
     if (!this.activePanel)
@@ -715,7 +719,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     this.context.panelInstances.delete(oldChild.name);
     this.context.panelInstances.set(child.name, child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
   }
   hasChild(child: CodeLayoutPanelInternal) {
     return this.children.includes(child);
@@ -978,6 +983,11 @@ export interface CodeLayoutPanel {
   * * Only used in CodeLayout.
   */
   actions?: CodeLayoutActionButton[]|undefined;
+  /**
+   * Should this panel inherit `parentGrid` field from parent ?
+   * @default true
+   */
+  inhertParentGrid?: boolean;
   /**
    * Custom data attached to the current panel.
    */

@@ -244,7 +244,6 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     panelResult.open = true;
     panelResult.size = grid.size ?? 0;
     panelResult.accept = grid.accept ?? this.accept;
-    panelResult.parentGrid = this.parentGrid;
     panelResult.direction = direction ?? (this.direction === 'vertical' ? 'horizontal' : 'vertical');
     this.addChildGrid(panelResult as CodeLayoutSplitNGridInternal);
     return panelResult as CodeLayoutSplitNGridInternal;
@@ -324,7 +323,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     else
       this.childGrid.push(child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
     return child;
   }
   addChildGrids(childs: CodeLayoutSplitNGridInternal[], startIndex?: number) {
@@ -334,7 +334,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
       this.childGrid.push(...childs);
     for (const child of childs) {
       child.parentGroup = this;
-      child.parentGrid = this.parentGrid;
+      if (child.inhertParentGrid)
+        child.parentGrid = this.parentGrid;
     }
   }
   removeChildGrid(child: CodeLayoutSplitNGridInternal) {
@@ -353,7 +354,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     if (oldChild.parentGroup === this) 
       oldChild.parentGroup = null;
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
   }
   hasChildGrid(child: CodeLayoutSplitNGridInternal) {
     return this.childGrid.includes(child);

@@ -80,20 +80,37 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
               },
             ]
           },
-          { 
-            label: data.layoutConfig.value.primarySideBarPosition === 'left' ? 
-              t('movePrimarySideBarRight') : t('movePrimarySideBarLeft'),
-            onClick() {
-              data.layoutConfig.value.primarySideBarPosition =
-                (data.layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
-            }
-          },
-          { 
-            label:`${t('hide')} ${t('primarySideBar')}`,
-            onClick() {
-              data.context.relayoutTopGridProp('primarySideBar', false);
-            }
-          },
+          ...(panel.parentGrid === 'secondarySideBar' ? [
+            { 
+              label: data.layoutConfig.value.primarySideBarPosition === 'left' ? 
+                t('moveSecondarySideBarLeft') : t('moveSecondarySideBarRight'),
+              onClick() {
+                data.layoutConfig.value.primarySideBarPosition =
+                  (data.layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
+              }
+            },
+            { 
+              label:`${t('hide')} ${t('secondarySideBar')}`,
+              onClick() {
+                data.context.relayoutTopGridProp('secondarySideBar', false);
+              }
+            },
+          ] : [
+            { 
+              label: data.layoutConfig.value.primarySideBarPosition === 'left' ? 
+                t('movePrimarySideBarRight') : t('movePrimarySideBarLeft'),
+              onClick() {
+                data.layoutConfig.value.primarySideBarPosition =
+                  (data.layoutConfig.value.primarySideBarPosition === 'left') ? 'right' : 'left';
+              }
+            },
+            { 
+              label:`${t('hide')} ${t('primarySideBar')}`,
+              onClick() {
+                data.context.relayoutTopGridProp('primarySideBar', false);
+              }
+            },
+          ]),
         ] as MenuItem[] : []),
         ...((panel.parentGrid === 'secondarySideBar' && data.layoutConfig.value.secondarySideBarAsActivityBar) ? [
           { 

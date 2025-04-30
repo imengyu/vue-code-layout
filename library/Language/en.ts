@@ -24,6 +24,8 @@ export const LangString = {
   show: 'Show',
   side: 'Side',
   top: 'Top',
+  leftSide: 'Left',
+  rightSide: 'Right',
   bottom: 'Bottom',
   badge: 'Badge',
   additionalViews: 'Additional Views',

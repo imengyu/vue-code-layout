@@ -24,6 +24,8 @@ export const LangString = {
   show: '显示',
   side: '侧边',
   top: '顶部',
+  leftSide: '左侧',
+  rightSide: '右侧',
   bottom: '底部',
   badge: '徽章',
   additionalViews: '额外视图',
