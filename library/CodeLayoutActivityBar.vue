@@ -3,6 +3,7 @@
   <OverflowCollapseList 
     class="activity-bar-items"
     direction="vertical"
+    menuDirection="up"
     :items="primary.children"
     :activeItem="primary.activePanel"
     :itemCollapseMergin="55"

@@ -123,6 +123,7 @@ function loadLayout() {
       panel.size = inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth;
       panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
       panel.canMinClose = true;
+      panel.parentGrid = inversePrimary ? 'primarySideBar' : 'secondarySideBar';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
         inversePrimary? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
@@ -134,6 +135,7 @@ function loadLayout() {
       panel.visible = inversePrimary? config.secondarySideBar : config.primarySideBar;
       panel.size = inversePrimary? config.secondarySideBarWidth : config.primarySideBarWidth;
       panel.minSize = inversePrimary? config.secondarySideBarMinWidth : config.primarySideBarMinWidth;
+      panel.parentGrid = inversePrimary ? 'secondarySideBar' : 'primarySideBar';
       panel.canMinClose = true;
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
@@ -149,6 +151,7 @@ function loadLayout() {
       );
       panel.minSize = config.bottomPanelMinHeight;
       panel.canMinClose = true;
+      panel.parentGrid = 'bottomPanel';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
         config.bottomPanel = visible;
@@ -183,7 +186,7 @@ function loadLayout() {
     splitLayoutRef.value.clearLayout();
     rootGrid.direction = 'horizontal';
 
-    switch (props.config.bottomAlignment) {
+    switch (props.config.panelAlignment) {
       case 'left': {
         const baseLeft = buildGroup(rootGrid, 'group1', 'vertical', [ config.centerMinWidth, config.centerMinHeight ]); {
           const baseTop = buildGroup(baseLeft, 'group2', 'horizontal', [ config.centerMinWidth, config.centerMinHeight ]); {
@@ -278,7 +281,7 @@ watch(() => currentBottom.value?.size, (v) => {
     config.bottomPanelMaximize = false;
   }
 });
-watch(() => props.config.bottomAlignment, () => loadLayout());
+watch(() => props.config.panelAlignment, () => loadLayout());
 watch(() => props.config.bottomPanelHeight, () => loadLayout());
 watch(() => props.config.bottomPanelMinHeight, () => relayoutAfterVarChange());
 watch(() => props.config.primarySideBarMinWidth, () => relayoutAfterVarChange());

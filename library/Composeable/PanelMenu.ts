@@ -18,7 +18,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
       ]
     }
   },
-  'toggleBdge': { 
+  'toggleBadge': { 
     create: (panel, t, data) => {
       return [
         { 
@@ -144,23 +144,23 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
             children: [
               { 
                 label: t('center'),
-                checked: data.layoutConfig.value.bottomAlignment === 'center',
-                onClick() { data.layoutConfig.value.bottomAlignment = 'center';}
+                checked: data.layoutConfig.value.panelAlignment === 'center',
+                onClick() { data.layoutConfig.value.panelAlignment = 'center';}
               },
               { 
                 label: t('justify'),
-                checked: data.layoutConfig.value.bottomAlignment === 'justify',
-                onClick() { data.layoutConfig.value.bottomAlignment = 'justify';}
+                checked: data.layoutConfig.value.panelAlignment === 'justify',
+                onClick() { data.layoutConfig.value.panelAlignment = 'justify';}
               },
               { 
                 label: t('left'),
-                checked: data.layoutConfig.value.bottomAlignment === 'left',
-                onClick() { data.layoutConfig.value.bottomAlignment = 'left';}
+                checked: data.layoutConfig.value.panelAlignment === 'left',
+                onClick() { data.layoutConfig.value.panelAlignment = 'left';}
               },
               { 
                 label: t('right'),
-                checked: data.layoutConfig.value.bottomAlignment === 'right',
-                onClick() { data.layoutConfig.value.bottomAlignment = 'right';}
+                checked: data.layoutConfig.value.panelAlignment === 'right',
+                onClick() { data.layoutConfig.value.panelAlignment = 'right';}
               },
             ]
           },

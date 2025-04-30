@@ -123,19 +123,27 @@ function doCalcItemOverflow() {
   }
 }
 
+let menuState = false;
+
 function onOverflowItemClicked() {
   if (!overflowItem.value)
     return;
   const horizontal = props.direction === 'horizontal';
   const up = props.menuDirection === 'up';
+  if (menuState) {
+    menuState = false;
+    return;
+  }
+  menuState = true;
   ContextMenu.showContextMenu({
     theme: 'code-layout',
+    adjustPadding: { x: 0, y: 0 },
     x: horizontal ? 
-        HtmlUtils.getLeft(overflowItem.value) :
-        (HtmlUtils.getLeft(overflowItem.value) + overflowItem.value.clientWidth),
+      HtmlUtils.getLeft(overflowItem.value) :
+      (HtmlUtils.getLeft(overflowItem.value) + overflowItem.value.clientWidth),
     y: horizontal ?
-      HtmlUtils.getTop(overflowItem.value) + (up ? overflowItem.value?.offsetHeight : 0) : 
-      HtmlUtils.getTop(overflowItem.value),
+      (HtmlUtils.getTop(overflowItem.value) + overflowItem.value.offsetHeight) : 
+      (HtmlUtils.getTop(overflowItem.value)/*  + (up ? overflowItem.value.offsetHeight : 0) */),
     direction: up ? 'tr' : 'br',
     items: props.items.slice(overflowIndex.value).map((p) => ({
       label: props.itemMenuLabel?.(p) || '',

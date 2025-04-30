@@ -51,7 +51,7 @@ const config = reactive<CodeLayoutConfig>({
   secondarySideBarMinWidth: 170,
   bottomPanelHeight: 30,
   bottomPanelMinHeight: 40,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,

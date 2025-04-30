@@ -218,7 +218,7 @@ const config = reactive<CodeLayoutConfig>({
 | secondarySideBarAsActivityBar | 辅助侧边栏是否像主侧边栏一样显示为活动栏 | `boolean` | `false` |
 | bottomPanelHeight | 面板的大小（0-100，百分比） | `number` | `30` |
 | bottomPanelMinHeight | 面板最小大小（像素） | `number` | `40` |
-| bottomAlignment | 面板布局位置<ul><li>left: 底部左对齐</li><li>center：底部居中</li><li>right：底部右对齐</li><li>justify：底部两端对齐</li><li>left-side：左侧</li><li>right-side：右侧</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
+| panelAlignment | 面板布局位置<ul><li>left: 底部左对齐</li><li>center：底部居中</li><li>right：底部右对齐</li><li>justify：底部两端对齐</li><li>left-side：左侧</li><li>right-side：右侧</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | 活动栏的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | secondaryActivityBarPosition | 第二活动栏（当 `secondarySideBarAsActivityBar` 设置为 `true`）的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | panelHeaderHeight | 面板标题的高度（像素） | `number` | `24` |

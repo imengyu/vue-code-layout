@@ -67,7 +67,11 @@ export interface CodeLayoutConfig {
    * * left-side: Center left
    * * right-side: Center right
    */
-  bottomAlignment: 'left'|'center'|'right'|'justify'|'left-side'|'right-side',
+  panelAlignment: 'left'|'center'|'right'|'justify'|'left-side'|'right-side',
+  /**
+   * The position of the panel
+   */
+  panelPosition: 'top'|'left'|'right'|'bottom'
   /**
    * The position of the activityBar
    * * side: Main left
@@ -229,7 +233,7 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanelHeight: 30,
   bottomPanelMinHeight: 40,
   bottomPanelMaximize: false,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   centerMinWidth: 300,
   centerMinHeight: 100,
   panelHeaderHeight: 24,
