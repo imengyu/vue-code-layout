@@ -280,6 +280,9 @@ const config = reactive<CodeLayoutConfig>({
 | noAutoShink | 是否禁止自动收缩当前网格(仅组有效) | `boolean` | `false` |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | 面板的自定义数据 | `any` | - |
+| onResize | 当面板大小更改时回调 | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | 当面板显示（visible）状态更改时回调 | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
+| onOpenChange | 当面板打开（open）状态更改时回调 | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `addPanel(panel: CodeLayoutPanel, startOpen = false): CodeLayoutPanelInternal`
 

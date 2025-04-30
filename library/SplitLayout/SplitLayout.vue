@@ -80,6 +80,7 @@ const props = defineProps({
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
   panelInstances,
+  getRef: () => instance,
   removePanelInternal,
   childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
   closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
@@ -190,6 +191,7 @@ const instance = {
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);
 const context : CodeLayoutSplitLayoutContext = {
   currentActiveGrid: currentActiveGrid as Ref<CodeLayoutSplitNGridInternal|null>,
+  getRef: () => instance,
   activeGrid(grid) { 
     const old = currentActiveGrid.value;
     if (old != grid) {

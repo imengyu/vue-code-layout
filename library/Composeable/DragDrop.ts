@@ -27,14 +27,8 @@ export function usePanelDraggerRoot() {
   const dragPanelState = ref(false);
 
   provide('dragPanelState', dragPanelState);
-  provide('setDragPanelState', () => {
-    dragPanelState.value = true;
-    console.log('setDragPanelState');
-  });
-  provide('resetDragPanelState', () => {
-    dragPanelState.value = false;
-    //console.log('resetDragPanelState');
-  });
+  provide('setDragPanelState', () => dragPanelState.value = true);
+  provide('resetDragPanelState', () => dragPanelState.value = false);
 }
 
 //拖拽开始函数封装

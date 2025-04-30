@@ -264,6 +264,7 @@ export type CodeLayoutPanelCloseType = 'unSave'|'close'|'none';
  * ```
  */
 export interface CodeLayoutInstance {
+  getGridTreeDebugText(): string;
   /**
    * Get panel instance by name.
    * @param name The panel name.
@@ -321,6 +322,12 @@ export interface CodeLayoutInstance {
 
 export interface CodeLayoutPanelHosterContext {
   panelInstances: Map<string, CodeLayoutPanelInternal>;
+  /**
+   * Get the root layout component instance.
+   * 
+   * @returns CodeLayoutInstance if in codelayout, CodeLayoutSplitNInstance if in splitlayout.
+   */
+  getRef(): any;
   childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void,
   removePanelInternal(panel: CodeLayoutPanelInternal): undefined|CodeLayoutPanelInternal;
   closePanelInternal(panel: CodeLayoutPanelInternal): void;
@@ -696,7 +703,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       this.children.indexOf(oldChild), 
       1, 
       child);   
-    oldChild.parentGroup = null;
+    if (oldChild.parentGroup === this)
+      oldChild.parentGroup = null;
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
@@ -739,6 +747,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     return this.children.length > 0 ? this.children : [ this ];
   }
 
+  toString() {
+    return `Panel: ${this.name} size: ${this.size}`
+  }
   toCopiedEvents(): object {
     return {
       onResize: this.onResize,
@@ -802,6 +813,10 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
    */
   collapse(open: boolean) {
     this.onSwitchCollapse?.(open);
+  }
+
+  toString() {
+    return `Grid: ${this.name} size: ${this.size}`
   }
 }
 
@@ -894,6 +909,8 @@ export interface CodeLayoutPanel {
    * * single: Used internal.
    * * text: Tab control and header only show text.
    * * icon: Tab control and header only show icon.
+   * * text-bottom: Same as text but header in bottom.
+   * * icon-bottom: Same as icon but header in bottom.
    * * hidden: Has tab control but tab header was hidden.
    * 
    * Default: 'none'

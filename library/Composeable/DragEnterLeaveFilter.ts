@@ -32,6 +32,7 @@ export function useDragEnterLeaveFilter(
   let enterState = false;
 
   function reset() {
+    delayLeaveTimer.stop();
     lockLeaveState = 0;
     enterState = false;
     removeFromHolder();

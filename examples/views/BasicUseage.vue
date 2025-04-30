@@ -489,6 +489,9 @@ function loadLayout() {
       bottomGroup.onResize = () => {
         console.log('bottomGroup resized!', bottomGroup.size);
       };
+
+      console.log(bottomGroup);
+      
     }
   }
   //Load layout config

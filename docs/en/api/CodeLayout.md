@@ -273,6 +273,9 @@ Due to the use of the same data instance for groups and panels, some properties 
 | noAutoShink | Set whether the current grid triggers its own remove/merge operation after all subpanels/grids are removed. Set to true will keep grid display, even if it does not have child panels/grids.(Only valid for group) | `boolean` | `false` |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | Custom data attached to the current panel. | `any` | - |
+| onResize | Resize callback for this panel | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | Visible change callback for this panel. | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
+| onOpenChange | Open state change callback for this panel. | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `addPanel(panel: CodeLayoutPanel, startOpen = false): CodeLayoutPanelInternal`
 

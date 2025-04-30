@@ -191,6 +191,7 @@ const { layoutConfig } = toRefs(props);
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
   panelInstances,
+  getRef: () => codeLayoutInstance,
   removePanelInternal,
   childGridActiveChildChanged() {},
   closePanelInternal() {}
@@ -307,6 +308,30 @@ const codeLayoutInstance : CodeLayoutInstance = {
   clearLayout,
   loadLayout,
   saveLayout,
+  getGridTreeDebugText: () => {
+    let str = '';
+    function loop(g: CodeLayoutPanelInternal, intent = 0) {
+      str += '\n└';
+      for (let i = 0; i < intent; i++)
+        str += '─';
+      str += `─${g.name} : ${g.size}`;
+      for (const child of g.children) {
+        loop(child, intent + 1);
+        if (!child.parentGroup)
+          str += '\n└───ERROR ▲────';
+      }
+      for (const child of g.children) {
+        str += '\n└';
+        for (let i = 0; i < intent + 1; i++)
+          str += '─';
+        str += `┷─${child.name}`;
+      }
+    }
+    loop(panels.value.primary);
+    loop(panels.value.secondary);
+    loop(panels.value.bottom);
+    return str;
+  },
 };
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
@@ -405,13 +430,13 @@ function dragDropToPanelNear(
 
   if (reference === panel)
     throw new Error('Can not drop to self, panel : ' + panel.name);
-
-  console.log('dragDropToPanelNear');
+  if (!oldParent)
+    throw new Error('Bad target panel, panel :'+ panel.name);
 
   //0.1 原父级和目标父级一致(普通容器)
   if (
     oldParent && oldParent === reference.parentGroup
-    && !(oldParent.getIsTabContainer() && reference.parentGroup.getIsTabContainer())
+    && !oldParent.getIsTabContainer() && !reference.parentGroup.getIsTabContainer()
   ) {
     oldParent.removeChild(panel);
     oldParent.addChild(panel, reference.getIndexInParent() + (referencePosition === 'right' || referencePosition === 'down' ? 1 : 0))

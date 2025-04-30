@@ -157,8 +157,6 @@ function loadLayout() {
           config.bottomPanel = visible;
         },
       });
-      console.log(props.bottom?.toCopiedEvents());
-      
       return currentBottom.value;
     }    
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
