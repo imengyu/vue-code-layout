@@ -71,7 +71,7 @@ export interface CodeLayoutConfig {
   /**
    * The position of the panel
    */
-  panelPosition: 'top'|'left'|'right'|'bottom'
+  panelPosition: 'top'|'bottom'
   /**
    * The position of the activityBar
    * * side: Main left

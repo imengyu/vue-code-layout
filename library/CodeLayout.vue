@@ -407,8 +407,6 @@ function dragDropToPanelNear(
 
   if (reference === panel)
     throw new Error('Can not drop to self, panel : ' + panel.name);
-  if (!oldParent)
-    throw new Error('Bad target panel, panel :'+ panel.name);
 
   //0.1 原父级和目标父级一致(普通容器)
   if (

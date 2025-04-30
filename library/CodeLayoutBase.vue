@@ -116,6 +116,8 @@ function loadLayout() {
     const rootGrid = splitLayoutRef.value.getRootGrid();
     const config = props.config;
     const inversePrimary = props.config.primarySideBarPosition === 'right';
+    const bottomIsInSide = props.config.panelAlignment.endsWith('-side');
+    const reverseBottom = !bottomIsInSide && props.config.panelPosition === 'top';
     rootGrid.parentGrid = 'none';
 
     const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
@@ -148,25 +150,27 @@ function loadLayout() {
     }
     const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
       const panel = props.bottom!;
+      const fullSize = bottomIsInSide ? (100 - props.primary!.size - props.secondary!.size) : 100;
       panel.visible = config.bottomPanel;
-      panel.size = config.bottomPanelMaximize? 100 : (
-        config.bottomPanelHeight < 100? config.bottomPanelHeight : 20
-      );
+      panel.size = config.bottomPanelMaximize ? fullSize : (config.bottomPanelHeight < fullSize ? config.bottomPanelHeight : 20);
       panel.minSize = config.bottomPanelMinHeight;
       panel.canMinClose = true;
       panel.inhertParentGrid = false;
       panel.parentGrid = 'bottomPanel';
       panel.onMinCloseChanged = (grid, visible) => {
+        console.log('1');
+        
         setNextNoChangeLayout();
         config.bottomPanel = visible;
       };
-      currentBottom.value = parent.addChildGrid(panel);
+      currentBottom.value = parent.addChildGrid(panel, reverseBottom ? 0 : undefined);
       return currentBottom.value;
     }    
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
       const panel = parent.addGrid({
         name: 'centerArea',
-        visible: true,
+        visible: config.bottomPanelMaximize ? false : true,
+        canMinClose: false,
         size: 0,
         minSize: [ config.centerMinWidth, config.centerMinHeight ],
       });
@@ -192,6 +196,7 @@ function loadLayout() {
 
     splitLayoutRef.value.clearLayout();
     rootGrid.direction = 'horizontal';
+
 
     switch (props.config.panelAlignment) {
       case 'left': {
@@ -282,13 +287,23 @@ watch(() => props.config.bottomPanelMaximize, (v) => {
     loadLayout();
 });
 watch(() => currentBottom.value?.size, (v) => {
-  const config = props.config;
-  if (v && v < 100 && config.bottomPanelMaximize) {
-    nextNoChangeLayout = true;
-    config.bottomPanelMaximize = false;
+  if (props.primary && props.secondary) {
+    const config = props.config;
+    const bottomIsInSide = props.config.panelAlignment.endsWith('-side');
+    const fullSize = bottomIsInSide ? (100 - props.primary.size - props.secondary.size) : 100;
+    if (v) {
+      if(v < fullSize - 1 && config.bottomPanelMaximize) {
+        nextNoChangeLayout = true;
+        config.bottomPanelMaximize = false;
+      } else if (v >= fullSize && !config.bottomPanelMaximize) {
+        nextNoChangeLayout = true;
+        config.bottomPanelMaximize = true;
+      }
+    }
   }
 });
 watch(() => props.config.panelAlignment, () => loadLayout());
+watch(() => props.config.panelPosition, () => loadLayout());
 watch(() => props.config.bottomPanelHeight, () => loadLayout());
 watch(() => props.config.bottomPanelMinHeight, () => relayoutAfterVarChange());
 watch(() => props.config.primarySideBarMinWidth, () => relayoutAfterVarChange());

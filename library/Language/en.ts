@@ -16,6 +16,7 @@ export const LangString = {
   justify: 'Justify',
   primarySideBarPosition: 'Primary Side Bar Position',
   panelAlignment: 'Panel Alignment',
+  panelPosition: 'Panel Position',
   visibility: 'Visibility',
   restoreDefault: 'Restore Default',
   close: 'Close',

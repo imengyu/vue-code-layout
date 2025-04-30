@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance } from 'vue';
+import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance, computed } from 'vue';
 import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
@@ -229,20 +229,32 @@ const {
 
 const { t } = useCodeLayoutLang();
 
+const bottomPanelMaxArrowDeg = computed(() => {
+  const panelAlignment = layoutConfig.value.panelAlignment;
+  const panelPosition = layoutConfig.value.panelPosition;
+  const bottomPanelMaximize = layoutConfig.value.bottomPanelMaximize;
+  if (panelAlignment === 'left-side')
+    return bottomPanelMaximize ? -90 : 90;
+  else if (panelAlignment === 'right-side')
+    return bottomPanelMaximize ? 90 : -90;
+  else if (panelPosition === 'top')
+    return bottomPanelMaximize ? 0 : 180;
+  return bottomPanelMaximize ? 180 : 0;
+});
+
 //面板默认操作
 const buttomPanelActions = ref<CodeLayoutActionButton[]>([
   {
     icon() { 
       return h(IconActionMax, {
         style: {
-          transform: layoutConfig.value.bottomPanelMaximize ? 'rotate(180deg)' : '',
+          transform: `rotate(${bottomPanelMaxArrowDeg.value}deg)`,
         }
       })
     },
     tooltip: t('maximizePanel'),
     onClick() {
       layoutConfig.value.bottomPanelMaximize = !layoutConfig.value.bottomPanelMaximize;
-      
     },
   },
   {

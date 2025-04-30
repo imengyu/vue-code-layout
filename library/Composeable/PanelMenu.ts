@@ -156,8 +156,39 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
         ] as MenuItem[] : []),
         ...(panel.parentGrid === 'bottomPanel' ? [ 
           { 
-            label: t('alignPanel'),
+            label: t('panelPosition'),
             divided: 'up',
+            children: [
+              { 
+                label: t('top'),
+                checked: !data.layoutConfig.value.panelAlignment.endsWith('-side') && data.layoutConfig.value.panelPosition === 'top',
+                onClick() { 
+                  data.layoutConfig.value.panelPosition = 'top'; 
+                  data.layoutConfig.value.panelAlignment = 'center';
+                }
+              },
+              { 
+                label: t('leftSide'),
+                checked: data.layoutConfig.value.panelAlignment === 'left-side',
+                onClick() { data.layoutConfig.value.panelAlignment = 'left-side'; }
+              },
+              { 
+                label: t('rightSide'),
+                checked: data.layoutConfig.value.panelAlignment === 'right-side',
+                onClick() { data.layoutConfig.value.panelAlignment = 'right-side'; }
+              },
+              { 
+                label: t('bottom'),
+                checked: !data.layoutConfig.value.panelAlignment.endsWith('-side') && data.layoutConfig.value.panelPosition === 'bottom',
+                onClick() { 
+                  data.layoutConfig.value.panelPosition = 'bottom'; 
+                  data.layoutConfig.value.panelAlignment = 'center';
+                }
+              },
+            ]
+          },
+          { 
+            label: t('alignPanel'),
             children: [
               { 
                 label: t('center'),
