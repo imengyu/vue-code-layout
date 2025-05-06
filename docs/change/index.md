@@ -5,7 +5,7 @@ nav:
   order: 5
 ---
 
-## v1.2.0 - 2025/05/06
+## v1.2.1 - 2025/05/06
 
 * [Add] Add panel resize,visible,open change callback (#11).
 * [Add] Add CodeLayout panel bottom position choice.
@@ -26,6 +26,11 @@ nav:
 * [Fix] Fix split layout drag issue (#15, #20).
 * [Fix] Fix cursor error state when click panel top (#17).
 * [Fix] Fix nest drag hover issue.
+* [Fix] Fix SimpleTooltip stuck issue.
+* [Fix] No hide primary side bar menu when it was hidden.
+* [Fix] Fix drag light box issue (#23).
+* [Fix] Fix drag event wrong preventing default (#23).
+* [Fix] Remove console.log for debugging.
 
 * [Change] SplitN drag function improvement.
 * [Change] Update vue3-context-menu to latest
