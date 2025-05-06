@@ -91,6 +91,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
             },
             { 
               label:`${t('hide')} ${t('secondarySideBar')}`,
+              hidden: !data.layoutConfig.value.secondarySideBar,
               onClick() {
                 data.context.relayoutTopGridProp('secondarySideBar', false);
               }
@@ -106,6 +107,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
             },
             { 
               label:`${t('hide')} ${t('primarySideBar')}`,
+              hidden: !data.layoutConfig.value.primarySideBar,
               onClick() {
                 data.context.relayoutTopGridProp('primarySideBar', false);
               }
@@ -149,6 +151,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
           },
           { 
             label:`${t('hide')} ${t('secondarySideBar')}`,
+            hidden: !data.layoutConfig.value.primarySideBar,
             onClick() {
               data.context.relayoutTopGridProp('secondarySideBar', false);
             }
@@ -214,6 +217,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
           },
           { 
             label:`${t('hide')} ${t('panel')}`,
+            hidden: !data.layoutConfig.value.bottomPanel,
             onClick() {
               data.context.relayoutTopGridProp('bottomPanel', false);
             }
