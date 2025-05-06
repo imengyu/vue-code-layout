@@ -8,7 +8,7 @@
       :class="[
         'item',
         active ? 'active' : '',
-        dragEnterState ? 'drag-enter' : '',
+        dragLightBoxState ? 'drag-enter' : '',
         `drag-over-${dragOverState}`,
       ]"
       :draggable="true"
@@ -72,7 +72,7 @@ const {
 } = usePanelDragger();
 
 const {
-  dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,

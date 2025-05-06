@@ -33,7 +33,7 @@
       :class="[
         'tab', 
         group.tabStyle,
-        dragEnterState ? 'drag-active' : '',
+        dragLightBoxState ? 'drag-active' : '',
       ]"
       data-dropable="true"
       @dragover="handleDragOver"
@@ -188,7 +188,7 @@ const {
 } = usePanelDragger();
 
 const {
-  dragEnterState,
+  dragLightBoxState,
   handleDragOver,
   handleDragEnter,
   handleDragLeave,

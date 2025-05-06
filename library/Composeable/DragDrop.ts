@@ -1,4 +1,4 @@
-import { inject, provide, ref, type Ref } from "vue";
+import { computed, inject, provide, ref, type Ref } from "vue";
 import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutPanelInternal } from "../CodeLayout";
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMiniTimeOut } from "./MiniTimeout";
@@ -123,6 +123,7 @@ export function usePanelDragOverDetector(
 
     currentDropBaseScreenPosX = HtmlUtils.getLeft(container.value!);
     currentDropBaseScreenPosY = HtmlUtils.getTop(container.value!);
+    dragOverState.value = '';
     dragEnterState.value = true;
 
     handleDragOver(e);    
@@ -213,9 +214,14 @@ export function usePanelDragOverDetector(
     resetDragPanelState();
   }
 
+  const dragLightBoxState = computed(() => {
+    return dragEnterState.value && dragOverState.value !== '';
+  })
+
   return {
     dragPanelState,
     dragEnterState,
+    dragLightBoxState,
     dragOverState,
     handleDropPreCheck(e: DragEvent) {
       return dragCustomHandler(e);

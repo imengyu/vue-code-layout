@@ -17,7 +17,13 @@
           <br>Drag drop any grid and Refresh page, this page will save your layout data in localStorage.
           <button @click="onResetAll">Reset all to default</button>
         </span>
-        <h2 v-else :style="{ backgroundColor: colors[panel.data] }">Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}</h2>
+        <div v-else-if="panel.name === 'dragtest'" class="demo-drag-test">
+          <textarea></textarea>
+          <input type="text"
+        </div>
+        <h2 v-else :style="{ backgroundColor: colors[panel.data] }">
+          Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}
+        </h2>
       </template>
       <template #tabEmptyContentRender="{ grid }">
         <h2>
@@ -270,6 +276,13 @@ function loadLayout() {
         canMinClose: true,
       });
 
+      grid3.addPanel({
+        title: `Drag test`,
+        tooltip: `Drag test`,
+        name: `dragtest`,
+        data: count,
+        iconSmall: () => h(getRandomIcon()),
+      });
       for (let i = 0; i < 8; i++) {
         count++;
         grid3.addPanel({
@@ -353,5 +366,21 @@ h2 {
 .demo-pre {
   padding: 10px;
   white-space: pre;
+}
+.demo-drag-test {
+  width: 100%;
+  height: 100%;
+  background-color: var(--code-layout-color-bg);
+  color: var(--code-layout-color-text-light);
+
+  textarea {
+    width: 50%;
+    height: 80%;
+    background-color: var(--code-layout-color-bg); 
+  }
+  input {
+    width: 50%;
+    background-color: var(--code-layout-color-bg);
+  }
 }
 </style>

@@ -3,7 +3,7 @@
     ref="container" 
     :class="[
       'code-layout-group-dragger-host', 
-      dragEnterState ? 'drag-enter' : '',
+      dragLightBoxState ? 'drag-enter' : '',
     ]"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
@@ -564,6 +564,7 @@ watch(() => props.group, (newValue, oldValue) => {
 
 const {
   dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,

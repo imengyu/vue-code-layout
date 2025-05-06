@@ -10,7 +10,7 @@
       resizeDraggingSelf ? 'resizing-self' : '',
       resizeDragging ? 'resizing' : '',
       horizontal ? 'horizontal' : '',
-      dragEnterState ? 'drag-enter' : '',
+      dragLightBoxState ? 'drag-enter' : '',
       dragSelfState ? 'dragging-self' : '',
       dragPanelState ? 'dragging' : '',
       opening ? 'opening' : '',
@@ -153,7 +153,7 @@ const {
 
 const {
   dragPanelState,
-  dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,

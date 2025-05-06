@@ -12,7 +12,7 @@
       ref="tabScroll" 
       :class="[
         'code-layout-split-tab-list',
-        tabHeaderDragOverDetector.dragEnterState.value ? 'drag-active' : '',
+        tabHeaderDragOverDetector.dragLightBoxState.value ? 'drag-active' : '',
       ]"
       @dragover="tabHeaderDragOverDetector.handleDragOver"
       @dragleave="tabHeaderDragOverDetector.handleDragLeave"
@@ -53,7 +53,7 @@
         'code-layout-split-tab-content',
         grid.children.length > 0 ? '' : 'empty',
         tabContentDragOverDetector.dragPanelState.value ? 'dragging' : '',
-        tabContentDragOverDetector.dragEnterState.value ? 'drag-active' : '',
+        tabContentDragOverDetector.dragLightBoxState.value ? 'drag-active' : '',
         `drag-over-${tabContentDragOverDetector.dragOverState.value}`,
       ]"
       @dragover="tabContentDragOverDetector.handleDragOver"

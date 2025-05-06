@@ -8,7 +8,7 @@
       :class="[
         'tab-item',
         active ? 'active' : '',
-        dragEnterState ? 'drag-enter' : '',
+        dragLightBoxState ? 'drag-enter' : '',
         `drag-over-${dragOverState}`,
       ]"
       :draggable="panel.draggable"
@@ -68,6 +68,7 @@ const {
 } = usePanelDragger();
 
 const {
+  dragLightBoxState,
   dragEnterState,
   dragOverState,
   handleDragOver,
