@@ -158,9 +158,6 @@ function calcTooltipPosition(e: MouseEvent) {
       case 'bottom':
         positionX.value = eleLeft - tooltip.value.offsetWidth / 2 + child.offsetWidth / 2;
         break;
-      case 'bottom':
-        positionX.value = eleLeft - tooltip.value.offsetWidth / 2 + child.offsetWidth / 2;
-        break;
       case 'mouse':
         positionX.value = e.x + 5;
         break;

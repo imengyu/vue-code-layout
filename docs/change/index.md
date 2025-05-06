@@ -5,6 +5,37 @@ nav:
   order: 5
 ---
 
+## v1.2.0 - 2025/05/06
+
+* [Add] Add panel resize,visible,open change callback (#11).
+* [Add] Add CodeLayout panel bottom position choice.
+* [Add] Add bottom panel position left,right,top.
+* [Add] Add CodeLayout custom panel menu config (#21, 4, 5).
+* [Add] Make activitybar can collapse when overflow (#19).
+* [Add] Add panel to last when drop on tab header (#13).
+* [Add] Add custom tooltip for header (#18).
+* [Add] Add that auto adjust position function when Simple tooltip overflow screen (#12).
+
+* [Fix] Fix instance reference error after drag (#22).
+* [Fix] Fix secondarySideBar menu issue.
+* [Fix] Fix drag panel error (#14).
+* [Fix] Fix tab item not hidden issue.
+* [Fix] Fix activityBarPosition control logic (#21)
+* [Fix] Fix Tab header context menu issue (#21, 6).
+* [Fix] Fix issue that menu showBadge does not take effect (#21).
+* [Fix] Fix split layout drag issue (#15, #20).
+* [Fix] Fix cursor error state when click panel top (#17).
+* [Fix] Fix nest drag hover issue.
+
+* [Change] SplitN drag function improvement.
+* [Change] Update vue3-context-menu to latest
+* [Change] Move CodeLayoutScrollbar to standalone package ([@imengyu/vue-scroll-rect](https://github.com/imengyu/vue-scroll-rect)).
+* [Change] Change bottomAlignment to panelAlignment
+* [Change] Change root data of codeLayout. Unify root data of the two components.
+
+* [Docs] Update document (#16).
+* [Docs] Update docs of CodeLayout menu.
+
 ## v1.1.2 - 2024/12/20
 
 * [Add] 增加回调事件允许处理拖拽进入组件的非面板数据。
