@@ -15,5 +15,3 @@ If you're ready, let's start~
 ::: danger
 This component is not support Vue2.
 :::
-
-[Start](./install.md)

@@ -17,5 +17,3 @@ title: 开始之前
 ::: danger
 本库不支持 Vue2.
 :::
-
-[立即开始](./install.md)
