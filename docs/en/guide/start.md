@@ -12,4 +12,8 @@ If you also have good modifications, you can submit a PR in the repository. Welc
 
 If you're ready, let's start~
 
+::: danger
+This component is not support Vue2.
+:::
+
 [Start](./install.md)

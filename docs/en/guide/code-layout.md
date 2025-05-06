@@ -8,6 +8,14 @@ It is recommended to place CodeLayout at the top-level component and set the wid
 This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
 :::
 
+::: warning
+This component is desgined for PC platform. It is not suitable for mobile devices.
+:::
+
+::: danger
+This component is not support SSR.
+:::
+
 To use CodeLayout, there are the following steps:
 
 1. [Import Component](./install.md#global-import-components).
@@ -212,6 +220,10 @@ onMounted(() => {
 
 :::
 
+::: tip
+Using this component in the [Electron](https://www.electronjs.org/) is a good choice.
+:::
+
 ## Panel operation
 
 Definition:
@@ -371,7 +383,7 @@ const groupExplorer = codeLayout.value.addGroup({
 }, 'primarySideBar');
 ```
 
-## Right click menu on the panel
+## Panel Context menu <Badge type="tip" text="^1.2.0" />
 
 The panel can customize the menu when the user right clicks, config with `CodeLayoutConfig.menuConfigs`.
 
@@ -425,7 +437,7 @@ To restrict this operation, you can use the following methods:
     title: 'PORTS',
     tooltip: 'Ports',
     name: 'bottom.ports',
-    draggable: false, //No dragging allowed
+    draggable: false, //No dragging allowed // [!code ++]
   });
   ```
 
@@ -438,7 +450,7 @@ To restrict this operation, you can use the following methods:
     name: 'bottom.ports',
     startOpen: true,
     iconSmall: () => h(IconSearch),
-    accept: [ 'bottomPanel' ], //limit
+    accept: [ 'bottomPanel' ], //limit // [!code ++]
   });
   ```
 

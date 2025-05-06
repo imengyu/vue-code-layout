@@ -8,6 +8,14 @@
 本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
 :::
 
+::: warning
+此组件是为PC平台设计的。不适合移动设备。
+:::
+
+::: danger
+此组件不支持SSR。
+:::
+
 要使用 CodeLayout ，有以下步骤：
 
 1. 需要[导入组件](./install.md#全局导入组件).
@@ -170,6 +178,10 @@ onMounted(() => {
 
 ```
 
+::: tip
+将组件用于 [Electron](https://www.electronjs.org/zh/docs/latest/) 窗口中是一个不错的选择。
+:::
+
 ## 面板操作
 
 定义：
@@ -328,7 +340,7 @@ const groupExplorer = codeLayout.value.addGroup({
 }, 'primarySideBar');
 ```
 
-## 面板右键菜单
+## 面板右键菜单 <Badge type="tip" text="^1.2.0" />
 
 面板可以自定义用户右键点击时的菜单，通过 `CodeLayoutConfig.menuConfigs` 可以配置菜单。
 
@@ -383,7 +395,7 @@ const config = reactive<CodeLayoutConfig>({
     title: 'PORTS',
     tooltip: 'Ports',
     name: 'bottom.ports',
-    draggable: false, //禁止拖拽
+    draggable: false, //禁止拖拽 // [!code ++]
   });
   ```
 
@@ -396,7 +408,7 @@ const config = reactive<CodeLayoutConfig>({
     name: 'bottom.ports',
     startOpen: true,
     iconSmall: () => h(IconSearch),
-    accept: [ 'bottomPanel' ], //限制
+    accept: [ 'bottomPanel' ], //限制 // [!code ++]
   });
   ```
 

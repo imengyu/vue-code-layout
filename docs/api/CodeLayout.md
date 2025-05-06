@@ -232,6 +232,7 @@ const config = reactive<CodeLayoutConfig>({
 | bottomPanelMaximize | 面板是否可以最大化 | `boolean` | `true` |
 | statusBar | 是否显示状态栏 | `boolean` | `true` |
 | menuBar | 是否显示菜单栏 | `boolean` | `true` |
+| menuConfigs | [自定义面板菜单控制](../guide/code-layout.md#面板右键菜单) | - | - |
 | onResetDefault | 当用户在自定义布局弹窗中点击重置按钮时，触发此回调 | `() => void` | - |
 | onStartDrag | 当用户开始拖拽面板时，触发此回调，可以返回false，阻止用户拖动 | `(panel: CodeLayoutPanelInternal) => boolean` | - |
 | onEndDrag | 用户完成拖拽面板时触发此回调 | `(panel: CodeLayoutPanelInternal) => void` | - |

@@ -225,6 +225,7 @@ const config = reactive<CodeLayoutConfig>({
 | bottomPanelMaximize | Can the bottomPanel be maximized? | `boolean` | `true` |
 | statusBar | Show statusBar? | `boolean` | `true` |
 | menuBar | Show menuBar? | `boolean` | `true` |
+| menuConfigs | [Custom panel context menu](../guide/code-layout.md#panel-context-menu) | - | - |
 | onResetDefault | When the user clicks the reset button in the custom layout pop-up, this callback is triggered | `() => void` | - |
 | onStartDrag | When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging | `(panel: CodeLayoutPanelInternal) => boolean` | - |
 | onEndDrag | Trigger this callback when the user completes dragging the panel | `(panel: CodeLayoutPanelInternal) => void` | - |

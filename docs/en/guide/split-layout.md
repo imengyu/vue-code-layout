@@ -8,6 +8,14 @@ It is recommended to place `SplitLayout` in the top-level component or `CodeLayo
 This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
 :::
 
+::: warning
+This component is desgined for PC platform. It is not suitable for mobile devices.
+:::
+
+::: danger
+This component is not support SSR.
+:::
+
 To use SplitLayout, there are the following steps:
 
 1. [Import Components](./install.md#global-import-components).
