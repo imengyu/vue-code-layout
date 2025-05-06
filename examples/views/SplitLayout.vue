@@ -18,8 +18,8 @@
           <button @click="onResetAll">Reset all to default</button>
         </span>
         <div v-else-if="panel.name === 'dragtest'" class="demo-drag-test">
-          <textarea></textarea>
-          <input type="text"
+          <textarea v-model="text1"></textarea>
+          <input v-model="text2" type="text" />
         </div>
         <h2 v-else :style="{ backgroundColor: colors[panel.data] }">
           Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}
@@ -88,6 +88,9 @@ const icons = [
   IconFile,
 ];
 
+const text1 = ref('IconSearchIconSearchIconSearchIconSearch');
+const text2 = ref('IconMarkdownIconMarkdown');
+
 const emit = defineEmits([	
   "resetAll"	
 ])
@@ -112,10 +115,10 @@ const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
 const config = reactive<CodeLayoutSplitNConfig>({
   ...defaultSplitLayoutConfig,
   onNonPanelDrag(e, sourcePosition) {
-    e.preventDefault();
-    //如果用户拖拽进入的是文件，则允许
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file') {
+      e.preventDefault();
       return true;
+    }
     return false;
   },
   onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
@@ -377,10 +380,12 @@ h2 {
     width: 50%;
     height: 80%;
     background-color: var(--code-layout-color-bg); 
+    color: #fff;
   }
   input {
     width: 50%;
     background-color: var(--code-layout-color-bg);
+    color: #fff;
   }
 }
 </style>

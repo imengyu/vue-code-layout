@@ -158,8 +158,6 @@ function loadLayout() {
       panel.inhertParentGrid = false;
       panel.parentGrid = 'bottomPanel';
       panel.onMinCloseChanged = (grid, visible) => {
-        console.log('1');
-        
         setNextNoChangeLayout();
         config.bottomPanel = visible;
       };

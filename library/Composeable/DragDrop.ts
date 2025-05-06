@@ -115,9 +115,6 @@ export function usePanelDragOverDetector(
     onDragLeave: handleDragLeave,
     reset: handleDragReset,
   } = useDragEnterLeaveFilter((e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
     focusTimer.start();
     delayLeaveTimer.stop();
 
@@ -128,9 +125,6 @@ export function usePanelDragOverDetector(
 
     handleDragOver(e);    
   }, (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  
     dragEnterState.value = false;
     dragOverState.value = '';
     focusTimer.stop();
@@ -145,9 +139,15 @@ export function usePanelDragOverDetector(
   
     //检查面板，必须存在面板，并且不能是自己或者自己的父级
     const panel = getCurrentDragPanel();
+    if (!panel) {
+      dragOverState.value = '';
+      e.dataTransfer.dropEffect = 'none';
+      return;
+    }
+
     // 如果是内部拖拽数据，则不应该让浏览器处理弹出窗口
-    if (panel)
-      e.preventDefault();
+    e.preventDefault();
+
     if (
       (
         panel
@@ -197,10 +197,6 @@ export function usePanelDragOverDetector(
         e.dataTransfer.dropEffect = 'none';
       }
 
-    } else {
-      dragOverState.value = '';
-      e.stopPropagation();
-      e.dataTransfer.dropEffect = 'none';
     }
   }
   function resetDragOverState() {

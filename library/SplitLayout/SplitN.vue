@@ -499,7 +499,7 @@ function allocZeroGridSize() {
  */
 function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
 
-  console.log('relayoutAllWithResizedSize', resizedContainerSizePrecent);
+  //console.log('relayoutAllWithResizedSize', resizedContainerSizePrecent);
   
   if (!splitBase.value)
     throw new Error('!splitBase.value');
@@ -538,8 +538,6 @@ function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
 }
 //当容器添加时，重新布局已存在面板
 function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referencePanel?: CodeLayoutSplitNGridInternal) {
-
-  console.log('relayoutAllWithNewPanel');
   if (
     panels.length === 1 && referencePanel 
     && referencePanel.size > getGridMinSize(referencePanel) + getGridMinSize(panels[0])
@@ -557,7 +555,6 @@ function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referen
 } 
 //当容器移除时，重新布局已存在面板
 function relayoutAllWithRemovePanel(panel: CodeLayoutSplitNGridInternal) {
-  console.log('relayoutAllWithRemovePanel');
   relayoutAllWithResizedSize(-panel.size);
 } 
 //重新布局
