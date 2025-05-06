@@ -140,6 +140,13 @@ export interface CodeLayoutConfig {
   menuConfigs: {
     /**
      * Set the built-in menu items.
+     * 
+      |Name|Desc|
+      |---|---|
+      |toggleVisible|Hide the current panel|
+      |toggleBadge|Switch whether the current panel marker is displayed or not|
+      |otherPanelsCheck|Other panels display/hide switch|
+      |panelPosition|Control the display position of the main grid (sidebar, panel)|
      */
     builtinMenus: string[],
     /**

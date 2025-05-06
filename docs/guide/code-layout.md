@@ -259,7 +259,7 @@ bottomPanel.addPanel({
 });
 ```
 
-提示：目前 CodeLayout 不支持组中再嵌套组（VSCode 中也没有嵌套组的功能），用户拖拽时不会产生嵌套的组，因此您在使用代码添加时不要嵌套组，可能会出现问题。
+提示：目前 CodeLayout 不支持组中再嵌套组（VSCode 中也没有嵌套组的功能），用户拖拽时不会产生嵌套的组，因此您在使用代码添加时不要嵌套组，在非根组组中再嵌套组将不会显示。
 
 组最多只嵌套一级（仅根组下可产生组）。
 
@@ -326,6 +326,46 @@ const groupExplorer = codeLayout.value.addGroup({
     },
   ]
 }, 'primarySideBar');
+```
+
+## 面板右键菜单
+
+面板可以自定义用户右键点击时的菜单，通过 `CodeLayoutConfig.menuConfigs` 可以配置菜单。
+
+* `builtinMenus` 用于控制内置菜单的显示，你可以设置为 `[]` 来隐藏所有内置菜单，或者是配置显示其中的一个或者多个。
+
+|菜单名称|说明|
+|---|---|
+|toggleVisible|隐藏当前面板|
+|toggleBadge|切换当前面板标记是否显示|
+|otherPanelsCheck|其他面板显示/隐藏切换|
+|panelPosition|主网格（侧边栏，面板）的显示位置控制|
+
+* `customMenus` 用于自定义菜单，可设置回调，回调会传入当前面板的实例，你可以返回自定义菜单项目，显示自己的菜单，允许菜单插入指定位置（例如插入到内置菜单前面）。
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...codeLayoutConfig,
+  menuConfigs: {
+    builtinMenus: [ 'toggleVisible', 'toggleBadge', 'otherPanelsCheck', 'panelPosition' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //在回调中返回自定义菜单。使用 vue3-context-menu 的菜单定义。
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item.`, 
+              onClick: () => {
+                console.log('menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //插入到内置菜单前面，不填写则默认插入到末尾
+      }
+    ]
+  }
+});
 ```
 
 ## 拖拽控制

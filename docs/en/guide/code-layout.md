@@ -371,6 +371,46 @@ const groupExplorer = codeLayout.value.addGroup({
 }, 'primarySideBar');
 ```
 
+## Right click menu on the panel
+
+The panel can customize the menu when the user right clicks, config with `CodeLayoutConfig.menuConfigs`.
+
+* `builtinMenus` Used to control the display of built-in menus, you can set it to '[]' to hide all built-in menus, or configure the display of one or more of them.
+
+|Name|Desc|
+|---|---|
+|toggleVisible|Hide the current panel|
+|toggleBadge|Switch whether the current panel marker is displayed or not|
+|otherPanelsCheck|Other panels display/hide switch|
+|panelPosition|Control the display position of the main grid (sidebar, panel)|
+
+* `customMenus` Used for customizing menus, callback can be set, and the callback will be passed to the instance of the current panel. You can return the custom menu item, display your own menu, it also allow the menu to be inserted in a specified position (such as in front of the built-in menu).
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...codeLayoutConfig,
+  menuConfigs: {
+    builtinMenus: [ 'toggleVisible', 'toggleBadge', 'otherPanelsCheck', 'panelPosition' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //Return the custom menu items. Use the menu definition of vue3 context menu.
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item.`, 
+              onClick: () => {
+                console.log('menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //Insert in front of the built-in menu, if not set, it will be inserted at the end by default
+      }
+    ]
+  }
+});
+```
+
 ## Drag control
 
 ### Panel drag control

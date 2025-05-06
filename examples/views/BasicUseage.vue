@@ -144,6 +144,37 @@ const config = reactive<CodeLayoutConfig>({
     //处理放置事件
     console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
   },
+  menuConfigs: {
+    builtinMenus: [ 'otherPanelsCheck', 'panelPosition' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //Return the custom menu items. Use the menu definition of vue3 context menu.
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item at top.`, 
+              onClick: () => {
+                console.log('top menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //Insert in front of the built-in menu, if not set, it will be inserted at the end by default
+      },
+      {
+        create: (panel, t, data) => {
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item at bottom.`, 
+              onClick: () => {
+                console.log('bottom menu clicked');
+              }
+            }
+          ]
+        }
+      },
+    ],
+  }
 });
 
 const menuData : MenuOptions = {

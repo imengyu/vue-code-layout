@@ -16,7 +16,7 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
           }
         }
       ]
-    }
+    },
   },
   'toggleBadge': { 
     create: (panel, t, data) => {
@@ -225,17 +225,42 @@ export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
 }
 
 export type PanelMenuRegistryItem = {
+  /**
+   * Create menu callback.
+   * @param panel Panel instance.
+   * @param t Language format function.
+   * @param data External data.
+   * @returns 
+   */
   create: (
     panel: CodeLayoutPanelInternal, 
     t: (key: keyof CodeLayoutLangDefine) => string,
     data: {
+      /**
+       * Top context.
+       */
       context: CodeLayoutContext,
+      /**
+       * CodeLayoutConfig.
+       */
       layoutConfig: Ref<CodeLayoutConfig>,
+      /**
+       * Parent panel instance.
+       */
       parent: CodeLayoutPanelInternal,
+      /**
+       * The array of this panel's parent.
+       */
       parentArray: CodeLayoutPanelInternal[],
+      /**
+       * Visible panels count.
+       */
       showCount: number,
     }
   ) => MenuItem[],
+  /**
+   * Insert index, default is push to end.
+   */
   insertIndex?: number,
 }
 
@@ -275,7 +300,7 @@ export function usePanelMenuControl() {
         items.push(...PanelMenuBuiltins[key].create(panel, t, createMenuData)) 
     for (const item of layoutConfig.value.menuConfigs.customMenus) {
       const iitems = item.create(panel, t, createMenuData)
-      if (item.insertIndex)
+      if (typeof item.insertIndex === 'number')
         items.splice(item.insertIndex, 0, ...iitems);
       else
         items.push(...iitems);
