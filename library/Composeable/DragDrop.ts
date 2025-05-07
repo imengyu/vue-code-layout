@@ -23,9 +23,14 @@ export function getCurrentDragPanel() {
   return currentDragPanel;
 }
 
-export function usePanelDraggerRoot() {
+export const FLAG_CODE_LAYOUT = 'CodeLayout';
+export const FLAG_SPLIT_LAYOUT = 'SplitLayout';
+export const SYMBOL_DRAG_FLAG = Symbol('codeLayoutDragFlag');
+
+export function usePanelDraggerRoot(key: string) {
   const dragPanelState = ref(false);
 
+  provide(SYMBOL_DRAG_FLAG, key);
   provide('dragPanelState', dragPanelState);
   provide('setDragPanelState', () => dragPanelState.value = true);
   provide('resetDragPanelState', () => dragPanelState.value = false);
@@ -95,6 +100,7 @@ export function usePanelDragOverDetector(
   tag?: string,
 ) {
   
+  const codeLayoutDragFlag = inject(SYMBOL_DRAG_FLAG, '');
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
   const resetDragPanelState = inject('resetDragPanelState') as () => void;
   const dragEnterState = ref(false);
@@ -137,9 +143,15 @@ export function usePanelDragOverDetector(
 
     delayLeaveTimer.stop();
   
-    //检查面板，必须存在面板，并且不能是自己或者自己的父级
+    //检查面板，必须存在面板
     const panel = getCurrentDragPanel();
     if (!panel) {
+      dragOverState.value = '';
+      e.dataTransfer.dropEffect = 'none';
+      return;
+    }
+    //面板来源必须一致不能混用
+    if (panel.sourceFlag != codeLayoutDragFlag) {
       dragOverState.value = '';
       e.dataTransfer.dropEffect = 'none';
       return;
@@ -148,10 +160,10 @@ export function usePanelDragOverDetector(
     // 如果是内部拖拽数据，则不应该让浏览器处理弹出窗口
     e.preventDefault();
 
+    //检查面板，面板并且不能是自己或者自己的父级
     if (
       (
-        panel
-        && selfPanel && panel !== selfPanel.value 
+        selfPanel && panel !== selfPanel.value 
         && !panel.children.includes(selfPanel.value)
         && (!dragoverChecking || dragoverChecking(panel))
       )

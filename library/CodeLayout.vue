@@ -133,7 +133,7 @@ import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
-import { usePanelDraggerRoot } from './Composeable/DragDrop';
+import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
 import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
@@ -689,7 +689,7 @@ function loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel)
 }
 
 //处理函数
-usePanelDraggerRoot();
+usePanelDraggerRoot(FLAG_CODE_LAYOUT);
 
 provide('codeLayoutConfig', layoutConfig);
 provide('codeLayoutLangConfig', props.langConfig);

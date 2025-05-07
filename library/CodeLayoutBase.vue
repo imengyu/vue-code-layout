@@ -41,7 +41,9 @@
           @canSaveLayout="saveGridLayoutDataToConfig"
         >
           <template #gridRender="{ grid }">
-            <slot :name="grid.name" />
+            <CodeLayoutTagControl>
+              <slot :name="grid.name" />
+            </CodeLayoutTagControl>
           </template>
         </SplitLayout>
       </div>
@@ -73,6 +75,7 @@ import { ref, type PropType, watch } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutGridInternal } from './CodeLayout';
 import { type CodeLayoutSplitNGridInternal, type CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
+import CodeLayoutTagControl from './CodeLayoutTagControl.vue';
 
 export interface CodeLayoutBaseInstance {
   getRef: () => HTMLElement | undefined;

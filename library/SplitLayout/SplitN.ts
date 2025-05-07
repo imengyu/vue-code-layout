@@ -1,5 +1,6 @@
 import { nextTick, reactive, type Ref } from "vue";
 import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid } from "../CodeLayout";
+import { FLAG_SPLIT_LAYOUT } from "../Composeable/DragDrop";
 
 
 export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
@@ -45,6 +46,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
   public constructor(context: CodeLayoutPanelHosterContext) {
     super(context);
     this.open = true;
+    this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
 
   onActive?: (grid: CodeLayoutSplitNPanel) => void;
@@ -209,6 +211,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   ) {
     super(name, tabStyle, context, onSwitchCollapse, onActiveSelf);
     this.open = true;
+    this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
 
   /**

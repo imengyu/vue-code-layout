@@ -35,7 +35,7 @@ import { type CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type C
 import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
-import { usePanelDraggerRoot } from '../Composeable/DragDrop';
+import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
 
 const emit = defineEmits([ 
   'panelClose', 
@@ -211,7 +211,7 @@ const context : CodeLayoutSplitLayoutContext = {
   },
 };
 
-usePanelDraggerRoot();
+usePanelDraggerRoot(FLAG_SPLIT_LAYOUT);
 
 function onTabActiveChild(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
   const parent = panel.parentGroup as CodeLayoutSplitNGridInternal;

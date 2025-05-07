@@ -3,6 +3,7 @@ import { LateClass } from "./Composeable/LateClass";
 import type { CodeLayoutLangDefine } from "./Language";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import { PanelMenuBuiltins, type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
+import { FLAG_CODE_LAYOUT } from "./Composeable/DragDrop";
 
 /**
  * Layout Type Definition
@@ -467,6 +468,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   closeType: CodeLayoutPanelCloseType = 'none';
   actions?: CodeLayoutActionButton[]|undefined;
   data?: any = undefined;
+  sourceFlag = FLAG_CODE_LAYOUT;
 
   //Public
 
