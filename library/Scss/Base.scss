@@ -215,7 +215,7 @@
       &.right .item.active {
         &::after {
           left: unset;
-          right: 0;
+          right: 2px;
         }
       }
     }
