@@ -137,6 +137,7 @@ import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
 import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
+import { useKeyBoardControllerTop } from './Composeable/KeyBoardController';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
 const primarySideBarGroup = ref();
@@ -690,6 +691,8 @@ function loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel)
 
 //处理函数
 usePanelDraggerRoot(FLAG_CODE_LAYOUT);
+
+useKeyBoardControllerTop();
 
 provide('codeLayoutConfig', layoutConfig);
 provide('codeLayoutLangConfig', props.langConfig);

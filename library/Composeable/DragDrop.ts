@@ -1,4 +1,4 @@
-import { computed, inject, provide, ref, type Ref } from "vue";
+import { computed, inject, onBeforeUnmount, onMounted, provide, ref, type Ref } from "vue";
 import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutPanelInternal } from "../CodeLayout";
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMiniTimeOut } from "./MiniTimeout";
@@ -16,11 +16,24 @@ export function checkDropPanelDefault(
   );
 }
 
-let currentDragPanel : null|CodeLayoutPanelInternal = null;
+const dragEndEventDispatch : (() => void)[] = [];
+const currentDragPanels : CodeLayoutPanelInternal[] = [];
+
+function dispatchAllDragEndEvent() {
+  for (const f of dragEndEventDispatch) {
+    f();
+  }
+}
+function clearAllCurrentDragPanels() {
+  currentDragPanels.splice(0, currentDragPanels.length);
+}
 
 //获取当前的拖拽面板
 export function getCurrentDragPanel() {
-  return currentDragPanel;
+  return currentDragPanels[0] || null;
+}
+export function getCurrentDragExternalPanels() {
+  return currentDragPanels;
 }
 
 export const FLAG_CODE_LAYOUT = 'CodeLayout';
@@ -37,7 +50,10 @@ export function usePanelDraggerRoot(key: string) {
 }
 
 //拖拽开始函数封装
-export function usePanelDragger() {
+export function usePanelDragger(config?: {
+  onBeforeDragAddPanels?: () => CodeLayoutPanelInternal[],
+  onDragEnd?: () => void,
+}) {
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
   const setDragPanelState = inject('setDragPanelState') as () => void;
   const resetDragPanelState = inject('resetDragPanelState') as () => void;
@@ -58,29 +74,40 @@ export function usePanelDragger() {
       }
     }
   }
-
   function handleDragStart(panel: CodeLayoutPanelInternal, ev: DragEvent) {
-  
-    const userCancel = layoutConfig?.value?.onStartDrag?.(panel) ?? false;
-    if (userCancel)
+    if (!currentDragPanels.includes(panel))
+      currentDragPanels.push(panel);
+    if (config?.onBeforeDragAddPanels) {
+      const panels = config.onBeforeDragAddPanels();
+      for (const p of panels) {
+        if (!currentDragPanels.includes(p))
+          currentDragPanels.push(p);
+      }
+    }
+    const userCancel = layoutConfig?.value?.onStartDrag?.(currentDragPanels) ?? false;
+    if (userCancel) {
+      clearAllCurrentDragPanels();
       return;
+    }
 
     ev.stopPropagation();
-    currentDragPanel = panel;
     (ev.target as HTMLElement).classList.add("dragging");
     dragSelfState.value = true;
+    dispatchAllDragEndEvent();
     setDragPanelState();
     document.addEventListener('dragover', draggingMouseMoveHandler);
   }
   function handleDragEnd(ev: DragEvent) {
-    if (currentDragPanel) {
-      layoutConfig?.value?.onEndDrag?.(currentDragPanel);
-      currentDragPanel = null;
+    if (currentDragPanels.length > 0) {
+      layoutConfig?.value?.onEndDrag?.(currentDragPanels);
+      clearAllCurrentDragPanels();
     }
     (ev.target as HTMLElement).classList.remove("dragging");
     dragSelfState.value = false;
     resetDragPanelState();
     document.removeEventListener('dragover', draggingMouseMoveHandler);
+    config?.onDragEnd?.();
+    dispatchAllDragEndEvent();
   }
   return {
     dragSelfState,
@@ -224,6 +251,20 @@ export function usePanelDragOverDetector(
 
   const dragLightBoxState = computed(() => {
     return dragEnterState.value && dragOverState.value !== '';
+  });
+
+  function globalReset() {
+    resetDragOverState();
+    resetDragState();
+  }
+
+  onMounted(() => {
+    dragEndEventDispatch.push(globalReset) 
+  });
+  onBeforeUnmount(() => {
+    const index = dragEndEventDispatch.indexOf(globalReset);
+    if (index > -1)
+      dragEndEventDispatch.splice(index, 1); 
   })
 
   return {

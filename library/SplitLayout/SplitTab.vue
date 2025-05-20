@@ -21,23 +21,34 @@
     >
       <slot name="tabHeaderRender">
         <ScrollRect scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
-          <slot
+          <SplitTabControlItem
             v-for="(panel, index) in grid.children"
             :key="panel.name"
             :panel="panel" 
-            :index="index"
-            :active="panel === grid.activePanel"
-            :onTabClick="() => onTabClick(panel as CodeLayoutSplitNPanelInternal)"
-            :onContextMenu="(e: MouseEvent) => emit('tabItemContextMenu', panel, e)"
-            name="tabItemRender" 
+            :dragAddPanels="() => selectedTabs"
+            :active="panel === grid.activePanel || selectedTabs.includes(panel)"
+            @rangeSelect="onTabRangeSelect(panel as CodeLayoutSplitNPanelInternal)"
+            @additionSelect="onTabAdditionSelect(panel as CodeLayoutSplitNPanelInternal)"
+            @click="onTabClick(panel as CodeLayoutSplitNPanelInternal)"
+            @contextmenu="emit('tabItemContextMenu', panel, $event)"
+            @dragEnd="selectedTabs = []"
           >
-            <SplitTabItem 
-              :panel="(panel as CodeLayoutSplitNPanelInternal)"
-              :active="panel === grid.activePanel"
-              @click="onTabClick(panel as CodeLayoutSplitNPanelInternal)"
-              @contextmenu="emit('tabItemContextMenu', panel, $event)"
-            />
-          </slot>
+            <template #default="{ states }">
+              <slot
+                :panel="panel" 
+                :index="index"
+                :active="panel === grid.activePanel || selectedTabs.includes(panel)"
+                :states="states"
+                name="tabItemRender" 
+              >
+                <SplitTabItem 
+                  :panel="(panel as CodeLayoutSplitNPanelInternal)"
+                  :active="panel === grid.activePanel || selectedTabs.includes(panel)"
+                  :states="states"
+                />
+              </slot>
+            </template>
+          </SplitTabControlItem>
           <slot name="tabHeaderEndRender" :grid="grid" />
         </ScrollRect>
       </slot>
@@ -70,11 +81,13 @@
 <script setup lang="ts">
 import { ref, type PropType, inject, toRefs } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLayoutSplitNPanelInternal } from './SplitN';
-import { getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { getCurrentDragExternalPanels, getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
 import SplitTabItem from './SplitTabItem.vue'
+import SplitTabControlItem from './SplitTabControlItem.vue'
+import type { CodeLayoutPanelInternal } from '@/CodeLayout';
 
 const props = defineProps({
   grid: {
@@ -93,8 +106,34 @@ const context = inject('splitLayoutContext') as CodeLayoutSplitLayoutContext;
 const tabScroll = ref<HTMLElement>();
 const tabContent = ref<HTMLElement>();
 const horizontal = ref(false);
+const selectedTabs = ref<CodeLayoutPanelInternal[]>([]);
 
+function onTabAdditionSelect(panel: CodeLayoutSplitNPanelInternal) {
+  // 加入或者移除
+  if (selectedTabs.value.includes(panel))
+    selectedTabs.value.splice(selectedTabs.value.indexOf(panel), 1);
+  else
+    selectedTabs.value.push(panel); 
+}
+function onTabRangeSelect(panel: CodeLayoutSplitNPanelInternal) {
+  //区间选择
+  if (grid.value.activePanel === panel)
+    selectedTabs.value = [ panel ];
+  else if (grid.value.activePanel) {
+    const lastIndex = grid.value.children.indexOf(grid.value.activePanel);
+    const currentIndex = grid.value.children.indexOf(panel);
+    if (lastIndex === -1 || currentIndex === -1)
+      throw new Error('panel not found in grid.children');
+    if (lastIndex > currentIndex)
+      selectedTabs.value = grid.value.children.slice(currentIndex, lastIndex + 1);
+    else
+      selectedTabs.value = grid.value.children.slice(lastIndex, currentIndex + 1);
+  } else {
+    selectedTabs.value = [ panel ];
+  }
+}
 function onTabClick(panel: CodeLayoutSplitNPanelInternal) {
+  selectedTabs.value = [ panel ];
   const oldActivePanel = grid.value.activePanel;
   emit('tabActive', panel, oldActivePanel);
   grid.value.setActiveChild(panel);
@@ -113,11 +152,11 @@ const tabHeaderDragOverDetector = usePanelDragOverDetector(
 );
 
 function handleTabHeaderDrop(e: DragEvent) {
-  const dropPanel = getCurrentDragPanel();
-  if (dropPanel) {
+  const dropPanels = getCurrentDragExternalPanels();
+  if (dropPanels.length > 0) {
     e.preventDefault();
     e.stopPropagation();
-    context.dragDropToPanel(props.grid, 'center', dropPanel, true);
+    context.dragDropToPanel(props.grid, 'center', dropPanels, true);
   } else if (tabHeaderDragOverDetector.handleDropPreCheck(e)) {
     context.dragDropNonPanel(e, true, 'tab-header', props.grid, 'center');
   }
@@ -138,14 +177,14 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
 );
 
 function handleTabContentDrop(e: DragEvent) {
-  const dropPanel = getCurrentDragPanel();
-  if (dropPanel) {
+  const dropPanels = getCurrentDragExternalPanels();
+  if (dropPanels) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanel(
       grid.value, 
       tabContentDragOverDetector.dragOverState.value, 
-      dropPanel
+      dropPanels
     );
   } else if (tabContentDragOverDetector.handleDropPreCheck(e)) {
     context.dragDropNonPanel(

@@ -36,6 +36,7 @@ import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type C
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
+import { useKeyBoardControllerTop } from '../Composeable/KeyBoardController';
 
 const emit = defineEmits([ 
   'panelClose', 
@@ -212,6 +213,7 @@ const context : CodeLayoutSplitLayoutContext = {
 };
 
 usePanelDraggerRoot(FLAG_SPLIT_LAYOUT);
+useKeyBoardControllerTop();
 
 function onTabActiveChild(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
   const parent = panel.parentGroup as CodeLayoutSplitNGridInternal;
@@ -267,146 +269,160 @@ let generatePanelNameCount = 0;
 function dragDropToPanel(
   referencePanel: CodeLayoutPanelInternal, 
   referencePosition: CodeLayoutDragDropReferencePosition, 
-  panel: CodeLayoutPanelInternal, 
+  panels: CodeLayoutPanelInternal[], 
   toTab?: boolean | undefined) {
 
-  //1
-  let targetGrid : null|CodeLayoutSplitNGridInternal = null;
-  if (referencePanel instanceof CodeLayoutSplitNGridInternal)
-    targetGrid = referencePanel;
-  else if (referencePanel instanceof CodeLayoutSplitNPanelInternal)
-    targetGrid = referencePanel.parentGroup as CodeLayoutSplitNGridInternal;
-  if (!targetGrid)
+  //0
+  if (!panels || panels.length === 0)
     return;
-
-  const oldParent = panel.parentGroup;
-
-  //2
-  if (oldParent !== targetGrid || referencePosition !== 'center' || !toTab)
-    panel.removeSelf();
-
-  const targetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+  const parent = panels[0].parentGroup;
+  for (const iterator of panels) {
+    if (iterator.parentGroup != parent)
+      throw new Error('Drop a set of panel that must be in the same parent!');
+  }
 
   let lateAction: (() => void)|undefined;
 
-  //3
-  if (referencePosition === 'center' || toTab) {
+  function solvePanel(panel: CodeLayoutPanelInternal) {
+    //1
+    let targetGrid : null|CodeLayoutSplitNGridInternal = null;
+    if (referencePanel instanceof CodeLayoutSplitNGridInternal)
+      targetGrid = referencePanel;
+    else if (referencePanel instanceof CodeLayoutSplitNPanelInternal)
+      targetGrid = referencePanel.parentGroup as CodeLayoutSplitNGridInternal;
+    if (!targetGrid)
+      return;
 
-    //3.1
-    if (!targetGrid.hasChild(panel)) {
-      let referencePanelIndex = targetGrid.children.indexOf(referencePanel);
-      if (referencePanelIndex === -1)
-        referencePanelIndex = targetGrid.children.indexOf(targetGrid.activePanel as CodeLayoutPanelInternal);
-      targetGrid.addChild(
-        panel, 
-        referencePanelIndex + (referencePosition === 'right' || referencePosition === 'down' || referencePosition === 'center' ? 1 : 0)
+    const oldParent = panel.parentGroup;
+
+    //2
+    if (oldParent !== targetGrid || referencePosition !== 'center' || !toTab)
+      panel.removeSelf();
+
+    const targetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+
+    //3
+    if (referencePosition === 'center' || toTab) {
+
+      //3.1
+      if (!targetGrid.hasChild(panel)) {
+        let referencePanelIndex = targetGrid.children.indexOf(referencePanel);
+        if (referencePanelIndex === -1)
+          referencePanelIndex = targetGrid.children.indexOf(targetGrid.activePanel as CodeLayoutPanelInternal);
+        targetGrid.addChild(
+          panel, 
+          referencePanelIndex + (referencePosition === 'right' || referencePosition === 'down' || referencePosition === 'center' ? 1 : 0)
+        );
+      } else if (toTab) {
+        //3.1.2
+        targetGrid.removeChild(panel);
+        targetGrid.addChild(panel);
+      }
+      targetGrid.setActiveChild(panel);
+    } else if (targetGridParent && (
+      (
+        targetGridParent.direction === 'horizontal'
+        && (referencePosition === 'left' || referencePosition === 'right')
+      )
+      || (
+        targetGridParent.direction === 'vertical'
+        && (referencePosition === 'up' || referencePosition === 'down')
+      )
+    )) {
+      //3.2
+      const newGrid = new CodeLayoutSplitNGridInternal(targetGridParent.context);//新面板包围的网格
+      Object.assign(newGrid, {
+        ...targetGrid,
+        direction: targetGrid.direction,
+        name: targetGrid.name + Math.floor(Math.random() * 10),
+        children: [],
+        childGrid: [],
+        size: 0,
+        noAutoShink: false,
+      });
+      newGrid.addChild(panel);
+      newGrid.setActiveChild(panel);
+      targetGridParent.addChildGrid(
+        newGrid, 
+        targetGridParent.childGrid.indexOf(targetGrid)
+          + (referencePosition === 'down' || referencePosition === 'right' ? 1 : 0)
       );
-    } else if (toTab) {
-      //3.1.2
-      targetGrid.removeChild(panel);
-      targetGrid.addChild(panel);
-    }
-    targetGrid.setActiveChild(panel);
-  } else if (targetGridParent && (
-    (
-      targetGridParent.direction === 'horizontal'
-      && (referencePosition === 'left' || referencePosition === 'right')
-    )
-    || (
-      targetGridParent.direction === 'vertical'
-      && (referencePosition === 'up' || referencePosition === 'down')
-    )
-  )) {
-    //3.2
-    const newGrid = new CodeLayoutSplitNGridInternal(targetGridParent.context);//新面板包围的网格
-    Object.assign(newGrid, {
-      ...targetGrid,
-      direction: targetGrid.direction,
-      name: targetGrid.name + Math.floor(Math.random() * 10),
-      children: [],
-      childGrid: [],
-      size: 0,
-      noAutoShink: false,
-    });
-    newGrid.addChild(panel);
-    newGrid.setActiveChild(panel);
-    targetGridParent.addChildGrid(
-      newGrid, 
-      targetGridParent.childGrid.indexOf(targetGrid)
-        + (referencePosition === 'down' || referencePosition === 'right' ? 1 : 0)
-    );
-    //重新布局面板
-    lateAction = () => {
-      targetGridParent.relayoutAllWithNewPanel([ newGrid ], targetGrid!);
-    };
-  } else {
-    //3.3
-    const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
-    const newGridTop = new CodeLayoutSplitNGridInternal(targetGrid.context);//上级包围的网格
-    const newGrid = new CodeLayoutSplitNGridInternal(targetGrid.context);//新面板包围的网格
-    Object.assign(newGrid, {
-      ...targetGrid,
-      direction: targetGrid.direction === 'vertical' ? 'horizontal' : 'vertical',//相对的方向
-      name: targetGrid.name + (generatePanelNameCount++),
-      children: [],
-      childGrid: [],
-      size: 0,
-      noAutoShink: false,
-    });
-    Object.assign(newGridTop, {
-      ...targetGrid,
-      name: targetGrid.name + (generatePanelNameCount++),
-      direction: (referencePosition === 'left' || referencePosition === 'right') ? 'horizontal' : 'vertical',
-      children: [],
-      childGrid: [],
-      noAutoShink: false,
-    });
-    targetGrid.size = 0; //设为0以让后续进行布局
-    newGridTop.addChildGrid(targetGrid);
-    newGrid.addChild(panel);
+      //重新布局面板
+      lateAction = () => {
+        targetGridParent.relayoutAllWithNewPanel([ newGrid ], targetGrid!);
+      };
+    } else {
+      //3.3
+      const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+      const newGridTop = new CodeLayoutSplitNGridInternal(targetGrid.context);//上级包围的网格
+      const newGrid = new CodeLayoutSplitNGridInternal(targetGrid.context);//新面板包围的网格
+      Object.assign(newGrid, {
+        ...targetGrid,
+        direction: targetGrid.direction === 'vertical' ? 'horizontal' : 'vertical',//相对的方向
+        name: targetGrid.name + (generatePanelNameCount++),
+        children: [],
+        childGrid: [],
+        size: 0,
+        noAutoShink: false,
+      });
+      Object.assign(newGridTop, {
+        ...targetGrid,
+        name: targetGrid.name + (generatePanelNameCount++),
+        direction: (referencePosition === 'left' || referencePosition === 'right') ? 'horizontal' : 'vertical',
+        children: [],
+        childGrid: [],
+        noAutoShink: false,
+      });
+      targetGrid.size = 0; //设为0以让后续进行布局
+      newGridTop.addChildGrid(targetGrid);
+      newGrid.addChild(panel);
 
-    switch (referencePosition) {
-      case 'left':
-      case 'up':
-        newGridTop.addChildGrid(newGrid, 0);
-        break;
-      case 'right':
-      case 'down':
-        newGridTop.addChildGrid(newGrid);
-        break;
+      switch (referencePosition) {
+        case 'left':
+        case 'up':
+          newGridTop.addChildGrid(newGrid, 0);
+          break;
+        case 'right':
+        case 'down':
+          newGridTop.addChildGrid(newGrid);
+          break;
+      }
+
+      newGrid.setActiveChild(panel);
+
+      if (targetGrid === rootGrid.value) {
+        rootGrid.value = newGridTop;
+        rootGrid.value.noAutoShink = true;
+      }
+      else {
+        if (!oldTargetGridParent)
+          throw new Error('oldTargetGridParent is null');
+        oldTargetGridParent.replaceChildGrid(targetGrid, newGridTop);
+      }
+
+      //重新布局面板
+      lateAction = () => {
+        if (newGridTop.childReplacedBy)
+          newGridTop.childReplacedBy.notifyRelayout();
+        else
+          newGridTop.notifyRelayout();
+        newGrid.notifyRelayout();
+      };
     }
 
-    newGrid.setActiveChild(panel);
-
-    if (targetGrid === rootGrid.value) {
-      rootGrid.value = newGridTop;
-      rootGrid.value.noAutoShink = true;
-    }
-    else {
-      if (!oldTargetGridParent)
-        throw new Error('oldTargetGridParent is null');
-      oldTargetGridParent.replaceChildGrid(targetGrid, newGridTop);
-    }
-
-    //重新布局面板
-    lateAction = () => {
-      if (newGridTop.childReplacedBy)
-        newGridTop.childReplacedBy.notifyRelayout();
-      else
-        newGridTop.notifyRelayout();
-      newGrid.notifyRelayout();
-    };
+    //5
+    autoShrinkEmptyGrid(oldParent as CodeLayoutSplitNGridInternal, targetGrid);
   }
 
-  //5
-  autoShrinkEmptyGrid(oldParent as CodeLayoutSplitNGridInternal, targetGrid);
+  for (const iterator of panels)
+    solvePanel(iterator);
 
   nextTick(() => {
     lateAction?.();
   });
 
   //发出事件
-  emit('panelDrop', panel, referencePanel, referencePosition);
+  emit('panelDrop', panels, referencePanel, referencePosition);
 }
 /**
  * 移除面板操作流程

@@ -165,11 +165,11 @@ export interface CodeLayoutConfig {
   /**
    * When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging
    */
-  onStartDrag?: (panel: CodeLayoutPanelInternal) => boolean;
+  onStartDrag?: (panel: CodeLayoutPanelInternal[]) => boolean;
   /**
    * Trigger this callback when the user completes dragging the panel
    */
-  onEndDrag?: (panel: CodeLayoutPanelInternal) => void;
+  onEndDrag?: (panel: CodeLayoutPanelInternal[]) => void;
   /**
    * When the user drags a panel to a root group, this callback is triggered, which can return false to prevent the user from dragging
    */
