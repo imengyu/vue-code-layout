@@ -290,8 +290,13 @@ groupExplorer.badge = '3';
 通过实例上的 `visible` 属性可以控制面板的显示、隐藏。
 
 ```ts
-groupExplorer.visible = false;
+panel.visible = false;
+panel.relayoutAfterToggleVisible();
 ```
+
+::: tip
+注意：当面板显示/隐藏时，需要调用 `relayoutAfterToggleVisible` 重新布局组。
+:::
 
 ### 删除面板
 
@@ -503,28 +508,12 @@ onMounted(() => {
 </script>
 ```
 
-### 保存数据
-
-通过调用 saveLayout 方法保存布局数据。
-
-同时你也应该保存基础布局数据（CodeLayoutConfig），这部分数据定义了每个基础组的大小，是否显示，基础布局设置等，
-要保存这个数据，只需要在调用 saveLayout 函数后，将 config 变量保存即可。
-
-```ts
-import { toRaw, reactive } from 'vue';
-import { type CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...省略
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //保存布局
-```
-
 ### 加载数据
+
+有两个数据需要加载:
+
+* 基础布局数据 (CodeLayoutConfig)，这部分数据定义了每个基础组的大小，是否显示，基础布局设置等。
+* 组和面板信息 (布局数据)。
 
 基础布局数据只需要重新将保存的数据加载至变量中即可。
 
@@ -609,6 +598,26 @@ if (data) {
   //No data, create new layout
   //...
 }
+```
+
+### 保存数据
+
+通过调用 saveLayout 方法保存布局数据。
+
+同时你也应该保存基础布局数据（CodeLayoutConfig），只需要在调用 saveLayout 函数后，将 config 变量保存即可。
+
+```ts
+import { toRaw, reactive } from 'vue';
+import { type CodeLayoutConfig } from 'vue-code-layout';
+
+const config = reactive<CodeLayoutConfig>({
+  //...省略
+});
+
+const json = codeLayout.value.saveLayout();
+
+localStorage.setItem('LayoutData', json);
+localStorage.setItem('LayoutConfig', toRaw(config)); //保存布局
 ```
 
 ## 内置主菜单

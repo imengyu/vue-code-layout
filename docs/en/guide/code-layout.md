@@ -320,7 +320,7 @@ Groups can only be nested up to one level (groups can only be generated under th
 
 ### Get panel instance
 
-When adding a panel, the 'name' attribute must be guaranteed to be unique, so you can use name to query the added panel instances and change them:
+When adding a panel, the `name` attribute must be guaranteed to be unique, so you can use name to query the panel instances and modify the attributes of them:
 
 ```ts
 //Get the panel and modify the badge
@@ -333,8 +333,13 @@ groupExplorer.badge = '3';
 The display and hiding of the panel can be controlled through the `visible` attribute on the instance.
 
 ```ts
-groupExplorer.visible = false;
+panel.visible = false;
+panel.relayoutAfterToggleVisible();
 ```
+
+::: tip
+Note：When the panel visible state is changed, need to call `relayoutAfterToggleVisible` to relayout the group.
+:::
 
 ### Delete panel
 
@@ -545,28 +550,12 @@ onMounted(() => {
 </script>
 ```
 
-### Save data
-
-Save layout data by calling the `saveLayout` method.
-
-At the same time, you should also save the basic layout data (CodeLayoutConfig), which defines the size of each basic group, whether to display it, basic layout settings, etc,
-To save this data, simply call the `saveLayout` function and save the config variable.
-
-```ts
-import { toRaw, reactive } from 'vue';
-import type { CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //Save basic layout data
-```
-
 ### Load data
+
+Therae re are two data need load:
+
+* Basic layout data (CodeLayoutConfig), which defines the size of each basic group, whether to display it, basic layout settings, etc.
+* Group and Panel data (Layout data).
 
 The basic layout data only needs to be reloaded into variables after saving.
 
@@ -653,10 +642,30 @@ if (data) {
 }
 ```
 
+### Save data
+
+Save layout data by calling the `saveLayout` method.
+
+At the same time, you should also save the basic layout data (CodeLayoutConfig), simply call the `saveLayout` function and save the config variable.
+
+```ts
+import { toRaw, reactive } from 'vue';
+import type { CodeLayoutConfig } from 'vue-code-layout';
+
+const config = reactive<CodeLayoutConfig>({
+  //...
+});
+
+const json = codeLayout.value.saveLayout();
+
+localStorage.setItem('LayoutData', json);
+localStorage.setItem('LayoutConfig', toRaw(config)); //Save basic layout data
+```
+
 ## Built-in main menu
 
 Due to CodeLayout's dependence on menu functions, menu functions are integrated with CodeLayout,
-If your application requires a main menu, you can refer to the following examples to quickly configure the main menu, or you can render the menu yourself through the titleBarMenu slot.
+If your application requires a main menu, you can refer to the following examples to quickly configure the main menu, or you can render the menu yourself through the `titleBarMenu` slot.
 
 The menu is based on [vue3-context-menu](https://github.com/imengyu/vue3-context-menu), Please refer to its [documentation](https://docs.imengyu.top/vue3-context-menu-docs) for configuration.
 

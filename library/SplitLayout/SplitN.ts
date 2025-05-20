@@ -466,6 +466,6 @@ export interface CodeLayoutSplitLayoutContext {
   currentActiveGrid: Ref<CodeLayoutSplitNGridInternal|null>,
   getRef(): any;
   activeGrid(grid: CodeLayoutSplitNGridInternal) : void;
-  dragDropToPanel(referencePanel: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panel: CodeLayoutPanelInternal, toTab?: boolean) : void;
+  dragDropToPanel(referencePanel: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panels: CodeLayoutPanelInternal[], toTab?: boolean) : void;
   dragDropNonPanel(e: DragEvent, isDrop: boolean, sourcePosition: CodeLayoutDragDropReferenceAreaType, referencePanel?: CodeLayoutPanelInternal, referencePosition?: CodeLayoutDragDropReferencePosition): boolean;
 }
