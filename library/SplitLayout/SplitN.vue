@@ -10,8 +10,8 @@
       v-for="(child, index) in grid.childGrid"
       :key="child.name"
       :style="{
-        width: horizontal ? `calc(${child.visible ? child.size : 0}% - ${draggerSize}px)` : undefined,
-        height: horizontal ? undefined : (`calc(${child.visible ? child.size : 0}% - ${draggerSize}px)`),
+        width: horizontal ? `${child.visible ? child.size : 0}%` : undefined,
+        height: horizontal ? undefined : `${child.visible ? child.size : 0}%`,
       }"
       :data-panel-name="child.name"
       class="split-n-container"
