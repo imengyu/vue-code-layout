@@ -12,7 +12,7 @@
       @drop="handleDrop"
       @click="handleClick"
     >
-      <slot :states="{ active, dragLightBoxState, dragOverState }" />
+      <slot name="sub" :states="{ active, dragLightBoxState, dragOverState }" />
     </div>
   </SimpleTooltip>
 </template>
@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref, type PropType, toRefs, inject } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNPanelInternal } from './SplitN';
-import { checkDropPanelDefault, getCurrentDragExternalPanels, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from '../Composeable/DragDrop';
+import { checkDropPanelDefault, getCurrentDragExternalPanels, usePanelDragOverDetector, usePanelDragger } from '../Composeable/DragDrop';
 import SimpleTooltip from '../Components/SimpleTooltip.vue';
 import { useKeyBoardController } from '../Composeable/KeyBoardController';
 
@@ -57,7 +57,9 @@ const {
   handleDragEnd,
 } = usePanelDragger({
   onBeforeDragAddPanels() {
-    return props.dragAddPanels?.(panel.value) ?? [];
+    const a = props.dragAddPanels?.(panel.value) ?? [];
+    console.log('onBeforeDragAddPanels', a);
+    return a;
   },
   onDragEnd() {
     emit('dragEnd');

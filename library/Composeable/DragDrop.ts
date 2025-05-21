@@ -33,7 +33,7 @@ export function getCurrentDragPanel() {
   return currentDragPanels[0] || null;
 }
 export function getCurrentDragExternalPanels() {
-  return currentDragPanels;
+  return currentDragPanels.length > 0 ? currentDragPanels : null;
 }
 
 export const FLAG_CODE_LAYOUT = 'CodeLayout';
@@ -75,8 +75,6 @@ export function usePanelDragger(config?: {
     }
   }
   function handleDragStart(panel: CodeLayoutPanelInternal, ev: DragEvent) {
-    if (!currentDragPanels.includes(panel))
-      currentDragPanels.push(panel);
     if (config?.onBeforeDragAddPanels) {
       const panels = config.onBeforeDragAddPanels();
       for (const p of panels) {
@@ -84,6 +82,8 @@ export function usePanelDragger(config?: {
           currentDragPanels.push(p);
       }
     }
+    if (!currentDragPanels.includes(panel))
+      currentDragPanels.push(panel);
     const userCancel = layoutConfig?.value?.onStartDrag?.(currentDragPanels) ?? false;
     if (userCancel) {
       clearAllCurrentDragPanels();

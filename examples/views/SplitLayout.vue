@@ -34,12 +34,10 @@
       <template #tabHeaderExtraRender="{ grid }">
         <button @click="onAddPanel(grid)">+ Add Panel</button>
       </template>
-      <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+      <template #tabItemRender="{ index, panel, states }">
         <SplitTabItem 
           :panel="(panel as CodeLayoutSplitNPanelInternal)"
-          :active="active"
-          @click="onTabClick"
-          @contextmenu="onContextMenu($event)"
+          :states="states"
         >
           <template #title>
             <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>

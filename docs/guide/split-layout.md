@@ -447,12 +447,10 @@ SplitLayout 支持自定义渲染标签页按钮，你可以自定义渲染某�
   >
     <!--省略其他代码-->
 
-    <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+    <template #tabItemRender="{ index, panel, states }">
       <SplitTabItem 
         :panel="(panel as CodeLayoutSplitNPanelInternal)"
-        :active="active"
-        @click="onTabClick"
-        @contextmenu="onContextMenu($event)"
+        :states="states"
       >
         <template #title>
           <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>

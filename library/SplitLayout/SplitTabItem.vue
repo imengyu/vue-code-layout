@@ -2,9 +2,9 @@
   <div
     :class="[
       'item',
-      active ? 'active' : '',
-      states.dragLightBoxState ? 'drag-active' : '',
-      `drag-over-${states.dragOverState}`,
+      states?.active ? 'active' : '',
+      states?.dragLightBoxState ? 'drag-active' : '',
+      `drag-over-${states?.dragOverState}`,
     ]"
   >
     <!-- icon and title -->
@@ -60,11 +60,6 @@ defineProps({
       dragLightBoxState: boolean, 
       dragOverState: string 
     }>,
-    default: () => ({
-      active: false,
-      dragLightBoxState: false,
-      dragOverState: '',
-    }),
   },
 });
 </script>
