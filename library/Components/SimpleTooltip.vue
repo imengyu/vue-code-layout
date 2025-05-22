@@ -79,6 +79,10 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
+  receiveRef: {
+    type: Function as PropType<(ref: HTMLElement) => void>,
+    default: () => {}, 
+  }
 });
 
 const slots = useSlots();

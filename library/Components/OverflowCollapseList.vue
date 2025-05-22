@@ -9,10 +9,10 @@
     <slot name="start" />
     <template
       v-for="(item, index) in items"
-      :key="item.key ?? index"
+      :key="item.key"
     >
-      <slot 
-        v-if="!visibleKey || item[visibleKey]"
+      <slot
+        :visible="(!visibleKey || item[visibleKey]) && visibleArray[index]"
         :item="item"
         :index="index"
         name="item"
@@ -27,19 +27,24 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends OverflowCollapseListItem">
 import { ref, onMounted, onBeforeUnmount, nextTick, type PropType, watch } from 'vue';
-import IconMore from '../Icons/IconMore.vue';
 import { useResizeChecker } from '../Composeable/ResizeChecker';
+import IconMore from '../Icons/IconMore.vue';
 import ContextMenu, { type MenuItem } from '@imengyu/vue3-context-menu';
 import HtmlUtils from '../Utils/HtmlUtils';
+
+export interface OverflowCollapseListItem {
+  key?: string;
+  [index: string]: any;
+}
 
 const props = defineProps({
   /**
    * Items to display, render by slot
    */
   items: {
-    type: Object as PropType<Array<any>>,
+    type: Object as PropType<Array<T>>,
     default: () => ([] as object)
   },
   /**
@@ -48,6 +53,20 @@ const props = defineProps({
   visibleKey: {
     type: String,
     default: '',
+  },
+  /**
+   * Key of the item.key, used to identify the item
+   */
+  itemKey: {
+    type: String,
+    default: 'name',
+  },
+  /**
+   * Call back that calc item size.
+   */
+  getItemSize: {
+    type: Function as PropType<(item: T, horizontal: boolean, index: number) => number>,
+    required: true,
   },
   /**
    * Direction of the menu
@@ -60,7 +79,7 @@ const props = defineProps({
    * Activated item, activated item will not be hidden
    */
   activeItem: {
-    type: null,
+    type: Object as PropType<T|null>,
     default: null
   },
   /**
@@ -92,6 +111,8 @@ const emit = defineEmits([
 const container = ref<HTMLElement>();
 const overflowItem = ref<HTMLElement>();
 const overflowIndex = ref(-1);
+const visibleArray = ref<boolean[]>([]);
+const sizeCache = new Map<string, number>();
 
 function doCalcItemOverflow() {
   overflowIndex.value = -1;
@@ -100,27 +121,34 @@ function doCalcItemOverflow() {
     return;
 
   const visibleKey = props.visibleKey;
-  const activeItem = props.activeItem;
+  const activeItem = props.activeItem as T;
   const horizontal = props.direction === 'horizontal';
   const width = (horizontal ? container.value.offsetWidth  : container.value.offsetHeight) - props.itemCollapseMergin;
-  const children = container.value.children;
   let x = 0, firstOverflow = -1;
 
-  for (let i = 0; i < children.length && i < props.items.length; i++) {
-    const element = children[i] as HTMLElement;
-    element.style.display = '';
+  for (let i = 0; i < props.items.length; i++) {
+    const item = props.items[i];
+    const key = item[props.itemKey];
 
-    if (visibleKey && !props.items[i][visibleKey])
+    if (visibleKey && !item[visibleKey]) {
+      visibleArray.value[i] = false;
       continue;
+    }
 
-    x += horizontal ? element.offsetWidth : element.offsetHeight;
-    element.style.display = (x < width || props.items[i] === activeItem) ? '' : 'none';
+    if (!visibleArray.value[i])
+      x += sizeCache.get(key) || 0;
+    else {
+      const v = props.getItemSize(item, horizontal, i);
+      sizeCache.set(key, v);
+      x += v;
+    }
+    visibleArray.value[i] = (x < width || item === activeItem);
 
     if (x >= width && firstOverflow === -1) {
       firstOverflow = i;
       overflowIndex.value = i;
       if (activeItem && props.items.indexOf(activeItem) >= i && i > 0)
-        (children[i - 1] as HTMLElement).style.display = 'none';
+        visibleArray.value[i - 1] = false;
     }
   }
 }
@@ -156,6 +184,7 @@ function onOverflowItemClicked() {
   })
 }
 
+watch(() => props.items.length, doCalcItemOverflow);
 watch(() => props.items, doCalcItemOverflow);
 watch(() => props.activeItem, doCalcItemOverflow);
 

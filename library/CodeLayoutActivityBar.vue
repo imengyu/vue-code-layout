@@ -4,17 +4,19 @@
     class="activity-bar-items"
     direction="vertical"
     menuDirection="up"
+    visibleKey="visible"
     :items="primary.children"
     :activeItem="primary.activePanel"
     :itemCollapseMergin="55"
     :itemMenuLabel="(p) => (p as CodeLayoutPanelInternal).title"
+    :getItemSize="() => 45"
     @overflowItemClicked="(p) => $emit('activityBarAcitve', p as CodeLayoutPanelInternal)"
   >
-    <template #item="{ item: panelGroup }">
+    <template #item="{ item: panelGroup, visible }">
       <CodeLayoutActionItem
-        v-show="panelGroup.visible"
+        v-show="visible"
         :key="panelGroup.name"
-        :item="panelGroup"
+        :item="(panelGroup as unknown as CodeLayoutPanelInternal)"
         :direction="direction"
         :active="panelGroup.name === primary.activePanel?.name && primarySideBar"
         @activeItem="$emit('activityBarAcitve', panelGroup)"

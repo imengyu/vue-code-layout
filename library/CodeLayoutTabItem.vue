@@ -103,4 +103,13 @@ function handleDrop(e: DragEvent) {
 const {
   onContextMenu
 } = usePanelMenuControl();
+
+defineExpose({
+  getWidth() {
+    return container.value?.offsetWidth || 0;
+  },
+  getHeight() {
+    return container.value?.offsetHeight || 0; 
+  }
+})
 </script>

@@ -41,24 +41,26 @@
     >
       <OverflowCollapseList 
         class="tab-container"
+        visibleKey="visible"
         :items="group.children"
         :activeItem="group.activePanel"
         :itemMenuLabel="(p) => (p as CodeLayoutPanelInternal).title"
-        :menuDirection="group.tabStyle === 'text-bottom' || group.tabStyle === 'icon-bottom'? 'up' : 'down'"
-        visibleKey="visible"
+        :menuDirection="group.tabStyle.endsWith('-bottom') ? 'up' : 'down'"
+        :getItemSize="(_, horizontal, index) => (horizontal ? tabRefs[index]?.getWidth() : tabRefs[index]?.getHeight()) ?? 0"
         @overflowItemClicked="(p) => group.setActiveChild(p as CodeLayoutPanelInternal)"
       >
         <template #start>
           <slot name="tabHeaderLeftStart" :group="group" />
         </template>
-        <template #item="{ item: panel }">
-          <CodeLayoutTabItem 
-            v-show="panel.visible"
+        <template #item="{ item: panel, visible, index }">
+          <CodeLayoutTabItem
+            v-show="visible"
+            :ref="(ref) => tabRefs[index] = ref"
             :tabStyle="group.tabStyle"
             :active="group.activePanel === panel"
-            :panel="panel"
-            @click="handleTabClick(panel)"
-            @focusSelf="handleTabClick(panel)"
+            :panel="(panel as CodeLayoutPanelInternal)"
+            @click="handleTabClick(panel as CodeLayoutPanelInternal)"
+            @focusSelf="handleTabClick(panel as CodeLayoutPanelInternal)"
           />
         </template>
         <template #end>
@@ -184,6 +186,8 @@ const props = defineProps({
     default: '',
   },
 });
+
+const tabRefs = ref<any[]>([]);
 
 const layoutConfig = inject('codeLayoutConfig') as Ref<CodeLayoutConfig>;
 const context = inject('codeLayoutContext') as CodeLayoutContext;
