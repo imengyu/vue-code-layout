@@ -11,6 +11,10 @@
     overflow: hidden;
   }
 
+  .code-layout-split-dragger {
+    z-index: 10;
+  }
+
   &.vertical {
     flex-direction: column;
     justify-content: stretch;
@@ -331,6 +335,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
 
   &.empty {
     top: 0;
