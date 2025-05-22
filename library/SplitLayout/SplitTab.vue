@@ -21,6 +21,7 @@
     >
       <slot name="tabHeaderRender">
         <ScrollRect scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
+          <slot name="tabHeaderStartRender" :grid="grid" />
           <SplitTabControlItem
             v-for="(panel, index) in (grid.children as CodeLayoutSplitNPanelInternal[])"
             :key="panel.name"
@@ -53,6 +54,7 @@
       <div class="code-layout-split-tab-list-extra">
         <slot name="tabHeaderExtraRender" :grid="grid" />
         <CodeLayoutActionsRender v-if="grid.activePanel?.actions" :actions="grid.activePanel?.actions" />
+        <slot name="tabHeaderExtraEndRender" :grid="grid" />
       </div>
     </div>
     <!--tab content -->
@@ -156,7 +158,7 @@ const tabHeaderDragOverDetector = usePanelDragOverDetector(
 
 function handleTabHeaderDrop(e: DragEvent) {
   const dropPanels = getCurrentDragExternalPanels();
-  if (dropPanels.length > 0) {
+  if (dropPanels) {
     e.preventDefault();
     e.stopPropagation();
     context.dragDropToPanel(props.grid, 'center', dropPanels, true);

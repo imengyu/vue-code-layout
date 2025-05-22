@@ -65,7 +65,14 @@
     </div>
     <!--status bar-->
     <div v-show="config.statusBar" class="code-layout-status">
-      <slot name="statusBar" />
+      <slot name="statusBar">
+        <div class="left">
+          <slot name="statusBarLeft" />
+        </div>
+        <div class="right">
+          <slot name="statusBarRight" />
+        </div>
+      </slot>
     </div>
   </div>
 </template>

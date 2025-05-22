@@ -783,9 +783,32 @@ CodeLayout are also provided some solts for your use:
 * titleBarRight: Position on the right side of the title bar (VSCode places the close button here)
 * titleBarTop: Area above the title bar
 * titleBarBottom: The area at the bottom of the title bar, above the center area, where custom actions can be placed
-* activityBarBottom: At the bottom of the activity bar (where VSCode places the settings button)
+
+* activityBarTop Top of activity bar buttons
+* activityBarEnd Bottom of activity bar buttons
+* activityBarBottom At the bottom of the activity bar (where VSCode places the settings button)
+  * activityBar If Secondary activity bar was set：
+    * activityBarSecondaryTop
+    * activityBarSecondaryEnd
+    * activityBarSecondaryBottom
+
+* tabHeaderLeftStart Panel Group in tab mode, left of buttons, params `{ group }`
+* tabHeaderLeftEnd Panel Group in tab mode, right of buttons, params `{ group }`
+* tabHeaderRightStart Panel Group in tab mode, extra actions start, params `{ group }`
+* tabHeaderRightEnd Panel Group in tab mode, extra actions end, params `{ group }`
+
+* titleBarTitle Panel Group title, params `{ group, title }`
+* titleBarActionStart Panel Group extra actions start, params `{ group }`
+* titleBarActionEnd Panel Group extra actions end, params `{ group }`
+
 * centerArea: The central area of CenterArea, where SliptLayout or other editor core components can be placed
+
 * statusBar: Status Bar Position
+  * statusBarLeft Status Bar left
+  * statusBarRight Status Bar right
+
+* emptyGroup No panel in a group, params `{ group }`
+
 
 ## TIP: Component unmont
 

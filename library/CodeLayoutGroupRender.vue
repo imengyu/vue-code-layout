@@ -7,11 +7,8 @@
       :group="(group.activePanel as CodeLayoutPanelInternal)"
       :horizontal="false"
     >
-      <template #panelRender="data">
-        <slot name="panelRender" v-bind="data" />
-      </template>
-      <template #emptyTabRender>
-        <slot name="emptyTabRender" />
+      <template v-for="(_, name) in $slots" #[name]="slotData">
+        <slot :name v-bind="slotData || {}"></slot>
       </template>
     </CodeLayoutGroupRender>
     <slot v-else name="emptyTabRender" />
@@ -51,6 +48,9 @@
         visibleKey="visible"
         @overflowItemClicked="(p) => group.setActiveChild(p as CodeLayoutPanelInternal)"
       >
+        <template #start>
+          <slot name="tabHeaderLeftStart" :group="group" />
+        </template>
         <template #item="{ item: panel }">
           <CodeLayoutTabItem 
             v-show="panel.visible"
@@ -61,24 +61,44 @@
             @focusSelf="handleTabClick(panel)"
           />
         </template>
+        <template #end>
+          <slot name="tabHeaderLeftEnd" :group="group" />
+        </template>
       </OverflowCollapseList>
       <div class="right">
+        <slot name="tabHeaderRightStart" :group="group" />
         <CodeLayoutActionsRender v-if="group.activePanel" class="actions" :actions="group.activePanel.actions" />
         <CodeLayoutActionsRender v-if="group.parentGrid === 'bottomPanel'" class="actions" :actions="buttomPanelActions" />
         <CodeLayoutActionsRender v-if="group.parentGrid === 'secondarySideBar'" class="actions" :actions="secondaryPanelActions" />
+        <slot name="tabHeaderRightEnd" :group="group" />
       </div>
     </div>
     <!-- 标题栏 -->
     <div 
-      v-else-if="group.tabStyle === 'single' || !group.children || group.children.length == 0"
+      v-else-if="
+        group.tabStyle === 'single' || !group.children || group.children.length == 0
+        || group.parentGrid === 'primarySideBar' || (group.parentGrid === 'secondarySideBar' && layoutConfig.secondarySideBarAsActivityBar)
+      "
       class="title-bar"
       :draggable="group.draggable"
       @dragstart="handleDragStart(group, $event)"
       @dragend="handleDragEnd"
       @contextmenu="onContextMenu(group, $event)"
     >
-      <span class="title">{{ group.title }}</span>
-      <CodeLayoutActionsRender v-if="group.activePanel" class="actions" :actions="group.actions" />
+      <slot name="titleBarTitle" :group="group" :title="group.title">
+        <span class="title">{{ group.title }}</span>
+      </slot>
+      <CodeLayoutActionsRender 
+        class="actions" 
+        :actions="group.actions"
+      >
+        <template #start>
+          <slot name="titleBarActionStart" :group="group" />
+        </template>
+        <template #end>
+          <slot name="titleBarActionEnd" :group="group" />
+        </template>
+      </CodeLayoutActionsRender>
     </div>
     <!-- 内容区 -->
     <div :class="[ 'content', horizontal ? 'horizontal' : 'vertical' ]">

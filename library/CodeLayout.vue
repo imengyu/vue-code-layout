@@ -32,8 +32,9 @@
     </template>
     <template #activityBar>
       <div class="top">
+        <slot name="activityBarTop" />
         <!--no menu bar here show collapsed menu button-->
-        <slot v-if="!layoutConfig.menuBar" name="activityBarTopBar">
+        <slot v-if="!layoutConfig.menuBar" name="activityBarTopMenuBar">
           <MenuBar :options="mainMenuConfigWithCollapseState" />
         </slot>
         <!--main activityBar items-->
@@ -44,6 +45,7 @@
           :direction="layoutConfig.primarySideBarPosition"
           @activityBarAcitve="onActivityBarAcitve"
         />
+        <slot name="activityBarEnd" />
       </div>
       <div class="bottom">
         <slot name="activityBarBottom" />
@@ -51,8 +53,9 @@
     </template>
     <template #activityBarSecondary>
       <div class="top">
+        <slot name="activityBarSecondaryTop" />
         <!--no menu bar here show collapsed menu button-->
-        <slot v-if="!layoutConfig.menuBar" name="activityBarSecondaryTopBar">
+        <slot v-if="!layoutConfig.menuBar" name="activityBarSecondaryTopMenuBar">
           <MenuBar :options="mainMenuConfigWithCollapseState" />
         </slot>
         <!--main activityBar items-->
@@ -63,6 +66,7 @@
           :direction="layoutConfig.primarySideBarPosition == 'left' ? 'right' : 'left'"
           @activityBarAcitve="onActivityBarAcitve2"
         />
+        <slot name="activityBarSecondaryEnd" />
       </div>
       <div class="bottom">
         <slot name="activityBarSecondaryBottom" />
@@ -74,8 +78,8 @@
         :group="panels.primary"
         :horizontal="false"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty :panel="panels.primary" grid="primarySideBar">
@@ -90,8 +94,8 @@
         :group="panels.secondary"
         :horizontal="false"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty :panel="panels.secondary" grid="secondarySideBar">
@@ -106,8 +110,8 @@
         :group="panels.bottom"
         :horizontal="true"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty grid="bottomPanel">
@@ -121,6 +125,12 @@
     </template>
     <template #statusBar>
       <slot name="statusBar" />
+    </template>
+    <template #statusBarLeft>
+      <slot name="statusBarLeft" />
+    </template>
+    <template #statusBarRight>
+      <slot name="statusBarRight" />
     </template>
   </CodeLayoutBase>
 </template>

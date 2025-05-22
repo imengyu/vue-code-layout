@@ -6,6 +6,7 @@
       direction,
     ]"
   >
+    <slot name="start" />
     <template
       v-for="(item, index) in items"
       :key="item.key ?? index"
@@ -17,6 +18,7 @@
         name="item"
       />
     </template>
+    <slot name="end" />
     <slot v-if="overflowIndex >= 0" name="overflowItem">
       <div ref="overflowItem" class="OverflowItem" @click="onOverflowItemClicked">
         <IconMore />

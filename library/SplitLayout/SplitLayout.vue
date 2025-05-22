@@ -6,21 +6,9 @@
           :grid="grid"
           @tabItemContextMenu="(a, b) => emit('panelContextMenu', a, b)"
           @tabActive="onTabActiveChild"
-        >
-          <template #tabContentRender="params">
-            <slot name="tabContentRender" v-bind="params" />
-          </template>
-          <template #tabEmptyContentRender="params">
-            <slot name="tabEmptyContentRender" v-bind="params" />
-          </template>
-          <template #tabHeaderExtraRender="params">
-            <slot name="tabHeaderExtraRender" v-bind="params" />
-          </template>
-          <template #tabHeaderEndRender="params">
-            <slot name="tabHeaderEndRender" v-bind="params" />
-          </template>
-          <template #tabItemRender="params">
-            <slot name="tabItemRender" v-bind="params" />
+        >    
+          <template v-for="(_, name) in $slots" #[name]="slotData">
+            <slot :name v-bind="slotData || {}"></slot>
           </template>
         </SplitTab>
       </slot>

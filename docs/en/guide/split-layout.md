@@ -444,9 +444,9 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 ## Customize render Tab header
 
-### Tab header
+### Tab item
 
-Split Layout supports custom rendering tab buttons, allowing you to customize rendering of a certain part or all parts.
+Split Layout supports custom rendering tab item, allowing you to customize rendering of a certain part or all parts.
 You can use the `tabItemRender` slot to render tab entries, which allows for the entire overlay rendering.
 
 If you only need to customize certain parts of the rendering, you can import the default tab component `SplitTabItem`, which supports the functionality of default tabs but also allows you to customize a certain part of them.
@@ -502,6 +502,11 @@ You can use the `tabHeaderExtraRender` slot to render the tail area of a tab, fo
   </SplitLayout>
 </template>
 ```
+
+### Other slots of tab
+
+* tabHeaderStartRender : Scroll region start of tab header
+* tabHeaderEndRender : Scroll region end of tab header
 
 ## Saving and Loading Data
 

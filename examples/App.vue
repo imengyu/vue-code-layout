@@ -6,7 +6,7 @@
         <router-link :to="{ name: 'BasicUseage' }" class="link first">Base Layou useage</router-link>
         <router-link :to="{ name: 'SplitLayout' }" class="link first">Split Layout</router-link>
         <router-link :to="{ name: 'DataSaveAndLoad' }" class="link first">Load and save</router-link>
-        <!-- <router-link :to="{ name: 'EmptyTest' }" class="link first">EmptyTest</router-link> -->
+        <router-link :to="{ name: 'SlotsTest' }" class="link first">Slots</router-link>
         <!-- <router-link :to="{ name: 'Theme' }">Custom Style</router-link> -->
       </div>
       <div>

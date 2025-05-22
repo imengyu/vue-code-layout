@@ -91,6 +91,7 @@
       align-items: center;
       background-color: var(--code-layout-color-background-light);
       width: $activity-bar-width;
+      overflow: hidden;
 
       .OverflowItem {
         width: $activity-bar-width;
@@ -98,11 +99,13 @@
       }
 
       > .top {
+        position: relative;
         flex-grow: 1;
         flex-shrink: 1;
         max-height: 90%;
       }
       > .bottom {
+        position: relative;
         flex-grow: 0;
         flex-shrink: 0;
       }
@@ -221,8 +224,21 @@
     }
   }
   > .code-layout-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
     flex-grow: 0;
     height: var(--code-layout-status-height);
     background-color: var(--code-layout-color-highlight);
+
+    > .left {
+      position: relative;
+      flex-shrink: 0;
+    }
+    > .right {
+      position: relative;
+      flex-shrink: 0;
+    }
   }
 }

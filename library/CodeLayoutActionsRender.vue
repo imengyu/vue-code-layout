@@ -3,6 +3,7 @@
     :class="[ 'code-layout-actions' ]"
     draggable="false"
   > 
+    <slot name="start" />
     <SimpleTooltip
       v-for="(action, index) in actions"
       :key="action.name ?? index"
@@ -23,6 +24,7 @@
         <CodeLayoutVNodeStringRender :content="action.text" />
       </button>
     </SimpleTooltip>
+    <slot name="end" />
   </div>
 </template>
 

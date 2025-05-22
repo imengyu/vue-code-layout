@@ -6,8 +6,17 @@
       :main-menu-config="menuData"
     >
       <template #titleBarBottom>
-        <slot name="extraActions" />
+        <SlotDisplay v-if="renderSlots" name="titleBarBottom" />
+        <slot v-else name="extraActions" />
       </template>
+      <template #titleBarIcon>
+        <SlotDisplay v-if="renderSlots" name="titleBarIcon" />
+        <img v-else src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+      </template>
+      <template v-for="name in renderSlotExtras" #[name]>
+        <SlotDisplay v-if="renderSlots" :name="name" />
+      </template>
+      
       <template #centerArea>
         <slot name="center">
           <SplitLayout
@@ -30,9 +39,6 @@
             </template>
           </SplitLayout>
         </slot>
-      </template>
-      <template #titleBarIcon>
-        <img src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
       </template>
       <template #panelRender="{ panel }">
         <template v-if="panel.name === 'explorer.file'">
@@ -69,7 +75,7 @@
         </template>
         <span v-else>Panel {{ panel.name }}, no content</span>
       </template>
-      <template #statusBar>
+      <template v-if="!renderSlots" #statusBar>
         <span>Custom render Status bar area</span>
       </template>
     </CodeLayout>
@@ -92,13 +98,29 @@ import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import TestContent1 from '../assets/text/Useage.vue?raw';
 //import TestContent1 from '../assets/text/Useage2.vue?raw';
 import TestContent2 from '../../README.md?raw';
+import SlotDisplay from './SlotDisplay.vue';
 
 const props = defineProps({
   enableSave: {
     type: Boolean,
     default: false,
   },
+  renderSlots: {
+    type: Boolean,
+    default: false,
+  }
 })
+
+const renderSlotExtras = props.renderSlots ? [
+  'titleBarTop', 'titleBarBottom', 'titleBarRight', 
+  'activityBarTop', 'activityBarSecondaryTop', 
+  'activityBarTopMenuBar',  'activityBarSecondaryTopMenuBar', 
+  'activityBarSecondaryBottom', 'activityBarBottom',
+  'tabHeaderLeftStart', 'tabHeaderLeftEnd', 
+  'tabHeaderRightStart', 'tabHeaderRightEnd', 
+  'titleBarActionStart', 'titleBarActionEnd', 
+  'statusBarLeft', 'statusBarRight',
+] : []
 
 const splitLayout = ref<CodeLayoutSplitNInstance>();
 const codeLayout = ref<CodeLayoutInstance>();

@@ -44,6 +44,9 @@
           </template>
         </SplitTabItem>
       </template>
+      <template v-for="name in renderSlotExtras" #[name]>
+        <SlotDisplay v-if="renderSlots" :name="name" />
+      </template>
     </SplitLayout>
     <div v-if="showData" class="demo-pre">
       <button @click="onPanelReset()">Reset All Panel</button>
@@ -64,6 +67,7 @@ import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNP
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
 import { defaultSplitLayoutConfig, SplitLayout, SplitTabItem } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
+import SlotDisplay from './SlotDisplay.vue';
 
 const colors = [
   '#fb0',
@@ -101,7 +105,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  renderSlots: {
+    type: Boolean,
+    default: false,
+  }
 })
+
+const renderSlotExtras = props.renderSlots ? [
+  'tabHeaderStartRender', 'tabHeaderEndRender',
+  'tabHeaderExtraRender', 'tabHeaderExtraEndRender', 
+] : []
 
 function getRandomIcon() {
   return icons[Math.floor(Math.random() * icons.length)];

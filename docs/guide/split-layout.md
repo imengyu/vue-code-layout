@@ -431,7 +431,7 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 ## 自定义渲染面板头
 
-### 自定义标签页头部
+### 自定义标签页
 
 SplitLayout 支持自定义渲染标签页按钮，你可以自定义渲染某个部分，或者是全部自定义渲染。
 
@@ -475,7 +475,7 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
 </script>
 ```
 
-### 自定义标签页尾部
+### 自定义标签尾部
 
 您可以使用 `tabHeaderExtraRender` 插槽渲染标签页尾部区域，例如，下方的示例在标签页尾部增加了一个“添加面板”的按钮。
 
@@ -491,6 +491,11 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
   </SplitLayout>
 </template>
 ```
+
+### 其他插槽
+
+* tabHeaderStartRender : 标签页滚动区域前部插槽
+* tabHeaderEndRender : 标签页滚动区域后部插槽
 
 ## 保存与加载数据
 

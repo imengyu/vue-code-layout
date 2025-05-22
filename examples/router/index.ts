@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-rou
 import BasicUseage from '../views/BasicUseage.vue'
 import SplitLayout from '../views/SplitLayout.vue'
 import DataSaveAndLoad from '../views/DataSaveAndLoad.vue'
+import SlotsTest from '../views/SlotsTest.vue'
 import EmptyTest from '../views/EmptyTest.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -19,6 +20,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/DataSaveAndLoad',
     name: 'DataSaveAndLoad',
     component: DataSaveAndLoad,
+  },
+  {
+    path: '/SlotsTest',
+    name: 'SlotsTest',
+    component: SlotsTest,
   },
   {
     path: '/EmptyTest',

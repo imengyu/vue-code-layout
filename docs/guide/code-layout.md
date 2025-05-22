@@ -735,15 +735,39 @@ CodeLayout 还提供了一些插槽供您使用：
 
 ![CodeLayoutSlots](../images/CodeLayoutSlots.jpg)
 
+[点击查看演示位置]()
+
 * titleBarIcon 标题栏渲染图标位置
 * titleBarMenu 标题栏渲染主菜单位置
 * titleBarCenter 标题栏中心位置
 * titleBarRight 标题栏右侧位置（VSCode这里放置关闭按钮）
 * titleBarTop 标题栏上部空间
 * titleBarBottom 标题栏底部，在中心区域之上的空间，可以放置自定义操作
+
+* activityBarTop 活动栏按钮顶部
+* activityBarEnd 活动栏按钮尾部
 * activityBarBottom 活动栏栏底部（VSCode这里放置设置按钮）
+  * activityBar 第二活动栏开启状态下：
+    * activityBarSecondaryTop
+    * activityBarSecondaryEnd
+    * activityBarSecondaryBottom
+
+* tabHeaderLeftStart TAB标签模式下，左侧按钮首部，参数 `{ group }`
+* tabHeaderLeftEnd TAB标签模式下，左侧按钮尾部，参数 `{ group }`
+* tabHeaderRightStart TAB标签模式下，右侧额外按钮首部，参数 `{ group }`
+* tabHeaderRightEnd TAB标签模式下，右侧额外按钮尾部，参数 `{ group }`
+
+* titleBarTitle 面板大标题栏标题自定义渲染，参数 `{ group, title }`
+* titleBarActionStart 面板大标题栏右侧额外按钮首部，参数 `{ group }`
+* titleBarActionEnd 面板大标题栏右侧额外按钮首部，参数 `{ group }`
+
 * centerArea 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件
+
 * statusBar 状态栏位置
+  * statusBarLeft 状态栏左侧
+  * statusBarRight 状态栏右侧
+
+* emptyGroup 空组提示渲染，参数 `{ group }`
 
 ## 组件卸载提示
 
