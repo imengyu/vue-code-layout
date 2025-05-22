@@ -167,7 +167,7 @@ const config = reactive<CodeLayoutConfig>({
     console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
   },
   menuConfigs: {
-    builtinMenus: [ 'otherPanelsCheck', 'panelPosition' ] ,
+    builtinMenus: [ 'otherPanelsCheck', 'panelPosition', 'toggleVisible' ] ,
     customMenus: [
       {
         create: (panel, t, data) => {

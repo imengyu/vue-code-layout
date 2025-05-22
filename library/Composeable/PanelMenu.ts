@@ -289,6 +289,7 @@ export function usePanelMenuControl() {
       showCount += iterator.visible ? 1 : 0;
 
     e.preventDefault();
+    e.stopPropagation();
 
     //Add menus
     const createMenuData = {
