@@ -75,10 +75,7 @@
     </div>
     <!-- 标题栏 -->
     <div 
-      v-else-if="
-        group.tabStyle === 'single' || !group.children || group.children.length == 0
-        || group.parentGrid === 'primarySideBar' || (group.parentGrid === 'secondarySideBar' && layoutConfig.secondarySideBarAsActivityBar)
-      "
+      v-else-if="showTitleBar"
       class="title-bar"
       :draggable="group.draggable"
       @dragstart="handleDragStart(group, $event)"
@@ -193,6 +190,15 @@ const context = inject('codeLayoutContext') as CodeLayoutContext;
 const container = ref<HTMLElement>();
 const { horizontal, group } = toRefs(props);
   
+const showTitleBar = computed(() => {
+  if (group.value.tabStyle === 'single' || !group.value.children || group.value.children.length == 0)
+    return false;
+  if (layoutConfig.value.activityBarSubGroupShowTitle)
+    return group.value.parentGrid === 'primarySideBar' || 
+      (group.value.parentGrid === 'secondarySideBar' && layoutConfig.value.secondarySideBarAsActivityBar);
+  return false;
+});
+
 //标签点击函数
 
 function handleTabClick(panel: CodeLayoutPanelInternal) {

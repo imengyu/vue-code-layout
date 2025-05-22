@@ -101,6 +101,11 @@ export interface CodeLayoutConfig {
    */
   activityBar: boolean,
   /**
+   * Make group in activity bar that show a large title?
+   * @default true
+   */
+  activityBarSubGroupShowTitle: boolean,
+  /**
    * Show primarySideBar?
    */
   primarySideBar: boolean,
@@ -234,6 +239,7 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   primarySideBarWidth: 20,
   primarySideBarMinWidth: 170,
   activityBarPosition: "side",
+  activityBarSubGroupShowTitle: true,
   secondarySideBarWidth: 20,
   secondarySideBarMinWidth: 170,
   secondarySideBarAsActivityBar: false,
