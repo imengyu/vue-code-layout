@@ -9,7 +9,7 @@
     <slot name="start" />
     <template
       v-for="(item, index) in items"
-      :key="item.key"
+      :key="item[itemKey]"
     >
       <slot
         :visible="(!visibleKey || item[visibleKey]) && visibleArray[index]"
