@@ -6,8 +6,17 @@
       :main-menu-config="menuData"
     >
       <template #titleBarBottom>
-        <slot name="extraActions" />
+        <SlotDisplay v-if="renderSlots" name="titleBarBottom" />
+        <slot v-else name="extraActions" />
       </template>
+      <template #titleBarIcon>
+        <SlotDisplay v-if="renderSlots" name="titleBarIcon" />
+        <img v-else src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+      </template>
+      <template v-for="name in renderSlotExtras" #[name]>
+        <SlotDisplay v-if="renderSlots" :name="name" />
+      </template>
+      
       <template #centerArea>
         <slot name="center">
           <SplitLayout
@@ -31,24 +40,21 @@
           </SplitLayout>
         </slot>
       </template>
-      <template #titleBarIcon>
-        <img src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
-      </template>
       <template #panelRender="{ panel }">
         <template v-if="panel.name === 'explorer.file'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'explorer.outline'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder2.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'search'">
-          <CodeLayoutScrollbar>
+          <ScrollRect>
             <img src="../assets/images/placeholder5.png">
-          </CodeLayoutScrollbar>
+          </ScrollRect>
         </template>
         <template v-else-if="panel.name === 'debug.a'">
           <h1>debug.a</h1>
@@ -58,15 +64,18 @@
           <p>../assets/images/placeholder5.png</p>
         </template>
         <template v-else-if="panel.name === 'bottom.ports'">
+          <div class="test-buttons">
+            <button @click="testPanelActive">Test active debug b</button>
+            <button @click="testFindPanel">Test find panel</button>
+          </div>
           <img src="../assets/images/placeholder3.png">
-          <button @click="testPanelActive">Test active debug b</button>
         </template>
         <template v-else-if="panel.name === 'bottom.terminal'">
-          <img src="../assets/images/placeholder4.png">
+          <img ref="testResizeFit" style="width:100%;height:100%" src="../assets/images/placeholder4.png">
         </template>
         <span v-else>Panel {{ panel.name }}, no content</span>
       </template>
-      <template #statusBar>
+      <template v-if="!renderSlots" #statusBar>
         <span>Custom render Status bar area</span>
       </template>
     </CodeLayout>
@@ -78,22 +87,40 @@ import IconFile from '../assets/icons/IconFile.vue';
 import IconSearch from '../assets/icons/IconSearch.vue';
 import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
-import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'vue';
+import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw, watch } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
 import { 
-  CodeLayout, CodeLayoutScrollbar, SplitLayout, type CodeLayoutSplitNInstance, 
-  type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal 
+  CodeLayout, SplitLayout, type CodeLayoutSplitNInstance, 
+  type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal, 
+  defaultCodeLayoutConfig, useResizeChecker
 } from 'vue-code-layout';
+import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import TestContent1 from '../assets/text/Useage.vue?raw';
 //import TestContent1 from '../assets/text/Useage2.vue?raw';
 import TestContent2 from '../../README.md?raw';
+import SlotDisplay from './SlotDisplay.vue';
 
 const props = defineProps({
   enableSave: {
     type: Boolean,
     default: false,
   },
+  renderSlots: {
+    type: Boolean,
+    default: false,
+  }
 })
+
+const renderSlotExtras = props.renderSlots ? [
+  'titleBarTop', 'titleBarBottom', 'titleBarRight', 
+  'activityBarTop', 'activityBarSecondaryTop', 
+  'activityBarTopMenuBar',  'activityBarSecondaryTopMenuBar', 
+  'activityBarSecondaryBottom', 'activityBarBottom',
+  'tabHeaderLeftStart', 'tabHeaderLeftEnd', 
+  'tabHeaderRightStart', 'tabHeaderRightEnd', 
+  'titleBarActionStart', 'titleBarActionEnd', 
+  'statusBarLeft', 'statusBarRight',
+] : []
 
 const splitLayout = ref<CodeLayoutSplitNInstance>();
 const codeLayout = ref<CodeLayoutInstance>();
@@ -103,36 +130,23 @@ const MONACO_EDITOR_OPTIONS = {
   formatOnType: true,
   formatOnPaste: true,
 }; 
-const defaultCodeLayoutConfig : CodeLayoutConfig = {
-  primarySideBarSwitchWithActivityBar: true,
-  primarySideBarPosition: 'left',
-  primarySideBarWidth: 20,
-  primarySideBarMinWidth: 170,
-  activityBarPosition: 'side',
-  secondarySideBarWidth: 20,
-  secondarySideBarMinWidth: 170,
-  secondaryActivityBarPosition: 'side',
-  secondarySideBarAsActivityBar: false,
-  bottomPanelHeight: 30,
-  bottomPanelMinHeight: 40,
-  bottomAlignment: 'center',
-  panelHeaderHeight: 24,
-  panelMinHeight: 150,
+const codeLayoutConfig : CodeLayoutConfig = {
+  ...defaultCodeLayoutConfig,
   titleBar: true,
   titleBarShowCustomizeLayout: true,
   activityBar: true,
   primarySideBar: true,
-  secondarySideBar: false,
+  secondarySideBar: true,
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
   bottomPanelMaximize: false,
 };
 const config = reactive<CodeLayoutConfig>({
-  ...defaultCodeLayoutConfig,
+  ...codeLayoutConfig,
   onResetDefault() {
-    for (const key in defaultCodeLayoutConfig) {
-      (config as Record<string, any>)[key] = (defaultCodeLayoutConfig as Record<string, any>)[key];
+    for (const key in codeLayoutConfig) {
+      (config as Record<string, any>)[key] = (codeLayoutConfig as Record<string, any>)[key];
     }
   },
   onDropToPanel(reference, referencePosition, panel, dropTo) {
@@ -142,16 +156,47 @@ const config = reactive<CodeLayoutConfig>({
     return false
   },
   onNonPanelDrag(e, sourcePosition) {
-    e.preventDefault();
-    //如果用户拖拽进入的是文件，则允许
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file') {
+      e.preventDefault();
       return true;
+    }
     return false;
   },
   onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
     //处理放置事件
     console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
   },
+  menuConfigs: {
+    builtinMenus: [ 'otherPanelsCheck', 'panelPosition', 'toggleVisible' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //Return the custom menu items. Use the menu definition of vue3 context menu.
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item at top.`, 
+              onClick: () => {
+                console.log('top menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //Insert in front of the built-in menu, if not set, it will be inserted at the end by default
+      },
+      {
+        create: (panel, t, data) => {
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item at bottom.`, 
+              onClick: () => {
+                console.log('bottom menu clicked');
+              }
+            }
+          ]
+        }
+      },
+    ],
+  }
 });
 
 const menuData : MenuOptions = {
@@ -239,16 +284,24 @@ function loadInnerLayout() {
       name: 'split2',
     });
     splitRight.addPanel({
-      title: 'BasicUseage.vue',
+      title: 'BasicUseage.vue (1)',
       tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue',
       name: 'file1',
+      iconSmall: () => h(IconVue),
+      data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
+    });
+    splitRight.addPanel({
+      title: 'BasicUseage.vue (2)',
+      tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue',
+      name: 'file2',
+      badge: '2',
       iconSmall: () => h(IconVue),
       data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
     });
     splitLeft.addPanel({
       title: 'CodeLayoutHelp.md',
       tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md',
-      name: 'file2',
+      name: 'file3',
       data: { value: TestContent2, language: 'markdown', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md', },
       closeType: 'close',
       iconSmall: () => h(IconMarkdown),
@@ -485,6 +538,14 @@ function loadLayout() {
           },
         ]
       });
+
+      bottomGroup.onResize = () => {
+        console.log('bottomGroup resized!', bottomGroup.size);
+      };
+
+      console.log(bottomGroup);
+      
+      console.log(codeLayout.value?.getRootGrid('rootGrid'))
     }
   }
   //Load layout config
@@ -508,16 +569,37 @@ function saveLayout() {
 function testPanelActive() {
   codeLayout.value?.getPanelByName('debug.b')?.activeSelf();
 }
+function testFindPanel() {
+  if (!splitLayout.value)
+    throw new Error('splitLayout is null');
+  console.log(
+    splitLayout.value.getPanelByName("file1"), 
+    splitLayout.value.getPanelByName("file2"),
+    splitLayout.value.getPanelByName("file3")
+  );
+}
+
+const testResizeFit = ref<HTMLElement>();
+
+const { startResizeChecker, stopResizeChecker } = useResizeChecker(testResizeFit, (newWidth) => {
+  console.log('testResizeFit Width changed!', newWidth);
+}, (newHeight) => {
+  console.log('testResizeFit Height changed!', newHeight);
+});
+
+
 
 onMounted(() => {
   nextTick(() => {
     loadLayout();
+    startResizeChecker();
   });
   window.addEventListener('beforeunload', saveLayout);
 });
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', saveLayout);
   saveLayout();
+  stopResizeChecker();
 })
 
 defineExpose({

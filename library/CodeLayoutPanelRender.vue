@@ -10,7 +10,7 @@
       resizeDraggingSelf ? 'resizing-self' : '',
       resizeDragging ? 'resizing' : '',
       horizontal ? 'horizontal' : '',
-      dragEnterState ? 'drag-enter' : '',
+      dragLightBoxState ? 'drag-enter' : '',
       dragSelfState ? 'dragging-self' : '',
       dragPanelState ? 'dragging' : '',
       opening ? 'opening' : '',
@@ -153,7 +153,7 @@ const {
 
 const {
   dragPanelState,
-  dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,
@@ -194,9 +194,6 @@ const resizeDraggingSelf = ref(false);
 const resizeDragHandler = createMouseDragHandler({
   onDown(e) {
     if (resizeDragger.value) {
-      emit('update:resizeDragging', true);
-      resizeDraggingSelf.value = true;
-
       resizeDraggerData = props.dragResizeStartHandler?.(
         props.panel, 
         (props.horizontal ? e.x : e.y)
@@ -205,6 +202,8 @@ const resizeDragHandler = createMouseDragHandler({
       if (resizeDraggerData === false)
         return false;
 
+      emit('update:resizeDragging', true);
+      resizeDraggingSelf.value = true;
       return true;
     }
     return false;

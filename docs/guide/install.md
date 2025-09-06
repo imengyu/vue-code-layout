@@ -41,7 +41,7 @@ import { defineComponent } from 'vue'
 import { CodeLayout } from 'vue-code-layout';
 
 export default defineComponent({
-  //注册组件
+  //如果不使用setup，请注册组件
   components: {
     CodeLayout,
   },
@@ -49,7 +49,3 @@ export default defineComponent({
 });
 </script>
 ```
-
-## 开始使用
-
-安装完成后您就可以 [开始使用](./useage.md) 了。

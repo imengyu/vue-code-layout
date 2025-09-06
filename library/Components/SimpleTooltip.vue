@@ -7,11 +7,24 @@
         ref="tooltip"
         :class="'code-layout-tooltip ' + arrowDirection"
         :style="{
-          left: `${positionX}px`,
-          top: `${positionY}px`,
+          left: `${positionX + positionXOffset}px`,
+          top: `${positionY + positionYOffset}px`,
         }"
       >
         {{ content }}
+
+        <div class="arrow1" 
+          :style="{
+            marginLeft: `${-positionXOffset}px`,
+            marginTop: `${-positionYOffset}px`,
+          }"
+        />
+        <div class="arrow2" 
+          :style="{
+            marginLeft: `${-positionXOffset}px`,
+            marginTop: `${-positionYOffset}px`,
+          }"
+        />
       </div>
     </Teleport>
   </span>
@@ -41,9 +54,11 @@ const props = defineProps({
    * The direction of the tooltip.
    * 
    * Default is 'right'.
+   * 
+   * * mouse: follow the mouse position and no arrow.
    */
   direction: {
-    type: String as PropType<'left'|'top'|'bottom'|'right'>,
+    type: String as PropType<'left'|'top'|'bottom'|'right'|'mouse'>,
     default: 'right',
   },
   /**
@@ -64,6 +79,10 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
+  receiveRef: {
+    type: Function as PropType<(ref: HTMLElement) => void>,
+    default: () => {}, 
+  }
 });
 
 const slots = useSlots();
@@ -71,6 +90,8 @@ const container = ref<HTMLElement>();
 const tooltip = ref<HTMLElement>();
 const positionX = ref(0);
 const positionY = ref(0);
+const positionXOffset = ref(0);
+const positionYOffset = ref(0);
 const arrowDirection = ref('');
 const show = ref(false);
 
@@ -99,30 +120,33 @@ function unmountChildEvents() {
   child.removeEventListener('mouseleave', onChildLeave);
   child.removeEventListener('click', onChildLeave);
 }
-function onChildEnter() {
+function onChildEnter(e: MouseEvent) {
   if (props.enable && props.content) {
     onEnter(() => {
       show.value = true;
-      calcTooltipPosition();
+      calcTooltipPosition(e);
     });
   }
 }
-function onChildLeave() {
+function onChildLeave(e: MouseEvent) {
   show.value = false;
   onLeave();
 }
-function calcTooltipPosition() {
+function calcTooltipPosition(e: MouseEvent) {
   positionX.value = 0;
   positionY.value = 0;
+  positionXOffset.value = 0;
+  positionYOffset.value = 0;
   nextTick(() => {
     const child = getChildEle();
-    if (!child || !tooltip.value) 
+    const teleport = document.querySelector(props.teleport) as HTMLElement;
+    if (!child || !tooltip.value || !teleport) 
       return;
 
     let direction = props.direction;
 
-    const eleLeft = HtmlUtils.getLeft(child);
-    const eleTop = HtmlUtils.getTop(child);
+    const eleLeft = HtmlUtils.getLeft(child, teleport);
+    const eleTop = HtmlUtils.getTop(child, teleport);
 
     if (direction === 'top' && eleTop < window.innerHeight / 3)
       direction = 'bottom';
@@ -137,6 +161,9 @@ function calcTooltipPosition() {
       case 'top':
       case 'bottom':
         positionX.value = eleLeft - tooltip.value.offsetWidth / 2 + child.offsetWidth / 2;
+        break;
+      case 'mouse':
+        positionX.value = e.x + 5;
         break;
     }
 
@@ -153,7 +180,19 @@ function calcTooltipPosition() {
       case 'bottom':
         positionY.value = eleTop + child.offsetHeight + props.offset;
         break;
+      case 'mouse':
+        positionX.value = e.x + 10;
+        positionY.value = e.y + 15;
+        break;
     }
+
+    nextTick(() => {
+      const teleportLeft = HtmlUtils.getLeft(tooltip.value!, teleport);
+      const teleportTop = HtmlUtils.getTop(tooltip.value!, teleport);
+
+      positionXOffset.value = teleportLeft < 0 ? -teleportLeft : 0;
+      positionYOffset.value = teleportTop < 0 ? -teleportTop : 0;
+    });
   });
 }
 
@@ -181,6 +220,15 @@ onBeforeUnmount(() => {
 <style lang="scss">
 @use 'sass:math';
 
+@keyframes code-layout-tooltip-fade-show {
+  from {
+    opacity: 0;
+  } 
+  to {
+    opacity: 1; 
+  }
+}
+
 .code-layout-tooltip-ref {
   display: block;
   height: auto;
@@ -196,10 +244,11 @@ onBeforeUnmount(() => {
   width: auto;
   z-index: 10;
   font-size: var(--code-layout-font-size);
+  animation: code-layout-tooltip-fade-show 0.3s;
 
-  &::after, &::before {
+  .arrow1, .arrow2 {
     position: absolute;
-    content: '';
+    display: block;
     width: 0;
     height: 0;
     z-index: 11;
@@ -209,7 +258,7 @@ onBeforeUnmount(() => {
   $triangle-size2: 4px;
 
   &.right {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid var(--code-layout-color-background-second);
       border-bottom: $triangle-size solid transparent;
@@ -217,7 +266,7 @@ onBeforeUnmount(() => {
       left: -$triangle-size * 2;
       top: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid var(--code-layout-color-border);
       border-bottom: $triangle-size2 solid transparent;
@@ -227,7 +276,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.left {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid transparent;
@@ -235,7 +284,7 @@ onBeforeUnmount(() => {
       right: -$triangle-size * 2;
       top: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid transparent;
@@ -245,7 +294,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.top {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid var(--code-layout-color-background-second);
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid transparent;
@@ -253,7 +302,7 @@ onBeforeUnmount(() => {
       bottom: -$triangle-size * 2;
       left: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid var(--code-layout-color-border);
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid transparent;
@@ -263,7 +312,7 @@ onBeforeUnmount(() => {
     }
   } 
   &.bottom {
-    &::after {
+    .arrow1 {
       border-top: $triangle-size solid transparent;
       border-right: $triangle-size solid transparent;
       border-bottom: $triangle-size solid var(--code-layout-color-background-second);
@@ -271,7 +320,7 @@ onBeforeUnmount(() => {
       top: -$triangle-size * 2;
       left: calc(50% - $triangle-size);
     }
-    &::before {
+    .arrow2 {
       border-top: $triangle-size2 solid transparent;
       border-right: $triangle-size2 solid transparent;
       border-bottom: $triangle-size2 solid var(--code-layout-color-border);

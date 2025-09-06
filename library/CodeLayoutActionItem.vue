@@ -8,7 +8,7 @@
       :class="[
         'item',
         active ? 'active' : '',
-        dragEnterState ? 'drag-enter' : '',
+        dragLightBoxState ? 'drag-enter' : '',
         `drag-over-${dragOverState}`,
       ]"
       :draggable="true"
@@ -24,7 +24,7 @@
       <div class="icon">
         <CodeLayoutVNodeStringRender :content="item.iconLarge" :fallback="item.title ?? item.name" />
       </div>
-      <span v-if="item.badge" class="badge">
+      <span v-if="item.badge && item.showBadge" class="badge">
         <CodeLayoutVNodeStringRender :content="item.badge" />
       </span>
     </div>
@@ -72,7 +72,7 @@ const {
 } = usePanelDragger();
 
 const {
-  dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,

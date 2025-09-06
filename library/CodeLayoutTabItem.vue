@@ -8,7 +8,7 @@
       :class="[
         'tab-item',
         active ? 'active' : '',
-        dragEnterState ? 'drag-enter' : '',
+        dragLightBoxState ? 'drag-enter' : '',
         `drag-over-${dragOverState}`,
       ]"
       :draggable="panel.draggable"
@@ -20,8 +20,8 @@
       @drop="handleDrop"
       @contextmenu="onContextMenu(panel, $event)"
     >
-      <span v-if="tabStyle == 'text'" class="title">{{ panel.title }}</span>
-      <span v-if="tabStyle == 'icon'" class="icon">
+      <span v-if="tabStyle == 'text' || tabStyle == 'text-bottom'" class="title">{{ panel.title }}</span>
+      <span v-if="tabStyle == 'icon' || tabStyle == 'icon-bottom'" class="icon">
         <CodeLayoutVNodeStringRender :content="panel.iconSmall || panel.iconLarge || panel.title" />
       </span>
       <span v-if="panel.badge" class="badge">
@@ -68,6 +68,7 @@ const {
 } = usePanelDragger();
 
 const {
+  dragLightBoxState,
   dragEnterState,
   dragOverState,
   handleDragOver,
@@ -102,4 +103,13 @@ function handleDrop(e: DragEvent) {
 const {
   onContextMenu
 } = usePanelMenuControl();
+
+defineExpose({
+  getWidth() {
+    return container.value?.offsetWidth || 0;
+  },
+  getHeight() {
+    return container.value?.offsetHeight || 0; 
+  }
+})
 </script>

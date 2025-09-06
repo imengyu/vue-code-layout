@@ -3,7 +3,7 @@
     ref="container"
     :class="[
       'code-layout-empty',
-      dragEnterState ? 'drag-active' : '',
+      dragLightBoxState ? 'drag-active' : '',
     ]"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
@@ -35,7 +35,7 @@ const context = inject('codeLayoutContext') as CodeLayoutContext;
 const horizontal = ref(false);
 
 const {
-  dragEnterState,
+  dragLightBoxState,
   handleDragOver,
   handleDragEnter,
   handleDragLeave,

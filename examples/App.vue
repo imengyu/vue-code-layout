@@ -6,6 +6,7 @@
         <router-link :to="{ name: 'BasicUseage' }" class="link first">Base Layou useage</router-link>
         <router-link :to="{ name: 'SplitLayout' }" class="link first">Split Layout</router-link>
         <router-link :to="{ name: 'DataSaveAndLoad' }" class="link first">Load and save</router-link>
+        <router-link :to="{ name: 'SlotsTest' }" class="link first">Slots</router-link>
         <!-- <router-link :to="{ name: 'Theme' }">Custom Style</router-link> -->
       </div>
       <div>
@@ -38,8 +39,8 @@ html, body, #app {
 
   .test-host {
     margin-top: 10px;
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 0;
+    margin-right: 0;
     height: 86vh;
   }
   .test-top {
@@ -76,6 +77,14 @@ html, body, #app {
       }
     }
   }
+}
+.test-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;;
 }
 
 .full-container {

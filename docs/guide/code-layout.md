@@ -8,6 +8,14 @@
 本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
 :::
 
+::: warning
+此组件是为PC平台设计的。不适合移动设备。
+:::
+
+::: danger
+此组件不支持SSR。
+:::
+
 要使用 CodeLayout ，有以下步骤：
 
 1. 需要[导入组件](./install.md#全局导入组件).
@@ -52,7 +60,7 @@ const config = reactive<CodeLayoutConfig>({
   secondarySideBarMinWidth: 170,
   bottomPanelHeight: 50,
   bottomPanelMinHeight: 40,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -170,6 +178,10 @@ onMounted(() => {
 
 ```
 
+::: tip
+将组件用于 [Electron](https://www.electronjs.org/zh/docs/latest/) 窗口中是一个不错的选择。
+:::
+
 ## 面板操作
 
 定义：
@@ -259,7 +271,7 @@ bottomPanel.addPanel({
 });
 ```
 
-提示：目前 CodeLayout 不支持组中再嵌套组（VSCode 中也没有嵌套组的功能），用户拖拽时不会产生嵌套的组，因此您在使用代码添加时不要嵌套组，可能会出现问题。
+提示：目前 CodeLayout 不支持组中再嵌套组（VSCode 中也没有嵌套组的功能），用户拖拽时不会产生嵌套的组，因此您在使用代码添加时不要嵌套组，在非根组组中再嵌套组将不会显示。
 
 组最多只嵌套一级（仅根组下可产生组）。
 
@@ -278,8 +290,13 @@ groupExplorer.badge = '3';
 通过实例上的 `visible` 属性可以控制面板的显示、隐藏。
 
 ```ts
-groupExplorer.visible = false;
+panel.visible = false;
+panel.relayoutAfterToggleVisible();
 ```
+
+::: tip
+注意：当面板显示/隐藏时，需要调用 `relayoutAfterToggleVisible` 重新布局组。
+:::
 
 ### 删除面板
 
@@ -328,6 +345,46 @@ const groupExplorer = codeLayout.value.addGroup({
 }, 'primarySideBar');
 ```
 
+## 面板右键菜单 <Badge type="tip" text="^1.2.0" />
+
+面板可以自定义用户右键点击时的菜单，通过 `CodeLayoutConfig.menuConfigs` 可以配置菜单。
+
+* `builtinMenus` 用于控制内置菜单的显示，你可以设置为 `[]` 来隐藏所有内置菜单，或者是配置显示其中的一个或者多个。
+
+|菜单名称|说明|
+|---|---|
+|toggleVisible|隐藏当前面板|
+|toggleBadge|切换当前面板标记是否显示|
+|otherPanelsCheck|其他面板显示/隐藏切换|
+|panelPosition|主网格（侧边栏，面板）的显示位置控制|
+
+* `customMenus` 用于自定义菜单，可设置回调，回调会传入当前面板的实例，你可以返回自定义菜单项目，显示自己的菜单，允许菜单插入指定位置（例如插入到内置菜单前面）。
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...codeLayoutConfig,
+  menuConfigs: {
+    builtinMenus: [ 'toggleVisible', 'toggleBadge', 'otherPanelsCheck', 'panelPosition' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //在回调中返回自定义菜单。使用 vue3-context-menu 的菜单定义。
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item.`, 
+              onClick: () => {
+                console.log('menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //插入到内置菜单前面，不填写则默认插入到末尾
+      }
+    ]
+  }
+});
+```
+
 ## 拖拽控制
 
 ### 面板拖拽控制
@@ -343,7 +400,7 @@ const groupExplorer = codeLayout.value.addGroup({
     title: 'PORTS',
     tooltip: 'Ports',
     name: 'bottom.ports',
-    draggable: false, //禁止拖拽
+    draggable: false, //禁止拖拽 // [!code ++]
   });
   ```
 
@@ -356,7 +413,7 @@ const groupExplorer = codeLayout.value.addGroup({
     name: 'bottom.ports',
     startOpen: true,
     iconSmall: () => h(IconSearch),
-    accept: [ 'bottomPanel' ], //限制
+    accept: [ 'bottomPanel' ], //限制 // [!code ++]
   });
   ```
 
@@ -386,9 +443,9 @@ const groupExplorer = codeLayout.value.addGroup({
 
 你可以处理拖拽到组件中的非面板数据，例如用户将一个文件拖拽进入组件的某些位置。
 
-你可以在 `layoutConfig` 的 `onNonPanelDrop` 和 `onNonPanelDrop` 事件中处理，其中 ：
+你可以在 `layoutConfig` 的 `onNonPanelDrag` 和 `onNonPanelDrop` 事件中处理，其中 ：
 
-* `onNonPanelDrop` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
+* `onNonPanelDrag` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
 * `onNonPanelDrop` 为放置回调，可以在其中中执行放置操作。同时会传入当前用户放置的面板实例和参考位置。
 
 ::: tip
@@ -399,10 +456,11 @@ const groupExplorer = codeLayout.value.addGroup({
 const config = reactive<CodeLayoutConfig>({
   ...defaultCodeLayoutConfig,
   onNonPanelDrag(e, sourcePosition) {
-    e.preventDefault();
-    //如果用户拖拽进入的是文件，则允许
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+    //如果用户拖拽进入的是文件，则进行自定义处理
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file') {
+      e.preventDefault();
       return true;
+    }
     return false;
   },
   onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
@@ -450,28 +508,12 @@ onMounted(() => {
 </script>
 ```
 
-### 保存数据
-
-通过调用 saveLayout 方法保存布局数据。
-
-同时你也应该保存基础布局数据（CodeLayoutConfig），这部分数据定义了每个基础组的大小，是否显示，基础布局设置等，
-要保存这个数据，只需要在调用 saveLayout 函数后，将 config 变量保存即可。
-
-```ts
-import { toRaw, reactive } from 'vue';
-import { type CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...省略
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //保存布局
-```
-
 ### 加载数据
+
+有两个数据需要加载:
+
+* 基础布局数据 (CodeLayoutConfig)，这部分数据定义了每个基础组的大小，是否显示，基础布局设置等。
+* 组和面板信息 (布局数据)。
 
 基础布局数据只需要重新将保存的数据加载至变量中即可。
 
@@ -558,6 +600,26 @@ if (data) {
 }
 ```
 
+### 保存数据
+
+通过调用 saveLayout 方法保存布局数据。
+
+同时你也应该保存基础布局数据（CodeLayoutConfig），只需要在调用 saveLayout 函数后，将 config 变量保存即可。
+
+```ts
+import { toRaw, reactive } from 'vue';
+import { type CodeLayoutConfig } from 'vue-code-layout';
+
+const config = reactive<CodeLayoutConfig>({
+  //...省略
+});
+
+const json = codeLayout.value.saveLayout();
+
+localStorage.setItem('LayoutData', json);
+localStorage.setItem('LayoutConfig', toRaw(config)); //保存布局
+```
+
 ## 内置主菜单
 
 由于 CodeLayout 依赖菜单功能，所以菜单功能与CodeLayout集成，
@@ -594,7 +656,7 @@ const config = reactive<CodeLayoutConfig>({
   secondarySideBarMinWidth: 170,
   bottomPanelHeight: 50,
   bottomPanelMinHeight: 10,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -673,15 +735,39 @@ CodeLayout 还提供了一些插槽供您使用：
 
 ![CodeLayoutSlots](../images/CodeLayoutSlots.jpg)
 
+[点击查看演示位置]()
+
 * titleBarIcon 标题栏渲染图标位置
 * titleBarMenu 标题栏渲染主菜单位置
 * titleBarCenter 标题栏中心位置
 * titleBarRight 标题栏右侧位置（VSCode这里放置关闭按钮）
 * titleBarTop 标题栏上部空间
 * titleBarBottom 标题栏底部，在中心区域之上的空间，可以放置自定义操作
+
+* activityBarTop 活动栏按钮顶部
+* activityBarEnd 活动栏按钮尾部
 * activityBarBottom 活动栏栏底部（VSCode这里放置设置按钮）
+  * activityBar 第二活动栏开启状态下：
+    * activityBarSecondaryTop
+    * activityBarSecondaryEnd
+    * activityBarSecondaryBottom
+
+* tabHeaderLeftStart TAB标签模式下，左侧按钮首部，参数 `{ group }`
+* tabHeaderLeftEnd TAB标签模式下，左侧按钮尾部，参数 `{ group }`
+* tabHeaderRightStart TAB标签模式下，右侧额外按钮首部，参数 `{ group }`
+* tabHeaderRightEnd TAB标签模式下，右侧额外按钮尾部，参数 `{ group }`
+
+* titleBarTitle 面板大标题栏标题自定义渲染，参数 `{ group, title }`
+* titleBarActionStart 面板大标题栏右侧额外按钮首部，参数 `{ group }`
+* titleBarActionEnd 面板大标题栏右侧额外按钮首部，参数 `{ group }`
+
 * centerArea 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件
+
 * statusBar 状态栏位置
+  * statusBarLeft 状态栏左侧
+  * statusBarRight 状态栏右侧
+
+* emptyGroup 空组提示渲染，参数 `{ group }`
 
 ## 组件卸载提示
 

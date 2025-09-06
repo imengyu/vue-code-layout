@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
+import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
 
 createApp(App)
   .use(router)

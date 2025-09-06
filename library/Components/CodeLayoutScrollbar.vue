@@ -208,6 +208,7 @@ const {
 );
 
 onMounted(() => {
+  console.warn('CodeLayoutScrollbar in codelayout is deprecated and no longer maintain, please use @imengyu/vue-scroll-rect package instead.');
   nextTick(() => {
     setTimeout(() => calcScroll(true), 200);
     calcScroll(true);

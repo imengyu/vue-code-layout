@@ -11,6 +11,10 @@ order: 2
 若本组件库缺少某些实用功能，您可以在 Github 上提出 Issue。
 :::
 
+::: danger
+本组件不支持 SSR。
+:::
+
 ## CodeLayout
 
 CodeLayout 是类似 VScode 最外层的界面布局（不包括中心的编辑器分割布局），
@@ -46,10 +50,10 @@ SplitLayout专用于多个编辑器的分割布局，它支持无限层级面板
 
 [👉 SplitLayout使用方法](./split-layout.md)
 
-## CodeLayoutScrollbar
+## CodeLayoutScrollbar <Badge type="warning" text="已拆分模块" />
 
 ![CodeLayoutScrollbarDemo](../images/CodeLayoutScrollbarDemo.gif)
 
 CodeLayoutScrollbar是一个Vue的滚动条封装组件，如果你觉得系统内置滚动条与CodeLayout用起来不搭，可以试试使用CodeLayoutScrollbar，它内置了统一的样式。
 
-[👉 CodeLayoutScrollbar参考](../api/CodeLayoutScrollbar.md)
+[👉 CodeLayoutScrollbar参考](https://docs.imengyu.top/vue-scroll-rect-docs/)

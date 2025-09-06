@@ -184,6 +184,8 @@ if (data) {
 | accept | 设置当前面板可以拖放到哪些顶级网格上 | `CodeLayoutGrid[]` | - |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | 面板的自定义数据 | `any` | - |
+| onResize | 当面板大小更改时回调 | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | 当面板显示（visible）状态更改时回调 | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `closePanel(): void`
 

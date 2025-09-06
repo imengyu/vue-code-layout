@@ -8,6 +8,14 @@ It is recommended to place CodeLayout at the top-level component and set the wid
 This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
 :::
 
+::: warning
+This component is desgined for PC platform. It is not suitable for mobile devices.
+:::
+
+::: danger
+This component is not support SSR.
+:::
+
 To use CodeLayout, there are the following steps:
 
 1. [Import Component](./install.md#global-import-components).
@@ -64,7 +72,7 @@ const config = reactive<CodeLayoutConfig>({
   secondarySideBarMinWidth: 170,
   bottomPanelHeight: 50,
   bottomPanelMinHeight: 40,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -212,6 +220,10 @@ onMounted(() => {
 
 :::
 
+::: tip
+Using this component in the [Electron](https://www.electronjs.org/) is a good choice.
+:::
+
 ## Panel operation
 
 Definition:
@@ -308,7 +320,7 @@ Groups can only be nested up to one level (groups can only be generated under th
 
 ### Get panel instance
 
-When adding a panel, the 'name' attribute must be guaranteed to be unique, so you can use name to query the added panel instances and change them:
+When adding a panel, the `name` attribute must be guaranteed to be unique, so you can use name to query the panel instances and modify the attributes of them:
 
 ```ts
 //Get the panel and modify the badge
@@ -321,8 +333,13 @@ groupExplorer.badge = '3';
 The display and hiding of the panel can be controlled through the `visible` attribute on the instance.
 
 ```ts
-groupExplorer.visible = false;
+panel.visible = false;
+panel.relayoutAfterToggleVisible();
 ```
+
+::: tip
+Note：When the panel visible state is changed, need to call `relayoutAfterToggleVisible` to relayout the group.
+:::
 
 ### Delete panel
 
@@ -371,6 +388,46 @@ const groupExplorer = codeLayout.value.addGroup({
 }, 'primarySideBar');
 ```
 
+## Panel Context menu <Badge type="tip" text="^1.2.0" />
+
+The panel can customize the menu when the user right clicks, config with `CodeLayoutConfig.menuConfigs`.
+
+* `builtinMenus` Used to control the display of built-in menus, you can set it to '[]' to hide all built-in menus, or configure the display of one or more of them.
+
+|Name|Desc|
+|---|---|
+|toggleVisible|Hide the current panel|
+|toggleBadge|Switch whether the current panel marker is displayed or not|
+|otherPanelsCheck|Other panels display/hide switch|
+|panelPosition|Control the display position of the main grid (sidebar, panel)|
+
+* `customMenus` Used for customizing menus, callback can be set, and the callback will be passed to the instance of the current panel. You can return the custom menu item, display your own menu, it also allow the menu to be inserted in a specified position (such as in front of the built-in menu).
+
+```ts
+const config = reactive<CodeLayoutConfig>({
+  ...codeLayoutConfig,
+  menuConfigs: {
+    builtinMenus: [ 'toggleVisible', 'toggleBadge', 'otherPanelsCheck', 'panelPosition' ] ,
+    customMenus: [
+      {
+        create: (panel, t, data) => {
+          //Return the custom menu items. Use the menu definition of vue3 context menu.
+          return [
+            { 
+              label: `This is my menu '${panel.name}' custom item.`, 
+              onClick: () => {
+                console.log('menu clicked');
+              }
+            }
+          ]
+        },
+        insertIndex: 0 //Insert in front of the built-in menu, if not set, it will be inserted at the end by default
+      }
+    ]
+  }
+});
+```
+
 ## Drag control
 
 ### Panel drag control
@@ -385,7 +442,7 @@ To restrict this operation, you can use the following methods:
     title: 'PORTS',
     tooltip: 'Ports',
     name: 'bottom.ports',
-    draggable: false, //No dragging allowed
+    draggable: false, //No dragging allowed // [!code ++]
   });
   ```
 
@@ -398,7 +455,7 @@ To restrict this operation, you can use the following methods:
     name: 'bottom.ports',
     startOpen: true,
     iconSmall: () => h(IconSearch),
-    accept: [ 'bottomPanel' ], //limit
+    accept: [ 'bottomPanel' ], //limit // [!code ++]
   });
   ```
 
@@ -428,9 +485,9 @@ To restrict this operation, you can use the following methods:
 
 You can handle non panel data dragged into components, such as users dragging a file into component.
 
-You can handle it in the `onNonPanelDrop` and `onNonPanelDrop` events of `layoutConfig`, where:
+You can handle it in the `onNonPanelDrag` and `onNonPanelDrop` events of `layoutConfig`, where:
 
-* `onNonPanelDrop` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
+* `onNonPanelDrag` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
 * `onNonPanelDrop` is a drop callback that can perform drop operations within it. At the same time, the panel instance and reference position placed by the current user will be passed in.
 
 ::: tip
@@ -493,28 +550,12 @@ onMounted(() => {
 </script>
 ```
 
-### Save data
-
-Save layout data by calling the `saveLayout` method.
-
-At the same time, you should also save the basic layout data (CodeLayoutConfig), which defines the size of each basic group, whether to display it, basic layout settings, etc,
-To save this data, simply call the `saveLayout` function and save the config variable.
-
-```ts
-import { toRaw, reactive } from 'vue';
-import type { CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //Save basic layout data
-```
-
 ### Load data
+
+Therae re are two data need load:
+
+* Basic layout data (CodeLayoutConfig), which defines the size of each basic group, whether to display it, basic layout settings, etc.
+* Group and Panel data (Layout data).
 
 The basic layout data only needs to be reloaded into variables after saving.
 
@@ -601,10 +642,30 @@ if (data) {
 }
 ```
 
+### Save data
+
+Save layout data by calling the `saveLayout` method.
+
+At the same time, you should also save the basic layout data (CodeLayoutConfig), simply call the `saveLayout` function and save the config variable.
+
+```ts
+import { toRaw, reactive } from 'vue';
+import type { CodeLayoutConfig } from 'vue-code-layout';
+
+const config = reactive<CodeLayoutConfig>({
+  //...
+});
+
+const json = codeLayout.value.saveLayout();
+
+localStorage.setItem('LayoutData', json);
+localStorage.setItem('LayoutConfig', toRaw(config)); //Save basic layout data
+```
+
 ## Built-in main menu
 
 Due to CodeLayout's dependence on menu functions, menu functions are integrated with CodeLayout,
-If your application requires a main menu, you can refer to the following examples to quickly configure the main menu, or you can render the menu yourself through the titleBarMenu slot.
+If your application requires a main menu, you can refer to the following examples to quickly configure the main menu, or you can render the menu yourself through the `titleBarMenu` slot.
 
 The menu is based on [vue3-context-menu](https://github.com/imengyu/vue3-context-menu), Please refer to its [documentation](https://docs.imengyu.top/vue3-context-menu-docs) for configuration.
 
@@ -637,7 +698,7 @@ const config = reactive<CodeLayoutConfig>({
   secondarySideBarMinWidth: 170,
   bottomPanelHeight: 50,
   bottomPanelMinHeight: 10,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -722,9 +783,32 @@ CodeLayout are also provided some solts for your use:
 * titleBarRight: Position on the right side of the title bar (VSCode places the close button here)
 * titleBarTop: Area above the title bar
 * titleBarBottom: The area at the bottom of the title bar, above the center area, where custom actions can be placed
-* activityBarBottom: At the bottom of the activity bar (where VSCode places the settings button)
+
+* activityBarTop Top of activity bar buttons
+* activityBarEnd Bottom of activity bar buttons
+* activityBarBottom At the bottom of the activity bar (where VSCode places the settings button)
+  * activityBar If Secondary activity bar was set：
+    * activityBarSecondaryTop
+    * activityBarSecondaryEnd
+    * activityBarSecondaryBottom
+
+* tabHeaderLeftStart Panel Group in tab mode, left of buttons, params `{ group }`
+* tabHeaderLeftEnd Panel Group in tab mode, right of buttons, params `{ group }`
+* tabHeaderRightStart Panel Group in tab mode, extra actions start, params `{ group }`
+* tabHeaderRightEnd Panel Group in tab mode, extra actions end, params `{ group }`
+
+* titleBarTitle Panel Group title, params `{ group, title }`
+* titleBarActionStart Panel Group extra actions start, params `{ group }`
+* titleBarActionEnd Panel Group extra actions end, params `{ group }`
+
 * centerArea: The central area of CenterArea, where SliptLayout or other editor core components can be placed
+
 * statusBar: Status Bar Position
+  * statusBarLeft Status Bar left
+  * statusBarRight Status Bar right
+
+* emptyGroup No panel in a group, params `{ group }`
+
 
 ## TIP: Component unmont
 

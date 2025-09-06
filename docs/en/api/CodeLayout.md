@@ -28,6 +28,7 @@ Editor shell layout component.
 | titleBarMenu | Title bar rendering main menu position | - |
 | titleBarCenter | Title bar center position | - |
 | titleBarRight | Right position of title bar | - |
+| titleBarRight | Bottom position of title bar | - |
 | activityBarTopBar | At the btopottom of the main activity bar | - |
 | activityBarBottom | At the bottom of the main activity bar | - |
 | activityBarSecondaryTopBar | At the btopottom of the secondary activity bar | - |
@@ -210,7 +211,7 @@ const config = reactive<CodeLayoutConfig>({
 | secondarySideBarAsActivityBar | Whether the secondary sidebar appears as an active bar like the primarySidebar | `boolean` | `false` |
 | bottomPanelHeight | The size of the bottomPanel (0-100, percentage) | `number` | `30` |
 | bottomPanelMinHeight | The minimum size of the bottomPanel in pixels | `number` | `40` |
-| bottomAlignment | The layout position of the bottomPanel<ul><li>left: At the bottom left</li><li>center: At the bottom center</li><li>right: At the bottom right</li><li>justify: At the bottom center and justify</li><li>left-side: Center left</li><li>right-side: Center right</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
+| panelAlignment | The layout position of the bottomPanel<ul><li>left: At the bottom left</li><li>center: At the bottom center</li><li>right: At the bottom right</li><li>justify: At the bottom center and justify</li><li>left-side: Center left</li><li>right-side: Center right</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | The position of the activityBar<ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | secondaryActivityBarPosition | The position of the secondary activityBar (when `secondarySideBarAsActivityBar` is set to `true`) <ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | panelHeaderHeight | The height of the panel title in pixels | `number` | `24` |
@@ -224,6 +225,7 @@ const config = reactive<CodeLayoutConfig>({
 | bottomPanelMaximize | Can the bottomPanel be maximized? | `boolean` | `true` |
 | statusBar | Show statusBar? | `boolean` | `true` |
 | menuBar | Show menuBar? | `boolean` | `true` |
+| menuConfigs | [Custom panel context menu](../guide/code-layout.md#panel-context-menu) | - | - |
 | onResetDefault | When the user clicks the reset button in the custom layout pop-up, this callback is triggered | `() => void` | - |
 | onStartDrag | When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging | `(panel: CodeLayoutPanelInternal) => boolean` | - |
 | onEndDrag | Trigger this callback when the user completes dragging the panel | `(panel: CodeLayoutPanelInternal) => void` | - |
@@ -272,6 +274,9 @@ Due to the use of the same data instance for groups and panels, some properties 
 | noAutoShink | Set whether the current grid triggers its own remove/merge operation after all subpanels/grids are removed. Set to true will keep grid display, even if it does not have child panels/grids.(Only valid for group) | `boolean` | `false` |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | Custom data attached to the current panel. | `any` | - |
+| onResize | Resize callback for this panel | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | Visible change callback for this panel. | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
+| onOpenChange | Open state change callback for this panel. | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `addPanel(panel: CodeLayoutPanel, startOpen = false): CodeLayoutPanelInternal`
 

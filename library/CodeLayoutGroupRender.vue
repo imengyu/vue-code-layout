@@ -7,11 +7,8 @@
       :group="(group.activePanel as CodeLayoutPanelInternal)"
       :horizontal="false"
     >
-      <template #panelRender="data">
-        <slot name="panelRender" v-bind="data" />
-      </template>
-      <template #emptyTabRender>
-        <slot name="emptyTabRender" />
+      <template v-for="(_, name) in $slots" #[name]="slotData">
+        <slot :name v-bind="slotData || {}"></slot>
       </template>
     </CodeLayoutGroupRender>
     <slot v-else name="emptyTabRender" />
@@ -19,52 +16,88 @@
   <!-- 正常页面 -->
   <div 
     v-else-if="show" 
+    ref="container"
     :class="[
       'code-layout-group',
       'tab-' + group.tabStyle,
       type === 'primary' ? 'primary' : '',
+      group.tabStyle && (group.tabStyle == 'text-bottom' || group.tabStyle == 'icon-bottom') ? 'reverse-header' : '',
     ]"
   > 
     <!-- TAB栏 -->
     <div 
       v-if="group.tabStyle && group.tabStyle != 'none' && group.tabStyle != 'single'"
-      :class="'tab ' + group.tabStyle"
+      :class="[
+        'tab', 
+        group.tabStyle,
+        dragLightBoxState ? 'drag-active' : '',
+      ]"
+      data-dropable="true"
+      @dragover="handleDragOver"
+      @dragleave="handleDragLeave"
+      @dragenter="handleDragEnter"
+      @drop="handleDrop"
+      @contextmenu="onContextMenu(group.activePanel, $event)"
     >
       <OverflowCollapseList 
         class="tab-container"
+        visibleKey="visible"
         :items="group.children"
         :activeItem="group.activePanel"
         :itemMenuLabel="(p) => (p as CodeLayoutPanelInternal).title"
+        :menuDirection="group.tabStyle.endsWith('-bottom') ? 'up' : 'down'"
+        :getItemSize="(_, horizontal, index) => (horizontal ? tabRefs[index]?.getWidth() : tabRefs[index]?.getHeight()) ?? 0"
         @overflowItemClicked="(p) => group.setActiveChild(p as CodeLayoutPanelInternal)"
       >
-        <template #item="{ item: panel }">
-          <CodeLayoutTabItem 
-            v-show="panel.visible"
+        <template #start>
+          <slot name="tabHeaderLeftStart" :group="group" />
+        </template>
+        <template #item="{ item: panel, visible, index }">
+          <CodeLayoutTabItem
+            v-show="visible"
+            :ref="(ref) => tabRefs[index] = ref"
             :tabStyle="group.tabStyle"
             :active="group.activePanel === panel"
-            :panel="panel"
-            @click="handleTabClick(panel)"
-            @focusSelf="handleTabClick(panel)"
+            :panel="(panel as CodeLayoutPanelInternal)"
+            @click="handleTabClick(panel as CodeLayoutPanelInternal)"
+            @focusSelf="handleTabClick(panel as CodeLayoutPanelInternal)"
           />
+        </template>
+        <template #end>
+          <slot name="tabHeaderLeftEnd" :group="group" />
         </template>
       </OverflowCollapseList>
       <div class="right">
+        <slot name="tabHeaderRightStart" :group="group" />
         <CodeLayoutActionsRender v-if="group.activePanel" class="actions" :actions="group.activePanel.actions" />
         <CodeLayoutActionsRender v-if="group.parentGrid === 'bottomPanel'" class="actions" :actions="buttomPanelActions" />
         <CodeLayoutActionsRender v-if="group.parentGrid === 'secondarySideBar'" class="actions" :actions="secondaryPanelActions" />
+        <slot name="tabHeaderRightEnd" :group="group" />
       </div>
     </div>
     <!-- 标题栏 -->
     <div 
-      v-else-if="group.tabStyle === 'single' || !group.children || group.children.length == 0"
+      v-else-if="showTitleBar"
       class="title-bar"
       :draggable="group.draggable"
       @dragstart="handleDragStart(group, $event)"
       @dragend="handleDragEnd"
       @contextmenu="onContextMenu(group, $event)"
     >
-      <span class="title">{{ group.title }}</span>
-      <CodeLayoutActionsRender v-if="group.activePanel" class="actions" :actions="group.actions" />
+      <slot name="titleBarTitle" :group="group" :title="group.title">
+        <span class="title">{{ group.title }}</span>
+      </slot>
+      <CodeLayoutActionsRender 
+        class="actions" 
+        :actions="group.actions"
+      >
+        <template #start>
+          <slot name="titleBarActionStart" :group="group" />
+        </template>
+        <template #end>
+          <slot name="titleBarActionEnd" :group="group" />
+        </template>
+      </CodeLayoutActionsRender>
     </div>
     <!-- 内容区 -->
     <div :class="[ 'content', horizontal ? 'horizontal' : 'vertical' ]">
@@ -121,18 +154,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance } from 'vue';
-import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutPanelInternal } from './CodeLayout';
+import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance, computed } from 'vue';
+import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import CodeLayoutTabItem from './CodeLayoutTabItem.vue';
 import OverflowCollapseList from './Components/OverflowCollapseList.vue';
-import { usePanelDragger } from './Composeable/DragDrop';
+import { getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
 import { usePanelMenuControl } from './Composeable/PanelMenu';
 import { useCodeLayoutLang } from './Language';
 import IconActionClose from './Icons/IconActionClose.vue';
 import IconActionMax from './Icons/IconActionMax.vue';
+import { toRefs } from 'vue';
 
 const props = defineProps({
   group: {
@@ -153,8 +187,22 @@ const props = defineProps({
   },
 });
 
+const tabRefs = ref<any[]>([]);
+
 const layoutConfig = inject('codeLayoutConfig') as Ref<CodeLayoutConfig>;
+const context = inject('codeLayoutContext') as CodeLayoutContext;
+const container = ref<HTMLElement>();
+const { horizontal, group } = toRefs(props);
   
+const showTitleBar = computed(() => {
+  if (group.value.tabStyle === 'single' || !group.value.children || group.value.children.length == 0)
+    return false;
+  if (layoutConfig.value.activityBarSubGroupShowTitle)
+    return group.value.parentGrid === 'primarySideBar' || 
+      (group.value.parentGrid === 'secondarySideBar' && layoutConfig.value.secondarySideBarAsActivityBar);
+  return false;
+});
+
 //标签点击函数
 
 function handleTabClick(panel: CodeLayoutPanelInternal) {
@@ -169,6 +217,41 @@ const {
   handleDragEnd,
 } = usePanelDragger();
 
+const {
+  dragLightBoxState,
+  handleDragOver,
+  handleDragEnter,
+  handleDragLeave,
+  handleDropPreCheck,
+  resetDragOverState,
+  resetDragState,
+} = usePanelDragOverDetector(
+  container, group, horizontal,
+  () => {}, 
+  (e) => context.dragDropNonPanel(e, false, 'empty'),
+  (dragPanel) => {
+    return (
+      (!dragPanel.accept || dragPanel.accept.includes(props.group.parentGrid))
+      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.group.parentGrid))
+    );
+  }, 'tab'
+);
+
+function handleDrop(e: DragEvent) {
+  const dropPanel = getCurrentDragPanel();
+  if (dropPanel) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropToPanelNear(props.group, 'right', dropPanel, 'empty');
+  } else if (handleDropPreCheck(e)) {
+    e.preventDefault();
+    e.stopPropagation();
+    context.dragDropNonPanel(e, true, 'empty', props.group, 'right');
+  }
+  resetDragOverState();
+  resetDragState();
+}
+
 //菜单处理
 const {
   onContextMenu
@@ -176,20 +259,32 @@ const {
 
 const { t } = useCodeLayoutLang();
 
+const bottomPanelMaxArrowDeg = computed(() => {
+  const panelAlignment = layoutConfig.value.panelAlignment;
+  const panelPosition = layoutConfig.value.panelPosition;
+  const bottomPanelMaximize = layoutConfig.value.bottomPanelMaximize;
+  if (panelAlignment === 'left-side')
+    return bottomPanelMaximize ? -90 : 90;
+  else if (panelAlignment === 'right-side')
+    return bottomPanelMaximize ? 90 : -90;
+  else if (panelPosition === 'top')
+    return bottomPanelMaximize ? 0 : 180;
+  return bottomPanelMaximize ? 180 : 0;
+});
+
 //面板默认操作
 const buttomPanelActions = ref<CodeLayoutActionButton[]>([
   {
     icon() { 
       return h(IconActionMax, {
         style: {
-          transform: layoutConfig.value.bottomPanelMaximize ? 'rotate(180deg)' : '',
+          transform: `rotate(${bottomPanelMaxArrowDeg.value}deg)`,
         }
       })
     },
     tooltip: t('maximizePanel'),
     onClick() {
       layoutConfig.value.bottomPanelMaximize = !layoutConfig.value.bottomPanelMaximize;
-      
     },
   },
   {
@@ -242,6 +337,17 @@ defineExpose({
 
   &.primary {
     background-color: var(--code-layout-color-background-second);
+  }
+  &.reverse-header {
+    flex-direction: column-reverse;
+
+    > .tab {
+      border-top: 1px solid var(--code-layout-color-border);
+
+      .tab-item {
+        padding: var(--tab-padding);
+      }
+    }
   }
 
   //Tab header
@@ -362,6 +468,17 @@ defineExpose({
         line-height: var(--tab-font-size);
         background-color: var(--code-layout-color-background-light);
       }
+    }
+    &.drag-active::after {
+      background-color: var(--code-layout-color-background-mask-light);
+      position: absolute;
+      content: '';
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      pointer-events: none;
     }
   }
 

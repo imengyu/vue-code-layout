@@ -3,7 +3,7 @@
     ref="container" 
     :class="[
       'code-layout-group-dragger-host', 
-      dragEnterState ? 'drag-enter' : '',
+      dragLightBoxState ? 'drag-enter' : '',
     ]"
     @dragover="handleDragOver"
     @dragleave="handleDragLeave"
@@ -63,9 +63,16 @@ const { group, horizontal } = toRefs(props);
 
 const opening = ref(false);
 
-function getPanelMinSize(minSize: number|undefined) {
-  if (!minSize)
+function getPanelMinSize(_minSize: number|number[]|undefined) {
+  if (!_minSize)
     return layoutConfig.value.panelMinHeight;
+  let minSize = 0;
+  if (typeof _minSize === 'number') 
+    minSize = _minSize; 
+  else if (props.horizontal)
+    minSize = _minSize[0];
+  else
+    minSize = _minSize[1];
   return minSize;
 }
 function adjustAndReturnAdjustedSize(panel: CodeLayoutPanelInternal, intitalSize: number, increaseSize: number) {
@@ -73,7 +80,6 @@ function adjustAndReturnAdjustedSize(panel: CodeLayoutPanelInternal, intitalSize
   panel.size = Math.max(getPanelMinSize(panel.minSize), targetSize);
   return panel.size - intitalSize;
 }
-
 
 interface PanelResizePanelData {
   panel: CodeLayoutPanelInternal, 
@@ -223,7 +229,8 @@ function panelHandleOpenClose(panel: CodeLayoutPanelInternal, open: boolean) {
   //  从下方面板取空余空间，如果下方没有空间，再向上取空余空间，
   //  如果还不够最后减少自己的大小直至最小值
   //在当前面板关闭时
-  //  向下方面板添加空余空间，如果下方没有空间，再向上放空余空间
+  //  向下方面板添加空余空间(如果所有面板最高大小超出，则需要减去超出大小)，
+  //  如果下方没有空间，再向上放空余空间
 
   if (open) {
 
@@ -298,6 +305,21 @@ function panelHandleOpenClose(panel: CodeLayoutPanelInternal, open: boolean) {
 
   } else {
     let freeSize = panel.size - headerSize;
+    let allSize = panel.size;
+    props.group.children.forEach((_panel) => {
+      if (!_panel.visible)
+        return;
+      if (_panel !== panel)
+        allSize += _panel.open ? 
+          panel.size : 
+          headerSize;
+    });
+
+    if (allSize > containerSize) {
+      //容器大小超出所有面板大小，需要减去超出大小
+      freeSize -= allSize - containerSize;
+    }
+
     for (let i = index + 1; i < groupArray.length; i++) {
       const adjustPanel = groupArray[i];
       if (!adjustPanel.visible)
@@ -558,6 +580,7 @@ watch(() => props.group, (newValue, oldValue) => {
 
 const {
   dragEnterState,
+  dragLightBoxState,
   dragOverState,
   handleDragOver,
   handleDragEnter,

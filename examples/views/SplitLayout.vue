@@ -17,7 +17,13 @@
           <br>Drag drop any grid and Refresh page, this page will save your layout data in localStorage.
           <button @click="onResetAll">Reset all to default</button>
         </span>
-        <h2 v-else :style="{ backgroundColor: colors[panel.data] }">Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}</h2>
+        <div v-else-if="panel.name === 'dragtest'" class="demo-drag-test">
+          <textarea v-model="text1"></textarea>
+          <input v-model="text2" type="text" />
+        </div>
+        <h2 v-else :style="{ backgroundColor: colors[panel.data] }">
+          Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}
+        </h2>
       </template>
       <template #tabEmptyContentRender="{ grid }">
         <h2>
@@ -28,17 +34,18 @@
       <template #tabHeaderExtraRender="{ grid }">
         <button @click="onAddPanel(grid)">+ Add Panel</button>
       </template>
-      <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+      <template #tabItemRender="{ index, panel, states }">
         <SplitTabItem 
           :panel="(panel as CodeLayoutSplitNPanelInternal)"
-          :active="active"
-          @click="onTabClick"
-          @contextmenu="onContextMenu($event)"
+          :states="states"
         >
           <template #title>
             <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
           </template>
         </SplitTabItem>
+      </template>
+      <template v-for="name in renderSlotExtras" #[name]>
+        <SlotDisplay v-if="renderSlots" :name="name" />
       </template>
     </SplitLayout>
     <div v-if="showData" class="demo-pre">
@@ -60,6 +67,7 @@ import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNP
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
 import { defaultSplitLayoutConfig, SplitLayout, SplitTabItem } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
+import SlotDisplay from './SlotDisplay.vue';
 
 const colors = [
   '#fb0',
@@ -82,6 +90,9 @@ const icons = [
   IconFile,
 ];
 
+const text1 = ref('IconSearchIconSearchIconSearchIconSearch');
+const text2 = ref('IconMarkdownIconMarkdown');
+
 const emit = defineEmits([	
   "resetAll"	
 ])
@@ -94,7 +105,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  renderSlots: {
+    type: Boolean,
+    default: false,
+  }
 })
+
+const renderSlotExtras = props.renderSlots ? [
+  'tabHeaderStartRender', 'tabHeaderEndRender',
+  'tabHeaderExtraRender', 'tabHeaderExtraEndRender', 
+] : []
 
 function getRandomIcon() {
   return icons[Math.floor(Math.random() * icons.length)];
@@ -106,10 +126,10 @@ const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
 const config = reactive<CodeLayoutSplitNConfig>({
   ...defaultSplitLayoutConfig,
   onNonPanelDrag(e, sourcePosition) {
-    e.preventDefault();
-    //如果用户拖拽进入的是文件，则允许
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file') {
+      e.preventDefault();
       return true;
+    }
     return false;
   },
   onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
@@ -270,6 +290,13 @@ function loadLayout() {
         canMinClose: true,
       });
 
+      grid3.addPanel({
+        title: `Drag test`,
+        tooltip: `Drag test`,
+        name: `dragtest`,
+        data: count,
+        iconSmall: () => h(getRandomIcon()),
+      });
       for (let i = 0; i < 8; i++) {
         count++;
         grid3.addPanel({
@@ -353,5 +380,23 @@ h2 {
 .demo-pre {
   padding: 10px;
   white-space: pre;
+}
+.demo-drag-test {
+  width: 100%;
+  height: 100%;
+  background-color: var(--code-layout-color-bg);
+  color: var(--code-layout-color-text-light);
+
+  textarea {
+    width: 50%;
+    height: 80%;
+    background-color: var(--code-layout-color-bg); 
+    color: #fff;
+  }
+  input {
+    width: 50%;
+    background-color: var(--code-layout-color-bg);
+    color: #fff;
+  }
 }
 </style>

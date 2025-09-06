@@ -1,6 +1,6 @@
 # Custom style
 
-If you think the default style doesn't look good and want to modify it, you can also overwrite the default CSS style. All CSS style definitions are in the[Base.scss](https://github.com/imengyu/vue-code-layout/blob/master/library/Scss/Base.scss). You can copy all styles, modify them as needed, and store them in your file. Then overwrite the default style at the import location:
+If you think the default style doesn't look good and want to modify it, you can also overwrite the default CSS style. All CSS style definitions are in the [Base.scss](https://github.com/imengyu/vue-code-layout/blob/master/library/Scss/Base.scss). You can copy all styles, modify them as needed, and store them in your file. Then overwrite the default style at the import location:
 
 ```js
 import 'vue-code-layout/lib/vue-code-layout.css'

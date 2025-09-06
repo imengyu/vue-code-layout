@@ -35,6 +35,7 @@ nav:
 | titleBarMenu | 标题栏渲染主菜单位置 | - |
 | titleBarCenter | 标题栏中心位置 | - |
 | titleBarRight | 标题栏右侧位置 | - |
+| titleBarBottom | 标题栏下方位置 | - |
 | activityBarTopBar | 主活动栏顶部 | - |
 | activityBarBottom | 主活动栏底部 | - |
 | activityBarSecondaryTopBar | 副活动栏顶部 | - |
@@ -217,7 +218,7 @@ const config = reactive<CodeLayoutConfig>({
 | secondarySideBarAsActivityBar | 辅助侧边栏是否像主侧边栏一样显示为活动栏 | `boolean` | `false` |
 | bottomPanelHeight | 面板的大小（0-100，百分比） | `number` | `30` |
 | bottomPanelMinHeight | 面板最小大小（像素） | `number` | `40` |
-| bottomAlignment | 面板布局位置<ul><li>left: 底部左对齐</li><li>center：底部居中</li><li>right：底部右对齐</li><li>justify：底部两端对齐</li><li>left-side：左侧</li><li>right-side：右侧</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
+| panelAlignment | 面板布局位置<ul><li>left: 底部左对齐</li><li>center：底部居中</li><li>right：底部右对齐</li><li>justify：底部两端对齐</li><li>left-side：左侧</li><li>right-side：右侧</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | 活动栏的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | secondaryActivityBarPosition | 第二活动栏（当 `secondarySideBarAsActivityBar` 设置为 `true`）的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | panelHeaderHeight | 面板标题的高度（像素） | `number` | `24` |
@@ -231,6 +232,7 @@ const config = reactive<CodeLayoutConfig>({
 | bottomPanelMaximize | 面板是否可以最大化 | `boolean` | `true` |
 | statusBar | 是否显示状态栏 | `boolean` | `true` |
 | menuBar | 是否显示菜单栏 | `boolean` | `true` |
+| menuConfigs | [自定义面板菜单控制](../guide/code-layout.md#面板右键菜单) | - | - |
 | onResetDefault | 当用户在自定义布局弹窗中点击重置按钮时，触发此回调 | `() => void` | - |
 | onStartDrag | 当用户开始拖拽面板时，触发此回调，可以返回false，阻止用户拖动 | `(panel: CodeLayoutPanelInternal) => boolean` | - |
 | onEndDrag | 用户完成拖拽面板时触发此回调 | `(panel: CodeLayoutPanelInternal) => void` | - |
@@ -279,6 +281,9 @@ const config = reactive<CodeLayoutConfig>({
 | noAutoShink | 是否禁止自动收缩当前网格(仅组有效) | `boolean` | `false` |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | 面板的自定义数据 | `any` | - |
+| onResize | 当面板大小更改时回调 | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | 当面板显示（visible）状态更改时回调 | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
+| onOpenChange | 当面板打开（open）状态更改时回调 | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `addPanel(panel: CodeLayoutPanel, startOpen = false): CodeLayoutPanelInternal`
 

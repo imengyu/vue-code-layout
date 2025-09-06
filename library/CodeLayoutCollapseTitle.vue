@@ -7,12 +7,13 @@
   >
     <div 
       class="collapse-title"
-      :title="tooltip"
       @click="$emit('click', $event)"
       @contextmenu="$emit('contextmenu', $event)"
     >
       <IconArrow class="arrow" />
-      <CodeLayoutVNodeStringRender :content="title" />
+      <SimpleTooltip direction="mouse" :content="tooltip">
+        <CodeLayoutVNodeStringRender :content="title" />
+      </SimpleTooltip>
       <CodeLayoutVNodeStringRender v-if="showIconSmall" :content="iconSmall" />
     </div>
     <CodeLayoutActionsRender class="actions" :actions="actions" />
@@ -25,6 +26,7 @@ import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import IconArrow from './Icons/IconArrow.vue';
 import type { PropType } from 'vue';
 import type { CodeLayoutActionButton } from './CodeLayout';
+import SimpleTooltip from './Components/SimpleTooltip.vue';
 
 defineEmits([ 'click', 'contextmenu', 'dragstart', 'dragend' ]);
 defineProps({

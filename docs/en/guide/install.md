@@ -37,7 +37,7 @@ import { defineComponent } from 'vue'
 import { CodeLayout } from 'vue-code-layout';
 
 export default defineComponent({
-  //Registration component
+  //If not use setup, need registration component
   components: {
     CodeLayout,
   },
@@ -45,7 +45,3 @@ export default defineComponent({
 });
 </script>
 ```
-
-## Start using
-
-[Start using](./useage.md)

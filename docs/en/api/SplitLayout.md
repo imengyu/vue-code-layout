@@ -186,6 +186,8 @@ Panel type definition of SplitLayout.
 | accept | Set which grids the current panel can be dragged and dropped onto. | `CodeLayoutGrid[]` | - |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | Custom data attached to the current panel. | `any` | - |
+| onResize | Resize callback for this panel | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
+| onVisibleChange | Visible change callback for this panel. | `(this: CodeLayoutPanelInternal, state: boolean) => void` | - |
 
 ### `closePanel(): void`
 

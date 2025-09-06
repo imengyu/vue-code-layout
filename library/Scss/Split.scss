@@ -11,6 +11,10 @@
     overflow: hidden;
   }
 
+  .code-layout-split-dragger {
+    z-index: 10;
+  }
+
   &.vertical {
     flex-direction: column;
     justify-content: stretch;
@@ -142,6 +146,7 @@
   --tab-button-normal-color: transparent;
   --tab-button-hover-color: var(--code-layout-color-background-hover-light);
   --tab-close-size: 18px;
+  --vue-scroll-rect-scrollbar-size: 4px;
 }
 .code-layout-split-tab-list {
 
@@ -178,6 +183,10 @@
     overflow: scroll;
     overflow-y: hidden;
     transition: all ease-in-out 0.25s;
+
+    .control-item,.code-layout-tooltip-ref {
+      height: 100%;
+    }
 
     .item {
       position: relative;
@@ -326,6 +335,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
 
   &.empty {
     top: 0;

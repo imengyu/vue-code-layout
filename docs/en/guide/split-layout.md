@@ -8,6 +8,14 @@ It is recommended to place `SplitLayout` in the top-level component or `CodeLayo
 This component is designed to fill the parent container. Please set `position: relative` style for the parent container and set a certain height, otherwise the component will not be able to calculate the height correctly and display properly.
 :::
 
+::: warning
+This component is desgined for PC platform. It is not suitable for mobile devices.
+:::
+
+::: danger
+This component is not support SSR.
+:::
+
 To use SplitLayout, there are the following steps:
 
 1. [Import Components](./install.md#global-import-components).
@@ -336,9 +344,9 @@ You can listen to the `gridActive` event of SplitLayout to obtain the user's lat
 
 You can handle non panel data dragged into components, such as users dragging a file into component.
 
-You can handle it in the `onNonPanelDrop` and `onNonPanelDrop` events of `layoutConfig`, where:
+You can handle it in the `onNonPanelDrag` and `onNonPanelDrop` events of `layoutConfig`, where:
 
-* `onNonPanelDrop` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
+* `onNonPanelDrag` is a check callback used to determine whether users are allowed to drop. You can check whether user dragging data is allowed in this callback. Returning false will display the status of preventing user dragging.
 * `onNonPanelDrop` is a drop callback that can perform drop operations within it. At the same time, the panel instance and reference position placed by the current user will be passed in.
 
 ::: tip
@@ -436,9 +444,9 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 ## Customize render Tab header
 
-### Tab header
+### Tab item
 
-Split Layout supports custom rendering tab buttons, allowing you to customize rendering of a certain part or all parts.
+Split Layout supports custom rendering tab item, allowing you to customize rendering of a certain part or all parts.
 You can use the `tabItemRender` slot to render tab entries, which allows for the entire overlay rendering.
 
 If you only need to customize certain parts of the rendering, you can import the default tab component `SplitTabItem`, which supports the functionality of default tabs but also allows you to customize a certain part of them.
@@ -450,12 +458,10 @@ If you only need to customize certain parts of the rendering, you can import the
   >
     <!--Other codes...-->
 
-    <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+    <template #tabItemRender="{ index, panel, states }">
       <SplitTabItem 
         :panel="(panel as CodeLayoutSplitNPanelInternal)"
-        :active="active"
-        @click="onTabClick"
-        @contextmenu="onContextMenu($event)"
+        :states="states"
       >
         <template #title>
           <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
@@ -496,6 +502,11 @@ You can use the `tabHeaderExtraRender` slot to render the tail area of a tab, fo
   </SplitLayout>
 </template>
 ```
+
+### Other slots of tab
+
+* tabHeaderStartRender : Scroll region start of tab header
+* tabHeaderEndRender : Scroll region end of tab header
 
 ## Saving and Loading Data
 

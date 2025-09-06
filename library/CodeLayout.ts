@@ -2,6 +2,8 @@ import { reactive, type VNode } from "vue";
 import { LateClass } from "./Composeable/LateClass";
 import type { CodeLayoutLangDefine } from "./Language";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import { PanelMenuBuiltins, type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
+import { FLAG_CODE_LAYOUT } from "./Composeable/DragDrop";
 
 /**
  * Layout Type Definition
@@ -50,6 +52,14 @@ export interface CodeLayoutConfig {
    */
   bottomPanelMinHeight: number,
   /**
+   * The minimum Height of center area in pixels
+   */
+  centerMinHeight: number,
+  /**
+   * The minimum Width of center area in pixels
+   */
+  centerMinWidth: number,
+  /**
    * The layout position of the bottomPanel
    * * left: At the bottom left
    * * center: At the bottom center
@@ -58,14 +68,18 @@ export interface CodeLayoutConfig {
    * * left-side: Center left
    * * right-side: Center right
    */
-  bottomAlignment: 'left'|'center'|'right'|'justify'|'left-side'|'right-side',
+  panelAlignment: 'left'|'center'|'right'|'justify'|'left-side'|'right-side',
+  /**
+   * The position of the panel
+   */
+  panelPosition: 'top'|'bottom'
   /**
    * The position of the activityBar
    * * side: Main left
    * * top: In primarySideBar top
    * * hidden: No activityBar
    */
-  activityBarPosition: 'side'|'top'|'hidden',
+  activityBarPosition: 'side'|'top'|'hidden'|'bottom',
   /**
    * The height of the panel title in pixels
    */
@@ -87,6 +101,11 @@ export interface CodeLayoutConfig {
    */
   activityBar: boolean,
   /**
+   * Make group in activity bar that show a large title?
+   * @default true
+   */
+  activityBarSubGroupShowTitle: boolean,
+  /**
    * Show primarySideBar?
    */
   primarySideBar: boolean,
@@ -104,7 +123,7 @@ export interface CodeLayoutConfig {
    * * top: In primarySideBar top
    * * hidden: No activityBar
    */
-  secondaryActivityBarPosition: 'side'|'top'|'hidden',
+  secondaryActivityBarPosition: 'side'|'top'|'hidden'|'bottom',
   /**
    * Show bottomPanel?
    */
@@ -121,6 +140,26 @@ export interface CodeLayoutConfig {
    * Show menuBar?
    */
   menuBar: boolean,
+  /**
+   * Panel Menu configuration
+   */
+  menuConfigs: {
+    /**
+     * Set the built-in menu items.
+     * 
+      |Name|Desc|
+      |---|---|
+      |toggleVisible|Hide the current panel|
+      |toggleBadge|Switch whether the current panel marker is displayed or not|
+      |otherPanelsCheck|Other panels display/hide switch|
+      |panelPosition|Control the display position of the main grid (sidebar, panel)|
+     */
+    builtinMenus: string[],
+    /**
+     * Add custom menu items.
+     */
+    customMenus: PanelMenuRegistryItem[],
+  };
 
   //Events
 
@@ -131,11 +170,11 @@ export interface CodeLayoutConfig {
   /**
    * When the user starts dragging the panel, this callback is triggered, which can return false to prevent the user from dragging
    */
-  onStartDrag?: (panel: CodeLayoutPanelInternal) => boolean;
+  onStartDrag?: (panel: CodeLayoutPanelInternal[]) => boolean;
   /**
    * Trigger this callback when the user completes dragging the panel
    */
-  onEndDrag?: (panel: CodeLayoutPanelInternal) => void;
+  onEndDrag?: (panel: CodeLayoutPanelInternal[]) => void;
   /**
    * When the user drags a panel to a root group, this callback is triggered, which can return false to prevent the user from dragging
    */
@@ -200,6 +239,7 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   primarySideBarWidth: 20,
   primarySideBarMinWidth: 170,
   activityBarPosition: "side",
+  activityBarSubGroupShowTitle: true,
   secondarySideBarWidth: 20,
   secondarySideBarMinWidth: 170,
   secondarySideBarAsActivityBar: false,
@@ -207,7 +247,10 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanelHeight: 30,
   bottomPanelMinHeight: 40,
   bottomPanelMaximize: false,
-  bottomAlignment: 'center',
+  panelAlignment: 'center',
+  panelPosition: 'bottom',
+  centerMinWidth: 300,
+  centerMinHeight: 100,
   panelHeaderHeight: 24,
   panelMinHeight: 150,
   titleBar: true,
@@ -218,6 +261,10 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
   bottomPanel: true,
   statusBar: true,
   menuBar: true,
+  menuConfigs: {
+    builtinMenus: Object.keys(PanelMenuBuiltins),
+    customMenus: [],
+  }
 }
 
 //用户接口定义
@@ -293,6 +340,12 @@ export interface CodeLayoutInstance {
 
 export interface CodeLayoutPanelHosterContext {
   panelInstances: Map<string, CodeLayoutPanelInternal>;
+  /**
+   * Get the root layout component instance.
+   * 
+   * @returns CodeLayoutInstance if in codelayout, CodeLayoutSplitNInstance if in splitlayout.
+   */
+  getRef(): any;
   childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void,
   removePanelInternal(panel: CodeLayoutPanelInternal): undefined|CodeLayoutPanelInternal;
   closePanelInternal(panel: CodeLayoutPanelInternal): void;
@@ -304,6 +357,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     super();
     this.context = context;
   }
+
+  private _size = 0;
+  private _open = false;
+  private _visible = true;
 
   context: CodeLayoutPanelHosterContext;
   /**
@@ -328,7 +385,15 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * * Only used in CodeLayout. 
    * In SplitLayout, all panels are always in open state.
    */
-  open = false;
+  get open() {
+    return this._open;
+  }
+  set open(value: boolean) {
+    if (value === this._open)
+      return; 
+    this._open = value;
+    this.onOpenChange?.call(this, this.open);
+  }
   /**
    * Set user can resize this panel.
    * 
@@ -338,19 +403,32 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   /**
    * Show panel?
    * 
-   * * Only used in CodeLayout.
+   * * Used in CodeLayout/SplitLayout.
    * 
    * After changed, need call `relayoutAfterToggleVisible` to apply.
    */
-  visible = true;
-  showBadge = true;
+  get visible() {
+    return this._visible;
+  }
+  set visible(value: boolean) {
+    if (value === this._visible)
+      return; 
+    this._visible = value;
+    this.onVisibleChange?.call(this, this.visible);
+  }
   /**
-   * Size of this panel.
-   * 
-   * * In CodeLayout, it's pixel size.
-   * * In SplitLayout, it's percentage size.
+   * Show badge?
    */
-  size = 0;
+  showBadge = true;
+  get size() {
+    return this._size;
+  }
+  set size(value: number) {
+    if (value === this._size)
+      return;
+    this._size = value;
+    this.onResize?.call(this, this.size);
+  }
   /**
    * Child panel of this grid.
    */
@@ -369,6 +447,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * Parent toplevel grid name of this panel.
    */
   parentGrid: CodeLayoutGrid = 'none';
+
+  inhertParentGrid = true;
  
   tooltip?: string;
   badge?: string|(() => VNode)|undefined;
@@ -380,16 +460,21 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     referencePanel?: CodeLayoutPanel|undefined,
     referencePosition?: CodeLayoutDragDropReferencePosition|undefined,
   ) => boolean;
+  onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+  onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+  onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
+
   tabStyle?: CodeLayoutPanelTabStyle;
   noAutoShink = false;
   noHide = false;
-  minSize?: number|undefined;
+  minSize?: number|number[]|undefined;
   startOpen?: boolean|undefined;
   iconLarge?: string|(() => VNode)|undefined;
   iconSmall?: string|(() => VNode)|undefined;
   closeType: CodeLayoutPanelCloseType = 'none';
   actions?: CodeLayoutActionButton[]|undefined;
   data?: any = undefined;
+  sourceFlag = FLAG_CODE_LAYOUT;
 
   //Public
 
@@ -413,14 +498,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     panelResult.open = panel.startOpen ?? false;
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
-    panelResult.parentGrid = this.parentGrid;
     this.addChild(panelResult as CodeLayoutPanelInternal, index);
   
     if (startOpen || panel.startOpen)
       panelResult.openPanel();
-  
-    this.context.panelInstances.set(panelInternal.name, panelResult as CodeLayoutPanelInternal);
-  
     return panelResult;
   }
   /**
@@ -435,7 +516,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       this.context.removePanelInternal(panel);
     else
       this.removeChild(panel);
-    this.context.panelInstances.delete(panel.name);
     return panel;
   }
   /**
@@ -606,9 +686,11 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     else
       this.children.push(child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
+    this.context.panelInstances.set(child.name, child);
   }
   addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number) {
     for (const child of childs) {
@@ -623,7 +705,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       if (this.name === child.name)
         throw new Error('Try add self');
       child.parentGroup = this;
-      child.parentGrid = this.parentGrid;
+      if (child.inhertParentGrid)
+        child.parentGrid = this.parentGrid;
+      this.context.panelInstances.set(child.name, child);
     }
     if (!this.activePanel)
       this.activePanel = this.children[0];
@@ -634,18 +718,24 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (child.name === this.activePanel?.name)
       this.reselectActiveChild();
+    this.context.panelInstances.delete(child.name);
   }
   replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) {
     this.children.splice(
       this.children.indexOf(oldChild), 
       1, 
       child);   
-    oldChild.parentGroup = null;
+    if (oldChild.parentGroup === this)
+      oldChild.parentGroup = null;
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
+    
+    this.context.panelInstances.delete(oldChild.name);
+    this.context.panelInstances.set(child.name, child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
   }
   hasChild(child: CodeLayoutPanelInternal) {
     return this.children.includes(child);
@@ -680,6 +770,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     return this.children.length > 0 ? this.children : [ this ];
   }
 
+  toString() {
+    return `Panel: ${this.name} size: ${this.size}`
+  }
   toJson() : any {
     return {
       name: this.name,
@@ -737,9 +830,13 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
   collapse(open: boolean) {
     this.onSwitchCollapse?.(open);
   }
+
+  toString() {
+    return `Grid: ${this.name} size: ${this.size}`
+  }
 }
 
-export type CodeLayoutPanelTabStyle = 'none'|'single'|'text'|'icon'|'hidden';
+export type CodeLayoutPanelTabStyle = 'none'|'single'|'text'|'text-bottom'|'icon'|'icon-bottom'|'hidden';
 
 /**
  * Panel User Type Definition
@@ -769,8 +866,6 @@ export interface CodeLayoutPanel {
   badge?: string|(() => VNode)|undefined;
   /**
    * Show panel?
-   * 
-   * * Only used in CodeLayout.
    */
   visible?: boolean;
   /**
@@ -802,6 +897,23 @@ export interface CodeLayoutPanel {
     referencePanel?: CodeLayoutPanel|undefined,
     referencePosition?: CodeLayoutDragDropReferencePosition|undefined,
   ) => boolean;
+  /**
+   * Resize callback for this panel
+   * @param size New size
+   * @returns 
+   */
+  onResize?: (this: CodeLayoutPanelInternal, size: number) => void;
+  /**
+   * Visible change callback for this panel.
+   * @param visible New visible state.
+   */
+  onVisibleChange?: (this: CodeLayoutPanelInternal, visible: boolean) => void;
+  /**
+   * Open state change callback for this panel.
+   * 
+   * * Only used in CodeLayout.
+   */
+  onOpenChange?: (this: CodeLayoutPanelInternal, state: boolean) => void;
 
   /**
    * Set tab style of this grid.
@@ -813,6 +925,8 @@ export interface CodeLayoutPanel {
    * * single: Used internal.
    * * text: Tab control and header only show text.
    * * icon: Tab control and header only show icon.
+   * * text-bottom: Same as text but header in bottom.
+   * * icon-bottom: Same as icon but header in bottom.
    * * hidden: Has tab control but tab header was hidden.
    * 
    * Default: 'none'
@@ -844,8 +958,13 @@ export interface CodeLayoutPanel {
   size?: number|undefined;
   /**
    * Min size of this gird/panel. (In pixel)
+   * 
+   * * If is a array, means x and y minium size.
+   * * 0 means no limit.
+   *
+   * Default: 0
    */
-  minSize?: number|undefined;
+  minSize?: number|number[]|undefined;
   /**
    * Is the sub panel in an open state when added to a grid.
    * 
@@ -879,6 +998,11 @@ export interface CodeLayoutPanel {
   * * Only used in CodeLayout.
   */
   actions?: CodeLayoutActionButton[]|undefined;
+  /**
+   * Should this panel inherit `parentGrid` field from parent ?
+   * @default true
+   */
+  inhertParentGrid?: boolean;
   /**
    * Custom data attached to the current panel.
    */

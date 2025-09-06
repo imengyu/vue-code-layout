@@ -9,7 +9,11 @@ order: 2
 Tip: This component library is not packaging the original VScode code, but is a component re implemented on Vue based on the original functionality, so the functionality may differ from the original VScode logic.
 
 If this component library missing some features, you can submit an issue on Github.
-::: 
+:::
+
+::: danger
+This component is not support SSR.
+:::
 
 ## CodeLayout
 
@@ -44,10 +48,10 @@ SplitLayout is designed for split layouts in multiple editors, supporting infini
 
 [👉 SplitLayout usage](./split-layout.md)
 
-## CodeLayoutScrollbar
+## CodeLayoutScrollbar <Badge type="warning" text="Split package" />
 
 ![CodeLayoutScrollbarDemo](../../images/CodeLayoutScrollbarDemo.gif)
 
 CodeLayoutScrollbar is a Vue scrollbar component. If you feel that the system scrollbar does not match CodeLayout, you can try using CodeLayoutScrollbar, which has a unified style built-in.
 
-[👉 CodeLayoutScrollbar reference](../api/CodeLayoutScrollbar.md)
+[👉 CodeLayoutScrollbar reference](https://docs.imengyu.top/vue-scroll-rect-docs/en/)

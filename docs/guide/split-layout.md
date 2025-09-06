@@ -8,6 +8,14 @@
 本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
 :::
 
+::: warning
+此组件是为PC平台设计的。不适合移动设备。
+:::
+
+::: danger
+此组件不支持SSR。
+:::
+
 要使用 SplitLayout ，有以下步骤：
 
 1. 需要[导入组件](./install.md#全局导入组件).
@@ -323,9 +331,9 @@ if (panel != null) {
 
 你可以处理拖拽到组件中的非面板数据，例如用户将一个文件拖拽进入组件的某些位置。
 
-你可以在 `layoutConfig` 的 `onNonPanelDrop` 和 `onNonPanelDrop` 事件中处理，其中 ：
+你可以在 `layoutConfig` 的 `onNonPanelDrag` 和 `onNonPanelDrop` 事件中处理，其中 ：
 
-* `onNonPanelDrop` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
+* `onNonPanelDrag` 为检查回调，用于判断是否允许用户拖拽，你可以在此回调中判断用户拖拽数据是否被允许，返回 false 将显示阻止用户拖拽状态。
 * `onNonPanelDrop` 为放置回调，可以在其中中执行放置操作。同时会传入当前用户放置的面板实例和参考位置。
 
 ::: tip
@@ -335,10 +343,11 @@ if (panel != null) {
 ```ts
 const config = reactive<CodeLayoutSplitNConfig>({
   onNonPanelDrag(e, sourcePosition) {
-    e.preventDefault();
-    //如果用户拖拽进入的是文件，则允许
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file')
+    //如果用户拖拽进入的是文件，则进行自定义处理
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0 && e.dataTransfer.items[0].kind == 'file') {
+      e.preventDefault();
       return true;
+    }
     return false;
   },
   onNonPanelDrop(e, sourcePosition, reference, referencePosition) {
@@ -422,7 +431,7 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 ## 自定义渲染面板头
 
-### 自定义标签页头部
+### 自定义标签页
 
 SplitLayout 支持自定义渲染标签页按钮，你可以自定义渲染某个部分，或者是全部自定义渲染。
 
@@ -438,12 +447,10 @@ SplitLayout 支持自定义渲染标签页按钮，你可以自定义渲染某�
   >
     <!--省略其他代码-->
 
-    <template #tabItemRender="{ index, panel, active, onTabClick, onContextMenu }">
+    <template #tabItemRender="{ index, panel, states }">
       <SplitTabItem 
         :panel="(panel as CodeLayoutSplitNPanelInternal)"
-        :active="active"
-        @click="onTabClick"
-        @contextmenu="onContextMenu($event)"
+        :states="states"
       >
         <template #title>
           <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
@@ -468,7 +475,7 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
 </script>
 ```
 
-### 自定义标签页尾部
+### 自定义标签尾部
 
 您可以使用 `tabHeaderExtraRender` 插槽渲染标签页尾部区域，例如，下方的示例在标签页尾部增加了一个“添加面板”的按钮。
 
@@ -484,6 +491,11 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
   </SplitLayout>
 </template>
 ```
+
+### 其他插槽
+
+* tabHeaderStartRender : 标签页滚动区域前部插槽
+* tabHeaderEndRender : 标签页滚动区域后部插槽
 
 ## 保存与加载数据
 

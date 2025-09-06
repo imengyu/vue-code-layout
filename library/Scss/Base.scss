@@ -81,6 +81,8 @@
     flex: 1;
     height: calc(100% - var(--code-layout-titlebar-height) - var(--code-layout-status-height));
 
+    $activity-bar-width: 45px;
+
     .code-layout-activity-bar {
       position: relative;
       display: flex;
@@ -88,10 +90,36 @@
       justify-content: space-between;
       align-items: center;
       background-color: var(--code-layout-color-background-light);
-      width: 45px;
+      width: $activity-bar-width;
+      overflow: hidden;
+
+      .OverflowItem {
+        width: $activity-bar-width;
+        height: $activity-bar-width;
+      }
+
+      > .top {
+        position: relative;
+        flex-grow: 1;
+        flex-shrink: 1;
+        max-height: 90%;
+      }
+      > .bottom {
+        position: relative;
+        flex-grow: 0;
+        flex-shrink: 0;
+      }
 
       .mx-menu-bar.mini {
         justify-content: center;
+      }
+
+      .activity-bar-items {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        flex: 1 1 100%;
       }
 
       .item {
@@ -100,8 +128,8 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        width: 45px;
-        height: 45px;
+        width: $activity-bar-width;
+        height: $activity-bar-width;
         color: var(--code-layout-color-text-gray);
         cursor: pointer;
 
@@ -190,14 +218,27 @@
       &.right .item.active {
         &::after {
           left: unset;
-          right: 0;
+          right: 2px;
         }
       }
     }
   }
   > .code-layout-status {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
     flex-grow: 0;
     height: var(--code-layout-status-height);
     background-color: var(--code-layout-color-highlight);
+
+    > .left {
+      position: relative;
+      flex-shrink: 0;
+    }
+    > .right {
+      position: relative;
+      flex-shrink: 0;
+    }
   }
 }

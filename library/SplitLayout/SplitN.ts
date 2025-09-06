@@ -1,5 +1,6 @@
 import { nextTick, reactive, type Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType } from "../CodeLayout";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid } from "../CodeLayout";
+import { FLAG_SPLIT_LAYOUT } from "../Composeable/DragDrop";
 
 
 export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
@@ -37,7 +38,6 @@ export interface CodeLayoutSplitNPanel extends Omit<CodeLayoutPanel, 'visible'|'
 export type CodeLayoutSplitCopyDirection = 'left'|'top'|'bottom'|'right';
 
 
-
 /**
  * Panel type definition of SplitLayout.
  */
@@ -46,6 +46,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
   public constructor(context: CodeLayoutPanelHosterContext) {
     super(context);
     this.open = true;
+    this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
 
   onActive?: (grid: CodeLayoutSplitNPanel) => void;
@@ -201,9 +202,16 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
  */
 export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal implements CodeLayoutSplitNGrid {
 
-  public constructor(context: CodeLayoutPanelHosterContext) {
-    super('centerArea', 'text', context, () => {}, () => {});
+  public constructor(
+    context: CodeLayoutPanelHosterContext,
+    name : CodeLayoutGrid = 'centerArea',
+    tabStyle: CodeLayoutPanelTabStyle = 'text',
+    onSwitchCollapse: (open: boolean) => void = () => {},
+    onActiveSelf: () => void = () => {},
+  ) {
+    super(name, tabStyle, context, onSwitchCollapse, onActiveSelf);
     this.open = true;
+    this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
 
   /**
@@ -239,7 +247,6 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     panelResult.open = true;
     panelResult.size = grid.size ?? 0;
     panelResult.accept = grid.accept ?? this.accept;
-    panelResult.parentGrid = this.parentGrid;
     panelResult.direction = direction ?? (this.direction === 'vertical' ? 'horizontal' : 'vertical');
     this.addChildGrid(panelResult as CodeLayoutSplitNGridInternal);
     return panelResult as CodeLayoutSplitNGridInternal;
@@ -319,7 +326,9 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     else
       this.childGrid.push(child);
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
+    return child;
   }
   addChildGrids(childs: CodeLayoutSplitNGridInternal[], startIndex?: number) {
     if (typeof startIndex === 'number')
@@ -328,7 +337,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
       this.childGrid.push(...childs);
     for (const child of childs) {
       child.parentGroup = this;
-      child.parentGrid = this.parentGrid;
+      if (child.inhertParentGrid)
+        child.parentGrid = this.parentGrid;
     }
   }
   removeChildGrid(child: CodeLayoutSplitNGridInternal) {
@@ -347,7 +357,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     if (oldChild.parentGroup === this) 
       oldChild.parentGroup = null;
     child.parentGroup = this;
-    child.parentGrid = this.parentGrid;
+    if (child.inhertParentGrid)
+      child.parentGrid = this.parentGrid;
   }
   hasChildGrid(child: CodeLayoutSplitNGridInternal) {
     return this.childGrid.includes(child);
@@ -453,7 +464,8 @@ export interface CodeLayoutSplitNInstance {
 
 export interface CodeLayoutSplitLayoutContext {
   currentActiveGrid: Ref<CodeLayoutSplitNGridInternal|null>,
+  getRef(): any;
   activeGrid(grid: CodeLayoutSplitNGridInternal) : void;
-  dragDropToPanel(referencePanel: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panel: CodeLayoutPanelInternal, toTab?: boolean) : void;
+  dragDropToPanel(referencePanel: CodeLayoutPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition, panels: CodeLayoutPanelInternal[], toTab?: boolean) : void;
   dragDropNonPanel(e: DragEvent, isDrop: boolean, sourcePosition: CodeLayoutDragDropReferenceAreaType, referencePanel?: CodeLayoutPanelInternal, referencePosition?: CodeLayoutDragDropReferencePosition): boolean;
 }

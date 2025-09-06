@@ -29,10 +29,14 @@ export function useSimpleTooltipDelayLock() {
   function onLeave() {
     if (hideDelayTimer > 0) 
       clearTimeout(hideDelayTimer);
+    if (showDelayTimer > 0)  {
+      clearTimeout(showDelayTimer);
+      showDelayTimer = 0;
+    }
     hideDelayTimer = setTimeout(() => {
       showState = false;
       leaveState = true;
-    }, 50) as any;
+    }, 250) as any;
   }
 
   return {

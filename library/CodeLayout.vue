@@ -2,6 +2,10 @@
   <CodeLayoutBase 
     ref="codeLayoutBase"
     :config="layoutConfig"
+    :primary="panels.primary"
+    :secondary="panels.secondary"
+    :bottom="panels.bottom"
+    @layoutChange="emit('baseLayoutChange')"
   >
     <template #titleBarBottom>
       <slot name="titleBarBottom" />
@@ -28,8 +32,9 @@
     </template>
     <template #activityBar>
       <div class="top">
+        <slot name="activityBarTop" />
         <!--no menu bar here show collapsed menu button-->
-        <slot v-if="!layoutConfig.menuBar" name="activityBarTopBar">
+        <slot v-if="!layoutConfig.menuBar" name="activityBarTopMenuBar">
           <MenuBar :options="mainMenuConfigWithCollapseState" />
         </slot>
         <!--main activityBar items-->
@@ -40,6 +45,7 @@
           :direction="layoutConfig.primarySideBarPosition"
           @activityBarAcitve="onActivityBarAcitve"
         />
+        <slot name="activityBarEnd" />
       </div>
       <div class="bottom">
         <slot name="activityBarBottom" />
@@ -47,8 +53,9 @@
     </template>
     <template #activityBarSecondary>
       <div class="top">
+        <slot name="activityBarSecondaryTop" />
         <!--no menu bar here show collapsed menu button-->
-        <slot v-if="!layoutConfig.menuBar" name="activityBarSecondaryTopBar">
+        <slot v-if="!layoutConfig.menuBar" name="activityBarSecondaryTopMenuBar">
           <MenuBar :options="mainMenuConfigWithCollapseState" />
         </slot>
         <!--main activityBar items-->
@@ -59,6 +66,7 @@
           :direction="layoutConfig.primarySideBarPosition == 'left' ? 'right' : 'left'"
           @activityBarAcitve="onActivityBarAcitve2"
         />
+        <slot name="activityBarSecondaryEnd" />
       </div>
       <div class="bottom">
         <slot name="activityBarSecondaryBottom" />
@@ -70,8 +78,8 @@
         :group="panels.primary"
         :horizontal="false"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty :panel="panels.primary" grid="primarySideBar">
@@ -86,8 +94,8 @@
         :group="panels.secondary"
         :horizontal="false"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty :panel="panels.secondary" grid="secondarySideBar">
@@ -102,8 +110,8 @@
         :group="panels.bottom"
         :horizontal="true"
       >
-        <template #panelRender="data">
-          <slot name="panelRender" v-bind="data" />
+        <template v-for="(_, name) in $slots" #[name]="data">
+          <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty grid="bottomPanel">
@@ -118,6 +126,12 @@
     <template #statusBar>
       <slot name="statusBar" />
     </template>
+    <template #statusBarLeft>
+      <slot name="statusBarLeft" />
+    </template>
+    <template #statusBarRight>
+      <slot name="statusBarRight" />
+    </template>
   </CodeLayoutBase>
 </template>
 
@@ -129,9 +143,11 @@ import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
-import { usePanelDraggerRoot } from './Composeable/DragDrop';
+import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
 import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
+import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
+import { useKeyBoardControllerTop } from './Composeable/KeyBoardController';
 
 const codeLayoutBase = ref<CodeLayoutBaseInstance>();
 const primarySideBarGroup = ref();
@@ -142,6 +158,7 @@ const activityBarGroup = ref();
 const emit = defineEmits([	
   'canLoadLayout',
   'canSaveLayout',
+  'baseLayoutChange'
 ]);
 const props = defineProps({
   /**
@@ -186,13 +203,14 @@ const { layoutConfig } = toRefs(props);
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
   panelInstances,
+  getRef: () => codeLayoutInstance,
   removePanelInternal,
   childGridActiveChildChanged() {},
   closePanelInternal() {}
 }
 
 const panels = ref({
-  primary: new CodeLayoutGridInternal('primarySideBar', 'hidden', hosterContext, 
+  primary: new CodeLayoutSplitNGridInternal(hosterContext, 'primarySideBar', 'hidden', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.primarySideBar = open;
@@ -201,7 +219,7 @@ const panels = ref({
     primarySideBarGroup.value.forceUpdate();
     activityBarGroup.value.forceUpdate();
   }),
-  secondary: new CodeLayoutGridInternal('secondarySideBar', 'icon', hosterContext,
+  secondary: new CodeLayoutSplitNGridInternal(hosterContext,'secondarySideBar', 'icon', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.secondarySideBar = open;
@@ -209,7 +227,7 @@ const panels = ref({
   () => {
     secondarySideBarGroup.value.forceUpdate();
   }),
-  bottom: new CodeLayoutGridInternal('bottomPanel', 'text', hosterContext,
+  bottom: new CodeLayoutSplitNGridInternal(hosterContext,'bottomPanel', 'text', 
   (open) => {
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.bottomPanel = open;
@@ -218,9 +236,9 @@ const panels = ref({
     bottomPanelGroup.value.forceUpdate();
   }),
 }) as Ref<{
-  primary: CodeLayoutGridInternal,
-  secondary: CodeLayoutGridInternal,
-  bottom: CodeLayoutGridInternal,
+  primary: CodeLayoutSplitNGridInternal,
+  secondary: CodeLayoutSplitNGridInternal,
+  bottom: CodeLayoutSplitNGridInternal,
 }>;
 
 //设置默认的面板拖拽允许
@@ -239,6 +257,9 @@ function loadActivityBarPosition() {
     case 'top':
       panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
       break;
+    case 'bottom':
+      panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
+      break;
   }
   if (layoutConfig.value.secondarySideBarAsActivityBar)
   {
@@ -250,10 +271,27 @@ function loadActivityBarPosition() {
       case 'top':
         panels.value.secondary.tabStyle = 'icon';
         break;
+      case 'bottom':
+        panels.value.secondary.tabStyle = 'icon-bottom';
+        break;
     }
   }
-  else
-    panels.value.secondary.tabStyle = 'icon';
+  else {
+    switch (layoutConfig.value.activityBarPosition) {
+      case 'side':
+        panels.value.secondary.tabStyle = 'icon';
+        break;
+      case 'hidden':
+        panels.value.secondary.tabStyle = 'hidden';
+        break;
+      case 'top':
+        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
+        break;
+      case 'bottom':
+        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
+        break;
+    }
+  }
 }
 
 watch(() => layoutConfig.value.secondarySideBarAsActivityBar, loadActivityBarPosition);
@@ -381,12 +419,10 @@ function dragDropToPanelNear(
   if (reference === panel)
     throw new Error('Can not drop to self, panel : ' + panel.name);
 
-  console.log('dragDropToPanelNear');
-
   //0.1 原父级和目标父级一致(普通容器)
   if (
     oldParent && oldParent === reference.parentGroup
-    && !(oldParent.getIsTabContainer() && reference.parentGroup.getIsTabContainer())
+    && !oldParent.getIsTabContainer() && !reference.parentGroup.getIsTabContainer()
   ) {
     oldParent.removeChild(panel);
     oldParent.addChild(panel, reference.getIndexInParent() + (referencePosition === 'right' || referencePosition === 'down' ? 1 : 0))
@@ -664,7 +700,9 @@ function loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel)
 }
 
 //处理函数
-usePanelDraggerRoot();
+usePanelDraggerRoot(FLAG_CODE_LAYOUT);
+
+useKeyBoardControllerTop();
 
 provide('codeLayoutConfig', layoutConfig);
 provide('codeLayoutLangConfig', props.langConfig);
@@ -699,6 +737,7 @@ function onActivityBarAcitve2(panelGroup: CodeLayoutPanelInternal) {
 
 function getRootGrid(target: CodeLayoutGrid) : CodeLayoutGridInternal {
   switch (target) {
+    case 'rootGrid': return codeLayoutBase.value?.getSplitLayoutRef()?.getRootGrid()!;
     case 'primarySideBar': return panels.value.primary as CodeLayoutGridInternal;
     case 'secondarySideBar': return panels.value.secondary as CodeLayoutGridInternal;
     case 'bottomPanel': return panels.value.bottom as CodeLayoutGridInternal;
