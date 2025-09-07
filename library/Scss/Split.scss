@@ -102,6 +102,7 @@
     width: var(--code-layout-border-size);
     background-color: var(--code-layout-color-border-background);
     cursor: ns-resize;
+    -webkit-user-select: none;
     user-select: none;
     overflow: visible;
 
@@ -127,6 +128,7 @@
   cursor: all-scroll;
   z-index: 20;
   background-color: transparent;
+  -webkit-user-select: none;
   user-select: none;
 }
 
@@ -183,6 +185,7 @@
     overflow: scroll;
     overflow-y: hidden;
     transition: all ease-in-out 0.25s;
+    height: 100%;
 
     .control-item,.code-layout-tooltip-ref {
       height: 100%;
@@ -233,6 +236,7 @@
       .close {
         text-decoration: none;
         color: var(--tab-text-color);
+        -webkit-user-select: none;
         user-select: none;
         display: inline-flex;
         justify-content: center;
