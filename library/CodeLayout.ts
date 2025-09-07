@@ -59,6 +59,8 @@ export interface CodeLayoutConfig {
    * The minimum Width of center area in pixels
    */
   centerMinWidth: number,
+
+  
   /**
    * The layout position of the bottomPanel
    * * left: At the bottom left

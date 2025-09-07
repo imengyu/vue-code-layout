@@ -10,6 +10,12 @@ export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
    * Default: false
    */
   canMinClose?: boolean;
+  /**
+   * Set whether this grid can be stretched when the container is resized.
+   * 
+   * Default: true
+   */
+  stretchable?: boolean;
 
   /**
    * Callback when canMinClose is set to true, and this panel visible was changed by user dragging.
@@ -214,6 +220,8 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
 
+
+  stretchable = true;
   /**
    * Set whether users can close the current panel by continuously shrinking it.
    */

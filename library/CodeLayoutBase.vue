@@ -137,6 +137,7 @@ function loadLayout() {
       panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
       panel.canMinClose = true;
       panel.inhertParentGrid = false;
+      panel.stretchable = false;
       panel.parentGrid = inversePrimary ? 'primarySideBar' : 'secondarySideBar';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
@@ -152,6 +153,7 @@ function loadLayout() {
       panel.inhertParentGrid = false;
       panel.parentGrid = inversePrimary ? 'secondarySideBar' : 'primarySideBar';
       panel.canMinClose = true;
+      panel.stretchable = false;
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();
         inversePrimary? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
@@ -166,6 +168,7 @@ function loadLayout() {
       panel.minSize = config.bottomPanelMinHeight;
       panel.canMinClose = true;
       panel.inhertParentGrid = false;
+      panel.stretchable = false;
       panel.parentGrid = 'bottomPanel';
       panel.onMinCloseChanged = (grid, visible) => {
         setNextNoChangeLayout();

@@ -58,9 +58,9 @@
 <script setup lang="ts">
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMouseDragHandler } from '../Composeable/MouseHandler';
+import { useResizeChecker } from '../Composeable/ResizeChecker';
 import { ref, type PropType, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import type { CodeLayoutSplitNGridInternal } from './SplitN';
-import type { CodeLayoutPanel, CodeLayoutPanelInternal } from '@/CodeLayout';
 
 export interface SplitNInstance {
   applyOrthogonalDragger(type: string, e: MouseEvent): void;
@@ -111,6 +111,7 @@ const props = defineProps({
 const splitBase = ref<HTMLElement>();
 const splitDragging = ref<boolean[]>([]);
 
+let oldSize = 0;
 let baseLeft = 0;
 let dragPanelSplitIndex = 0;
 let dragPanelLeftSize = 0;
@@ -557,6 +558,35 @@ function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referen
 function relayoutAllWithRemovePanel(panel: CodeLayoutSplitNGridInternal) {
   relayoutAllWithResizedSize(-panel.size);
 } 
+//当容器大小改变时，重新布局已存在面板
+function relayoutAllWhenSizeChange(newSize: number) {
+  //全部可以扩展，直接利用百分比，无须调整
+  if (props.grid.childGrid.reduce((a, b) => a && b.stretchable, true))
+    return;
+
+  //对于不能扩展的网格，需要重新计算大小，保持其比例
+  let allUnStretchablSizes = 0;
+  let allOldStretchableSizes = 0;
+  for (const grid of props.grid.childGrid) {
+    if (!grid.stretchable) {
+      const gridRealSize = (grid.size / 100) * oldSize;
+      grid.size = gridRealSize / newSize * 100;
+      allUnStretchablSizes += grid.size;
+    }
+  }
+  for (const grid of props.grid.childGrid) {
+    if (grid.stretchable)
+      allOldStretchableSizes += grid.size;
+  }
+  for (const grid of props.grid.childGrid) {
+    if (grid.stretchable) {
+      const precentOfStretchable = grid.size / allOldStretchableSizes;
+      grid.size = (100 - allUnStretchablSizes) * precentOfStretchable
+    }
+  }
+
+  oldSize = newSize;
+}
 //重新布局
 function relayoutAll() {
   allocZeroGridSize();
@@ -572,6 +602,16 @@ function unloadPanelFunctions(oldValue: CodeLayoutSplitNGridInternal) {
   oldValue.unlistenAllLateAction();
 }
 
+//更改大小后重新布局
+
+const {
+  startResizeChecker,
+  stopResizeChecker
+} = useResizeChecker(splitBase, 
+  props.horizontal ? relayoutAllWhenSizeChange : undefined,
+  props.horizontal ? undefined : relayoutAllWhenSizeChange
+);
+
 watch(() => props.grid, (newValue, oldValue) => {
   unloadPanelFunctions(oldValue);
   loadPanelFunctions();
@@ -583,11 +623,15 @@ watch(() => props.grid.childGrid.length, () => {
 
 onMounted(() => {
   nextTick(() => {
+    if(splitBase.value)
+      oldSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
+    startResizeChecker();
     allocZeroGridSize();
     loadPanelFunctions();
   });
 });
 onBeforeUnmount(() => {
+  stopResizeChecker();
   unloadPanelFunctions(props.grid);
 });
 
