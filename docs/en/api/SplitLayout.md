@@ -272,6 +272,7 @@ Grid type definition of SplitLayout.
 | Property | Description | Type | Default |
 | :----: | :----: | :----: | :----: |
 | canMinClose | Set whether users can close the current panel by continuously shrinking it. | `boolean` | `false` |
+| stretchable | Set whether this grid can be stretched when the container is resized, the non stretchable mesh will maintain a fixed pixel size. | `boolean` | `true` |
 | direction | Layout direction. | `'vertical'│'horizontal'` | `'vertical'` |
 | childGrid | Child grid of this grid. | `CodeLayoutSplitNGridInternal[]` | - |
 

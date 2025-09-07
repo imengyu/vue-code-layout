@@ -5,6 +5,12 @@ nav:
   order: 5
 ---
 
+## v1.2.2 - 2025/09/07
+
+* [Fix] Update vue3-context-menu to 1.5.2 ([#31](https://github.com/imengyu/vue-code-layout/issues/31))
+* [Add] Add stretchable to CodeLayoutSplitNGrid to set grid can be stretched when the container is resized.
+* [Change] Make codelayout side panel keep size when container resize. ([#32](https://github.com/imengyu/vue-code-layout/issues/32))
+
 ## v1.2.1 - 2025/05/06
 
 * [Add] Add panel resize,visible,open change callback (#11).

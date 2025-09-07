@@ -269,9 +269,10 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 
 | 属性 | 描述 | 类型 | 默认值 |
 | :----: | :----: | :----: | :----: |
-| canMinClose | Set whether users can close the current panel by continuously shrinking it. | `boolean` | `false` |
-| direction | Layout direction. | `'vertical' or 'horizontal'` | `'vertical'` |
-| childGrid | Child grid of this grid. | `CodeLayoutSplitNGridInternal[]` | - |
+| canMinClose | 设置用户是否可以通过持续缩放拖拽来关闭当前面板 | `boolean` | `false` |
+| stretchable | 设置容器大小更改时是否可以拉伸此网格，不可拉伸的网格会保持固定大小。 | `boolean` | `true` |
+| direction | 布局方向 | `'vertical' or 'horizontal'` | `'vertical'` |
+| childGrid | 子面板数组 | `CodeLayoutSplitNGridInternal[]` | - |
 
 ### `addGrid(grid: CodeLayoutSplitNGrid): CodeLayoutSplitNPanelInternal`
 
