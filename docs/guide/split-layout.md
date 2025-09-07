@@ -152,8 +152,8 @@ function loadLayout() {
 h2 {
   height: 100%;
   text-align: center;
-  line-height: 100px;
-  margin: 0;
+  line-height: 100px!important;
+  margin: 0!important;
   color: var(--code-layout-color-text-light);
 }
 .demo {

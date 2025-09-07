@@ -735,8 +735,6 @@ CodeLayout 还提供了一些插槽供您使用：
 
 ![CodeLayoutSlots](../images/CodeLayoutSlots.jpg)
 
-[点击查看演示位置]()
-
 * titleBarIcon 标题栏渲染图标位置
 * titleBarMenu 标题栏渲染主菜单位置
 * titleBarCenter 标题栏中心位置
