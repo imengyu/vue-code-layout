@@ -261,40 +261,21 @@ function loadActivityBarPosition() {
       panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
       break;
   }
-  if (layoutConfig.value.secondarySideBarAsActivityBar)
-  {
-    switch (layoutConfig.value.secondaryActivityBarPosition) {
+   switch (layoutConfig.value.secondaryActivityBarPosition) {
       case 'side':
       case 'hidden':
         panels.value.secondary.tabStyle = 'hidden';
         break;
       case 'top':
-        panels.value.secondary.tabStyle = 'icon';
+        panels.value.secondary.tabStyle = layoutConfig.value.secondarySideBar?'icon':'hidden'
         break;
       case 'bottom':
-        panels.value.secondary.tabStyle = 'icon-bottom';
+        panels.value.secondary.tabStyle = layoutConfig.value.secondarySideBar?'icon-bottom':'hidden'
         break;
     }
-  }
-  else {
-    switch (layoutConfig.value.activityBarPosition) {
-      case 'side':
-        panels.value.secondary.tabStyle = 'icon';
-        break;
-      case 'hidden':
-        panels.value.secondary.tabStyle = 'hidden';
-        break;
-      case 'top':
-        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
-        break;
-      case 'bottom':
-        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
-        break;
-    }
-  }
+ 
 }
 
-watch(() => layoutConfig.value.secondarySideBarAsActivityBar, loadActivityBarPosition);
 watch(() => layoutConfig.value.secondaryActivityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBar, loadActivityBarPosition);
