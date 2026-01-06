@@ -55,7 +55,7 @@
         <template #item="{ item: panel, visible, index }">
           <CodeLayoutTabItem
             v-show="visible"
-            :ref="(ref) => tabRefs[index] = ref"
+            :ref="(ref: any) => tabRefs[index] = ref"
             :tabStyle="group.tabStyle"
             :active="group.activePanel === panel"
             :panel="(panel as CodeLayoutPanelInternal)"
