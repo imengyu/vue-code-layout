@@ -25,9 +25,9 @@
       <slot name="titleBarCenter" />
     </template>
     <template #titleBarRight>
-      <CodeLayoutCustomizeLayout 
-        v-if="layoutConfig.titleBarShowCustomizeLayout"
-      />
+      <slot v-if="layoutConfig.titleBarShowCustomizeLayout" name="titleBarCustomizeLayout">
+        <CodeLayoutCustomizeLayout />
+      </slot>
       <slot name="titleBarRight" />
     </template>
     <template #activityBar>
