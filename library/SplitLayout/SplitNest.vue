@@ -48,6 +48,13 @@ defineProps({
     default: false,
   }, 
 });
+defineSlots<{
+  'grid': (props: { grid: CodeLayoutSplitNGridInternal, index: number }) => any;
+}>();
+defineEmits<{
+  (e: 'orthogonalDraggerHover', type: string, hover: boolean) : any;
+  (e: 'orthogonalDraggerDrag', type: string, ev: MouseEvent) : any;
+}>();
 
 const splitLayoutRef = ref<SplitNInstance>();
 const topForceDraggerActiveState = ref(0);

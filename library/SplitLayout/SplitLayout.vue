@@ -235,6 +235,7 @@ let generatePanelNameCount = 0;
  * 拖放面板操作流程
  * 
  * 1. 获取网格
+ *    1.1 如果目标网格和当前父级网格相同，且父级网格只有当前面板，则直接返回不做操作
  * 2. 移除
  *    2.1 目标网格和当前父级网格相同，直接移除而不触发移除收缩
  *    2.2 目标网格和当前父级网格不同，调用 removePanelInternal 触发移除收缩
@@ -282,6 +283,11 @@ function dragDropToPanel(
       return;
 
     const oldParent = panel.parentGroup;
+
+    //1.1 如果目标网格和当前父级网格相同，且父级网格只有当前面板，则直接返回不做操作
+    if (targetGrid === oldParent && oldParent.children.length === 1) {
+      return;
+    }
 
     //2
     if (oldParent !== targetGrid || referencePosition !== 'center' || !toTab)
