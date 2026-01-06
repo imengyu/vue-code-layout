@@ -9,6 +9,7 @@
 | saveBeforeUnload | 是否应该在 `window.beforeunload` 时触发 `canSaveLayout` 事件 | `boolean` | `true` |
 | showTabHeader | 是否显示TAB分组组件，当为 `true` 时，支持一个网格多个子面板，应该在tabContentRender插槽中渲染组件；当为 `false` 时，仅支持网格分割不支持面板与拖拽功能，应该在gridRender中自己渲染内容。 | `boolean` | `true` |
 | rootGridType | 指定根网格的类型，通常用于在多个组件中设置不同的类型以限制互相拖拽 | `CodeLayoutGrid` | `'centerArea'` |
+| rootGridDirection | 指定根网格的方向，通常用于在多个组件中设置不同的方向 | `'horizontal' \| 'vertical'` | `'horizontal'` |
 | layoutConfig | 基础布局数据 | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
 
 ## Events

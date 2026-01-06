@@ -511,6 +511,17 @@ const config = reactive<CodeLayoutConfig>({
 });
 ```
 
+### Drag tip
+
+When an embedded custom component needs to handle dragging, please call `e.stopPropagation()` in its own drag handling function to prevent the event from bubbling, otherwise the event will bubble into the CodeLayout component, making it unable to handle dragging.
+
+```ts
+function onDragOver(e: DragEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+```
+
 ## Saving and Loading Data
 
 CodeLayout supports you to save the layout dragged by the user to JSON data, and then reload it from JSON data to restore the original layout after the next entry.
@@ -781,6 +792,7 @@ CodeLayout are also provided some solts for your use:
 * titleBarMenu: Title bar rendering main menu position
 * titleBarCenter: Title bar center position
 * titleBarRight: Position on the right side of the title bar (VSCode places the close button here)
+* titleBarCustomizeLayout: Customize layout button position, can be used to place a custom layout button or config CodeLayoutCustomizeLayout component
 * titleBarTop: Area above the title bar
 * titleBarBottom: The area at the bottom of the title bar, above the center area, where custom actions can be placed
 
@@ -808,7 +820,6 @@ CodeLayout are also provided some solts for your use:
   * statusBarRight Status Bar right
 
 * emptyGroup No panel in a group, params `{ group }`
-
 
 ## TIP: Component unmont
 

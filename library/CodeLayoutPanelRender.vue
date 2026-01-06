@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type PropType, inject, toRefs, type Ref, onMounted } from 'vue';
+import { ref, computed, type PropType, inject, toRefs, type Ref, onMounted, watch } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import { createMouseDragHandler } from './Composeable/MouseHandler';
 import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from './Composeable/DragDrop';
@@ -183,8 +183,12 @@ function handleDrop(e: DragEvent) {
   resetDragState();
 }
 function handleHeaderClick() {
-  emit('toggleHandler', props.panel, !props.open);
+  props.panel.togglePanel();
 }
+
+watch(() => props.panel.open, (v) => {
+  emit('toggleHandler', props.panel, v);
+});
 
 //拖拽调整大小
 

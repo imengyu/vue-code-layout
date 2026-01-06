@@ -477,12 +477,11 @@ function dragDropToPanelNear(
   ) {
     //2.3.1
 
-    const newGroup = new CodeLayoutPanelInternal(hosterContext);
-    Object.assign(newGroup, {
+    const newGroup = reactive(Object.assign(new CodeLayoutPanelInternal(hosterContext), {
       ...reference,
       name: reference.name + '.clone' + Math.floor(Math.random() * 10),
       children: []
-    });
+    })) as unknown as CodeLayoutPanelInternal;
     reference.open = true;
     newGroup.addChild(reference);
     panelInstances.set(newGroup.name, newGroup);
@@ -739,8 +738,7 @@ function addGroup(panel: CodeLayoutPanel, target: CodeLayoutGrid) {
   if (panelInstances.has(panelInternal.name))
     throw new Error(`A panel named ${panel.name} already exists`);
 
-  const groupResult = reactive(new CodeLayoutPanelInternal(hosterContext));
-  Object.assign(groupResult, panel);
+  const groupResult = reactive(Object.assign(new CodeLayoutPanelInternal(hosterContext), panel));
   groupResult.open = panel.startOpen ?? false;
   groupResult.size = panel.size ?? 0;
   groupResult.accept = panel.accept ?? defaultAccept;

@@ -26,7 +26,11 @@
           >
             <template #tabContentRender="{ panel }">
               <ScrollRect v-if="panel.name === 'test1'">
-                <p>Test drop custom data handler</p>
+                <div>
+                  <button @click="testClosePanel()">Test close CodeLayout panel</button>
+                  <button @click="testCloseGrid()">Test close CodeLayout grid</button>
+                  <button @click="testCloseSplitLayoutPanel()">Test close this SplitLayout panel</button>
+                </div>
                 <TestDropHandler />
               </ScrollRect>
               <vue-monaco-editor
@@ -589,6 +593,30 @@ function testFindPanel() {
     splitLayout.value.getPanelByName("file3")
   );
 }
+function testCloseGrid() {
+  codeLayout.value?.getRootGrid('primarySideBar').closePanel();
+}
+function testClosePanel() {
+  const p = codeLayout.value?.getPanelByName('explorer.file');
+  if (p) {
+    console.log(p);
+    
+    p.togglePanel();
+    console.log(p.name + ' panel ' + (p.open ? 'opened' : 'closed'));
+  }
+  else
+    console.log('panel not found');
+}
+function testCloseSplitLayoutPanel() {
+  const p = splitLayout.value?.getPanelByName('test1');
+  if (p) {
+    p.closePanel();
+    console.log(p.name + ' panel closed');
+  }
+  else
+    console.log('panel not found');
+}
+
 
 const testResizeFit = ref<HTMLElement>();
 

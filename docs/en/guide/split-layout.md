@@ -508,6 +508,17 @@ You can use the `tabHeaderExtraRender` slot to render the tail area of a tab, fo
 * tabHeaderStartRender : Scroll region start of tab header
 * tabHeaderEndRender : Scroll region end of tab header
 
+## Drag tip
+
+When an embedded custom component needs to handle dragging, please call `e.stopPropagation()` in its own drag handling function to prevent the event from bubbling, otherwise the event will bubble into the CodeLayout component, making it unable to handle dragging.
+
+```ts
+function onDragOver(e: DragEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+```
+
 ## Saving and Loading Data
 
 SplitLayout supports you to save user dragged layouts to JSON data, and then reload and restore the original layout from JSON data on the next entry.

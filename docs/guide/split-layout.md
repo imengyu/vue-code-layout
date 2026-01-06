@@ -497,6 +497,18 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
 * tabHeaderStartRender : 标签页滚动区域前部插槽
 * tabHeaderEndRender : 标签页滚动区域后部插槽
 
+## 拖拽提示
+
+当内嵌自定义组件需要处理拖拽时，请在自己的拖拽处理函数中调用 `e.stopPropagation()` 来阻止事件冒泡，否则事件会冒泡至CodeLayout组件内部，使之无法处理拖拽。
+
+```ts
+//在自定义组件中处理拖拽事件
+function onDragOver(e: DragEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+```
+
 ## 保存与加载数据
 
 SplitLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。

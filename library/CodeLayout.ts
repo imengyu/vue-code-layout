@@ -491,8 +491,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     if (this.context.panelInstances.has(panelInternal.name))
       throw new Error(`A panel named ${panel.name} already exists`);
 
-    const panelResult = reactive(new CodeLayoutPanelInternal(this.context));
-    Object.assign(panelResult, panel);
+    const panelResult = reactive(Object.assign(new CodeLayoutPanelInternal(this.context), panel));
     panelResult.children = [];
     panelResult.open = panel.startOpen ?? false;
     panelResult.size = panel.size ?? 0;
@@ -536,27 +535,17 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    * Close this panel.
    */
   closePanel() {
-    if (this.parentGroup) {
-      const group = this.parentGroup;
-      this.parentGroup.reselectActiveChild();
-      group.open = false;
-    } else {
-      throw new Error(`Panel ${this.name} has not in any container, can not active it.`);
-    }
+    this.open = false;
+    this.parentGroup?.reselectActiveChild();
   }
   /**
    * Toggle open state of this panel.
    * @returns Return new open state
    */
   togglePanel() {
-    if (this.parentGroup) {
-      const group = this.parentGroup;
-      this.parentGroup.activePanel = this;
-      group.open = !group.open;
-      return group.open;
-    } else {
-      throw new Error(`Panel ${this.name} has not in any container, can not active it.`);
-    }
+    console.log('togglePanel', this);
+    
+    this.open = !this.open;
   }
 
   /**

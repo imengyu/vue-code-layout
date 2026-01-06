@@ -27,16 +27,27 @@ Editor shell layout component.
 | titleBarIcon | Title bar rendering icon position | - |
 | titleBarMenu | Title bar rendering main menu position | - |
 | titleBarCenter | Title bar center position | - |
-| titleBarRight | Right position of title bar | - |
-| titleBarRight | Bottom position of title bar | - |
-| activityBarTopBar | At the btopottom of the main activity bar | - |
-| activityBarBottom | At the bottom of the main activity bar | - |
-| activityBarSecondaryTopBar | At the btopottom of the secondary activity bar | - |
-| activityBarSecondarBottom | At the bottom of the secondary activity bar | - |
-| emptyGroup | Empty group render slot | `{ panel: CodeLayoutGridInternal }` |
-| centerArea | Central area, where SliptLayout or other editor components can be placed | - |
-| statusBar | Status bar position | - |
-| emptyGroup | Customize rendering of empty group content | `{ grid: CodeLayoutGrid }` |
+| titleBarRight | Position on the right side of the title bar (VSCode places the close button here) | - |
+| titleBarCustomizeLayout | Customize layout button position, can be used to place a custom layout button or config CodeLayoutCustomizeLayout component | - |
+| titleBarTop | Area above the title bar | - |
+| titleBarBottom | The area at the bottom of the title bar, above the center area, where custom actions can be placed | - |
+| activityBarTop | Top of activity bar buttons | - |
+| activityBarEnd | Bottom of activity bar buttons | - |
+| activityBarBottom | At the bottom of the activity bar (where VSCode places the settings button) | - |
+| activityBarSecondaryTop | Secondary activity bar top | - |
+| activityBarSecondaryEnd | Secondary activity bar end | - |
+| activityBarSecondaryBottom | Secondary activity bar bottom | - |
+| tabHeaderLeftStart | Panel Group in tab mode, left of buttons | `{ group }` |
+| tabHeaderLeftEnd | Panel Group in tab mode, right of buttons | `{ group }` |
+| tabHeaderRightStart | Panel Group in tab mode, extra actions start | `{ group }` |
+| tabHeaderRightEnd | Panel Group in tab mode, extra actions end |  `{ group }` |
+| titleBarTitle | Panel Group title |  `{ group, title }` |
+| titleBarActionStart | Panel Group extra actions start |  `{ group }` |
+| titleBarActionEnd | Panel Group extra actions end | `{ group }` |
+| centerArea | The central area of CenterArea, where SliptLayout or other editor core components can be placed | - |
+| statusBarLeft | Status Bar left | - |
+| statusBarRight | Status Bar right | - |
+| emptyGroup | No panel in a group | `{ group }` |
 
 ## CodeLayoutInstance
 
