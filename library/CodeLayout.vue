@@ -170,6 +170,7 @@ const props = defineProps({
   },
   /**
    * Language config
+   * @default { lang: 'en' }
    */
   langConfig: {
     type: Object as PropType<CodeLayoutLangConfig>,
@@ -186,6 +187,7 @@ const props = defineProps({
   },
   /**
    * The empty text when no panel in the group
+   * @default "Drag a view here to display"
    */
   emptyText: {
     type: String,
@@ -193,6 +195,7 @@ const props = defineProps({
   },
   /**
    * Should the canSaveLayout event be triggered when window. beforeupload
+   * @default true
    */
   saveBeforeUnload: {
     type: Boolean,

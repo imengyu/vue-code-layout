@@ -25,8 +25,12 @@
             @canLoadLayout="loadInnerLayout"
           >
             <template #tabContentRender="{ panel }">
+              <ScrollRect v-if="panel.name === 'test1'">
+                <p>Test drop custom data handler</p>
+                <TestDropHandler />
+              </ScrollRect>
               <vue-monaco-editor
-                v-if="panel.name.startsWith('file')"
+                v-else-if="panel.name.startsWith('file')"
                 v-model:value="panel.data.value"
                 :language="panel.data.language"
                 :path="panel.data.path"
@@ -99,6 +103,7 @@ import TestContent1 from '../assets/text/Useage.vue?raw';
 //import TestContent1 from '../assets/text/Useage2.vue?raw';
 import TestContent2 from '../../README.md?raw';
 import SlotDisplay from './SlotDisplay.vue';
+import TestDropHandler from './TestDropHandler.vue';
 
 const props = defineProps({
   enableSave: {
@@ -276,7 +281,7 @@ function onResetAll() {
 
 function loadInnerLayout() {
   if (splitLayout.value) {
-    const grid = splitLayout.value.getRootGrid();
+    const grid = splitLayout.value.getRootGrid();    
     const splitLeft = grid.addGrid({
       name: 'split1',
     });
@@ -297,6 +302,13 @@ function loadInnerLayout() {
       badge: '2',
       iconSmall: () => h(IconVue),
       data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
+    });
+    splitLeft.addPanel({
+      title: 'Test',
+      tooltip: 'A simple test panel',
+      name: 'test1',
+      closeType: 'none',
+      iconSmall: () => h(IconMarkdown),
     });
     splitLeft.addPanel({
       title: 'CodeLayoutHelp.md',
@@ -544,7 +556,6 @@ function loadLayout() {
       };
 
       console.log(bottomGroup);
-      
       console.log(codeLayout.value?.getRootGrid('rootGrid'))
     }
   }
@@ -586,8 +597,6 @@ const { startResizeChecker, stopResizeChecker } = useResizeChecker(testResizeFit
 }, (newHeight) => {
   console.log('testResizeFit Height changed!', newHeight);
 });
-
-
 
 onMounted(() => {
   nextTick(() => {

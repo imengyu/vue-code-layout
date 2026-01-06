@@ -64,6 +64,14 @@ const props = defineProps({
     type: Object as PropType<CodeLayoutSplitNConfig>,
     default: () => defaultSplitLayoutConfig
   },
+  /**
+   * The direction of the root grid.
+   * @default 'horizontal'
+   */
+  rootGridDirection: {
+    type: String as PropType<'horizontal' | 'vertical'>,
+    default: 'horizontal',
+  },
 })
 
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
@@ -77,7 +85,7 @@ const hosterContext : CodeLayoutPanelHosterContext = {
 const rootGrid = ref(new CodeLayoutSplitNGridInternal(hosterContext));
 rootGrid.value.size = 100;
 rootGrid.value.noAutoShink = true;
-rootGrid.value.direction = 'horizontal';
+rootGrid.value.direction = props.rootGridDirection;
 const currentActiveGrid = ref<CodeLayoutSplitNGridInternal|null>(null);
 
 onMounted(() => {
@@ -94,6 +102,10 @@ onBeforeUnmount(() => {
 watch(() => props.rootGridType, (v) => {
   rootGrid.value.accept = [ v ];
   rootGrid.value.parentGrid = props.rootGridType;
+});
+watch(() => props.rootGridDirection, (v) => {
+  rootGrid.value.direction = v;
+  rootGrid.value.notifyRelayout();
 });
 
 function saveLayoutAtUnmount() {

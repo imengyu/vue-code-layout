@@ -232,7 +232,6 @@ export function usePanelDragOverDetector(
            : (horizontal.value ? 'left' : 'up');
       } else {
         dragOverState.value = '';
-        e.stopPropagation();
         e.dataTransfer.dropEffect = 'none';
       }
 
