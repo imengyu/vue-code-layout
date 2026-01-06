@@ -180,7 +180,7 @@ function loadLayout() {
     const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
       const panel = parent.addGrid({
         name: 'centerArea',
-        visible: config.bottomPanelMaximize ? false : true,
+        visible: config.bottomPanelMaximize && config.bottomPanel ? false : true,
         canMinClose: false,
         size: 0,
         minSize: [ config.centerMinWidth, config.centerMinHeight ],

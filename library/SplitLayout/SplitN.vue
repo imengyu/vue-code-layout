@@ -481,11 +481,10 @@ function getAvgAllocSize() {
 function allocZeroGridSize() {
   const allocSize = getAvgAllocSize();
   for (const grid of props.grid.childGrid) {
-    if (grid.size <= 0) {
+    if (grid.visible && grid.size <= 0) {
       grid.size = Math.max(allocSize, getGridMinSize(grid));
-      //console.log('allocZeroGridSize', grid.name, grid.size);
       if (isNaN(grid.size))
-        throw new Error('bad grid.size in ' + grid.name);
+        grid.size = getGridMinSize(grid);
     }
   }
 }

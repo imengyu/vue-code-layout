@@ -642,7 +642,12 @@ onBeforeUnmount(() => {
   stopResizeChecker();
   unloadPanelFunctions(props.group);
 });
-
+watch(() => props.group, (newValue, oldValue) => {
+  if (oldValue)
+    unloadPanelFunctions(oldValue);
+  relayoutAll();
+  loadPanelFunctions();
+});
 </script>
 
 <style lang="scss">
