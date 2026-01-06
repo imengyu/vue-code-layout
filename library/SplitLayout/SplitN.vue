@@ -560,25 +560,30 @@ function relayoutAllWithRemovePanel(panel: CodeLayoutSplitNGridInternal) {
 } 
 //当容器大小改变时，重新布局已存在面板
 function relayoutAllWhenSizeChange(newSize: number) {
+  const grids = props.grid.childGrid.filter(p => p.visible);
+
   //全部可以扩展，直接利用百分比，无须调整
-  if (props.grid.childGrid.reduce((a, b) => a && b.stretchable, true))
+  if (grids
+    .filter(p => p.visible)
+    .reduce((a, b) => a && b.stretchable, true)
+  )
     return;
 
   //对于不能扩展的网格，需要重新计算大小，保持其比例
   let allUnStretchablSizes = 0;
   let allOldStretchableSizes = 0;
-  for (const grid of props.grid.childGrid) {
+  for (const grid of grids) {
     if (!grid.stretchable) {
       const gridRealSize = (grid.size / 100) * oldSize;
       grid.size = gridRealSize / newSize * 100;
       allUnStretchablSizes += grid.size;
     }
   }
-  for (const grid of props.grid.childGrid) {
+  for (const grid of grids) {
     if (grid.stretchable)
       allOldStretchableSizes += grid.size;
   }
-  for (const grid of props.grid.childGrid) {
+  for (const grid of grids) {
     if (grid.stretchable) {
       const precentOfStretchable = grid.size / allOldStretchableSizes;
       grid.size = (100 - allUnStretchablSizes) * precentOfStretchable
