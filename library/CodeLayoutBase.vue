@@ -25,7 +25,7 @@
         <slot name="activityBar" />
       </div>
       <div 
-        v-show="config.secondarySideBarAsActivityBar && config.primarySideBarPosition === 'right' && config.secondaryActivityBarPosition === 'side'" 
+        v-show=" config.primarySideBarPosition === 'right' && config.secondaryActivityBarPosition === 'side'" 
         :class="['code-layout-activity-bar','left']"
       >
         <slot name="activityBarSecondary" />
@@ -56,7 +56,7 @@
         <slot name="activityBar" />
       </div>
       <div 
-        v-show="config.secondarySideBarAsActivityBar && config.primarySideBarPosition === 'left' && config.secondaryActivityBarPosition === 'side'" 
+        v-show=" config.primarySideBarPosition === 'left' && config.secondaryActivityBarPosition === 'side'" 
         :class="['code-layout-activity-bar','right']"
       >
         <slot name="activityBarSecondary" />

@@ -199,7 +199,7 @@ const showTitleBar = computed(() => {
     return false;
   if (layoutConfig.value.activityBarSubGroupShowTitle)
     return group.value.parentGrid === 'primarySideBar' || 
-      (group.value.parentGrid === 'secondarySideBar' && layoutConfig.value.secondarySideBarAsActivityBar);
+      (group.value.parentGrid === 'secondarySideBar');
   return false;
 });
 

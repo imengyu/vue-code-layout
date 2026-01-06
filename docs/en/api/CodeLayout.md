@@ -208,12 +208,11 @@ const config = reactive<CodeLayoutConfig>({
 | primarySideBarMinWidth | The minimum size of the primarySideBar in pixels | `number` | `170` |
 | secondarySideBarWidth | The size of the secondarySideBar (0-100, percentage) | `number` | `20` |
 | secondarySideBarMinWidth | The minimum size of the secondarySideBar in pixels | `number` | `170` |
-| secondarySideBarAsActivityBar | Whether the secondary sidebar appears as an active bar like the primarySidebar | `boolean` | `false` |
 | bottomPanelHeight | The size of the bottomPanel (0-100, percentage) | `number` | `30` |
 | bottomPanelMinHeight | The minimum size of the bottomPanel in pixels | `number` | `40` |
 | panelAlignment | The layout position of the bottomPanel<ul><li>left: At the bottom left</li><li>center: At the bottom center</li><li>right: At the bottom right</li><li>justify: At the bottom center and justify</li><li>left-side: Center left</li><li>right-side: Center right</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | The position of the activityBar<ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
-| secondaryActivityBarPosition | The position of the secondary activityBar (when `secondarySideBarAsActivityBar` is set to `true`) <ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
+| secondaryActivityBarPosition | The position of the secondary activityBar <ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | panelHeaderHeight | The height of the panel title in pixels | `number` | `24` |
 | panelMinHeight | The minimum height (in pixels) for all panels | `number` | `150` |
 | titleBar | Show title bar? | `boolean` | `true` |
