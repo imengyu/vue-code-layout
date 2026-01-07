@@ -205,7 +205,9 @@ const props = defineProps({
 const { layoutConfig } = toRefs(props);
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
-  panelInstances,
+  addPanelInstanceRef: (panel) => panelInstances.set(panel.name, panel),
+  deletePanelInstanceRef: (panelName) => panelInstances.delete(panelName),
+  existsPanelInstanceRef: (panelName) => panelInstances.has(panelName),
   getRef: () => codeLayoutInstance,
   removePanelInternal,
   childGridActiveChildChanged() {},
@@ -231,7 +233,7 @@ const panels = ref({
     secondarySideBarGroup.value.forceUpdate();
   }),
   bottom: new CodeLayoutSplitNGridInternal(hosterContext,'bottomPanel', 'text', 
-  (open) => {
+  (open) => { 
     const _layoutConfig = props.layoutConfig;
     _layoutConfig.bottomPanel = open;
   },
@@ -674,12 +676,15 @@ function loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel)
     gridInstance.notifyRelayout();
   }
 
-  if (json.primary)
+  if (json.primary) {
     loadGrid(json.primary, panels.value.primary as CodeLayoutPanelInternal);
-  if (json.secondary)
+  }
+  if (json.secondary) {
     loadGrid(json.secondary, panels.value.secondary as CodeLayoutPanelInternal);
-  if (json.primary)
+  } 
+  if (json.primary) {
     loadGrid(json.bottom, panels.value.bottom as CodeLayoutPanelInternal);
+  }
 }
 
 //处理函数
@@ -743,8 +748,7 @@ function addGroup(panel: CodeLayoutPanel, target: CodeLayoutGrid) {
   groupResult.size = panel.size ?? 0;
   groupResult.accept = panel.accept ?? defaultAccept;
   groupResult.parentGrid = target;
-
-  panelInstances.set(panelInternal.name, groupResult as CodeLayoutPanelInternal);
+  hosterContext.addPanelInstanceRef(groupResult as CodeLayoutPanelInternal);
   getRootGrid(target).addChild(groupResult as CodeLayoutPanelInternal);
 
   return groupResult as CodeLayoutPanelInternal;

@@ -79,8 +79,8 @@
 
 <script setup lang="ts">
 import { ref, type PropType, watch } from 'vue';
-import type { CodeLayoutConfig, CodeLayoutGridInternal } from './CodeLayout';
-import { type CodeLayoutSplitNGridInternal, type CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
+import type { CodeLayoutConfig } from './CodeLayout';
+import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from './SplitLayout/SplitN';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
 import CodeLayoutTagControl from './CodeLayoutTagControl.vue';
 

@@ -599,8 +599,6 @@ function testCloseGrid() {
 function testClosePanel() {
   const p = codeLayout.value?.getPanelByName('explorer.file');
   if (p) {
-    console.log(p);
-    
     p.togglePanel();
     console.log(p.name + ' panel ' + (p.open ? 'opened' : 'closed'));
   }

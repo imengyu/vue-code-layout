@@ -76,7 +76,9 @@ const props = defineProps({
 
 const panelInstances = new Map<string, CodeLayoutPanelInternal>();
 const hosterContext : CodeLayoutPanelHosterContext = {
-  panelInstances,
+  addPanelInstanceRef: (panel) => panelInstances.set(panel.name, panel),
+  deletePanelInstanceRef: (panelName) => panelInstances.delete(panelName),
+  existsPanelInstanceRef: (panelName) => panelInstances.has(panelName),
   getRef: () => instance,
   removePanelInternal,
   childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),

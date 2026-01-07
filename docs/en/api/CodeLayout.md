@@ -324,6 +324,10 @@ Description:
 
 Open this panel.
 
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
+
 Param：
 
 | Name | Description |
@@ -336,11 +340,19 @@ Description:
 
 Close this panel.
 
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
+
 ### `togglePanel(): void`
 
 Description:
 
 Toggle open state of this panel.
+
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
 
 ### `removeSelfWithShrink(): void`
 

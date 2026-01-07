@@ -331,6 +331,10 @@ const config = reactive<CodeLayoutConfig>({
 
 打开自己面板。
 
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
+
 参数：
 
 | 名称 | 说明 |
@@ -343,11 +347,19 @@ const config = reactive<CodeLayoutConfig>({
 
 关闭自己面板。
 
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
+
 ### `togglePanel(): void`
 
 说明：
 
 切换自己面板的打开状态。
+
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
 
 ### `removeSelfWithShrink(): void`
 

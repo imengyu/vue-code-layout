@@ -1,4 +1,4 @@
-import { reactive, type VNode } from "vue";
+import { isReactive, reactive, type VNode } from "vue";
 import { LateClass } from "./Composeable/LateClass";
 import type { CodeLayoutLangDefine } from "./Language";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
@@ -338,13 +338,15 @@ export interface CodeLayoutInstance {
 //内部类定义
 
 export interface CodeLayoutPanelHosterContext {
-  panelInstances: Map<string, CodeLayoutPanelInternal>;
   /**
    * Get the root layout component instance.
    * 
    * @returns CodeLayoutInstance if in codelayout, CodeLayoutSplitNInstance if in splitlayout.
    */
   getRef(): any;
+  addPanelInstanceRef(panel: CodeLayoutPanelInternal): void,
+  deletePanelInstanceRef(panelName: string): void,
+  existsPanelInstanceRef(panelName: string): boolean,
   childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void,
   removePanelInternal(panel: CodeLayoutPanelInternal): undefined|CodeLayoutPanelInternal;
   closePanelInternal(panel: CodeLayoutPanelInternal): void;
@@ -488,7 +490,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
 
     if (panelInternal.parentGroup)
       throw new Error(`Panel ${panel.name} already added to ${panelInternal.parentGroup.name} !`);
-    if (this.context.panelInstances.has(panelInternal.name))
+    if (this.context.existsPanelInstanceRef(panelInternal.name))
       throw new Error(`A panel named ${panel.name} already exists`);
 
     const panelResult = reactive(Object.assign(new CodeLayoutPanelInternal(this.context), panel));
@@ -517,7 +519,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     return panel;
   }
   /**
-   * Open this panel.
+   * Open this panel. 
+   * * Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
    * @param closeOthers When opening oneself, do you also close other panels at the same level, Default: false
    */
   openPanel(closeOthers = false) {
@@ -533,6 +536,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
   /**
    * Close this panel.
+   * * Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
    */
   closePanel() {
     this.open = false;
@@ -540,6 +544,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   }
   /**
    * Toggle open state of this panel.
+   * * Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
    * @returns Return new open state
    */
   togglePanel() {
@@ -678,7 +683,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
-    this.context.panelInstances.set(child.name, child);
+    this.context.addPanelInstanceRef(child);
   }
   addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number) {
     for (const child of childs) {
@@ -695,7 +700,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       child.parentGroup = this;
       if (child.inhertParentGrid)
         child.parentGrid = this.parentGrid;
-      this.context.panelInstances.set(child.name, child);
+      this.context.addPanelInstanceRef(child);
     }
     if (!this.activePanel)
       this.activePanel = this.children[0];
@@ -706,7 +711,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (child.name === this.activePanel?.name)
       this.reselectActiveChild();
-    this.context.panelInstances.delete(child.name);
+    this.context.deletePanelInstanceRef(child.name);
   }
   replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) {
     this.children.splice(
@@ -719,8 +724,8 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
 
-    this.context.panelInstances.delete(oldChild.name);
-    this.context.panelInstances.set(child.name, child);
+    this.context.deletePanelInstanceRef(oldChild.name);
+    this.context.addPanelInstanceRef(child);
     child.parentGroup = this;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
@@ -811,11 +816,22 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
     this.onActiveSelf?.();
   }
 
+  closePanel(): void {
+    this.collapse(false);
+  }
+  openPanel(closeOthers?: boolean): void {
+    this.collapse(true);
+  }
+  togglePanel(): void {
+    this.collapse(!this.open);
+  }
+
   /**
    * Open or collapse the current top-level grid.
    * @param open Is open?
    */
   collapse(open: boolean) {
+    this.open = open;
     this.onSwitchCollapse?.(open);
   }
 

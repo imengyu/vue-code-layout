@@ -1,5 +1,8 @@
 import { nextTick, reactive, type Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid } from "../CodeLayout";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, 
+  type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, 
+  type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid 
+} from "../CodeLayout";
 import { FLAG_SPLIT_LAYOUT } from "../Composeable/DragDrop";
 
 
@@ -275,17 +278,15 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     
     if (panelInternal.parentGroup)
       throw new Error(`Panel ${panel.name} already added to ${panelInternal.parentGroup.name} !`);
-    if (this.context.panelInstances.has(panelInternal.name))
+    if (this.context.existsPanelInstanceRef(panelInternal.name))
       throw new Error(`A panel named ${panel.name} already exists in this layout`);
   
-    const panelResult = reactive(new CodeLayoutSplitNPanelInternal(this.context));
-    Object.assign(panelResult, panel);
+    const panelResult = reactive(Object.assign(new CodeLayoutSplitNPanelInternal(this.context), panel));
     panelResult.children = [];
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
     this.addChild(panelResult as CodeLayoutSplitNPanelInternal, index);
-    this.context.panelInstances.set(panelInternal.name, panelResult as CodeLayoutSplitNPanelInternal);
-  
+    this.context.addPanelInstanceRef(panelResult as CodeLayoutSplitNPanelInternal);
     return panelResult as CodeLayoutSplitNPanelInternal;
   }
 
