@@ -1,5 +1,5 @@
 <template>
-  <div class="full-container demo">
+  <div class="demo">
     <SplitLayout
       ref="splitLayoutRef"
       :layoutConfig="config"
@@ -12,7 +12,7 @@
       @canSaveLayout="saveLayout"
     >
       <template #tabContentRender="{ panel }">
-        <span v-if="panel.name === 'datahelp'">
+        <span v-if="panel.name === 'datahelp'" class="demo-drag-test">
           Data load and Save Help:
           <br>Drag drop any grid and Refresh page, this page will save your layout data in localStorage.
           <button @click="onResetAll">Reset all to default</button>
@@ -62,7 +62,7 @@ import IconSearch from '../assets/icons/IconSearch.vue';
 import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
-import { ref, onMounted, nextTick, h, onBeforeUnmount, reactive } from 'vue';
+import { ref, onMounted, h, onBeforeUnmount, reactive } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
 import { defaultSplitLayoutConfig, SplitLayout, SplitTabItem } from 'vue-code-layout';
@@ -90,8 +90,8 @@ const icons = [
   IconFile,
 ];
 
-const text1 = ref('IconSearchIconSearchIconSearchIconSearch');
-const text2 = ref('IconMarkdownIconMarkdown');
+const text1 = ref('Test drag text here');
+const text2 = ref('Test drag text here');
 
 const emit = defineEmits([	
   "resetAll"	
@@ -263,7 +263,12 @@ function loadLayout() {
         }
         return panel;
       });
+      console.log('loadLayout from data ', data);
+      
     } else {
+      console.log('loadLayout from new');
+      count = 0;
+      
       const grid1 = grid.addGrid({
         name: 'grid1',
         visible: true,
@@ -376,26 +381,37 @@ h2 {
   display: flex;
   flex-direction: row;
   color: var(--code-layout-color-text-light);
+  width: 100%;
+  height: 100%;
 }
 .demo-pre {
   padding: 10px;
   white-space: pre;
 }
 .demo-drag-test {
+  background-color: #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
-  background-color: var(--code-layout-color-bg);
+  padding: 10px;
   color: var(--code-layout-color-text-light);
 
   textarea {
     width: 50%;
     height: 80%;
-    background-color: var(--code-layout-color-bg); 
     color: #fff;
+    border: none;
+    background-color: var(--code-layout-color-background-hover); 
   }
   input {
     width: 50%;
+    padding: 5px 10px;
     background-color: var(--code-layout-color-bg);
+    border: none;
+    background-color: var(--code-layout-color-background-hover); 
     color: #fff;
   }
 }

@@ -121,7 +121,7 @@ const instance = {
       str += '\n└';
       for (let i = 0; i < intent; i++)
         str += '─';
-      str += `─${g.name} : ${g.size} ${g.direction}`;
+      str += `─${g.name} : ${g.size.toFixed(2)} ${g.direction}`;
       for (const child of g.childGrid) {
         loop(child, intent + 1);
         if (!child.parentGroup)

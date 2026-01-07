@@ -1,93 +1,91 @@
 <template>
-  <div class="full-container">
-    <CodeLayout 
-      ref="codeLayout"
-      :layout-config="config"
-      :main-menu-config="menuData"
-    >
-      <template #titleBarBottom>
-        <SlotDisplay v-if="renderSlots" name="titleBarBottom" />
-        <slot v-else name="extraActions" />
+  <CodeLayout 
+    ref="codeLayout"
+    :layout-config="config"
+    :main-menu-config="menuData"
+  >
+    <template #titleBarBottom>
+      <SlotDisplay v-if="renderSlots" name="titleBarBottom" />
+      <slot v-else name="extraActions" />
+    </template>
+    <template #titleBarIcon>
+      <SlotDisplay v-if="renderSlots" name="titleBarIcon" />
+      <img v-else src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+    </template>
+    <template v-for="name in renderSlotExtras" #[name]>
+      <SlotDisplay v-if="renderSlots" :name="name" />
+    </template>
+    
+    <template #centerArea>
+      <slot name="center">
+        <SplitLayout
+          ref="splitLayout"
+          @panelClose="onPanelClose"
+          @canLoadLayout="loadInnerLayout"
+        >
+          <template #tabContentRender="{ panel }">
+            <ScrollRect v-if="panel.name === 'test1'">
+              <div>
+                <button @click="testClosePanel()">Test close CodeLayout panel</button>
+                <button @click="testCloseGrid()">Test close CodeLayout grid</button>
+                <button @click="testCloseSplitLayoutPanel()">Test close this SplitLayout panel</button>
+              </div>
+              <TestDropHandler />
+            </ScrollRect>
+            <vue-monaco-editor
+              v-else-if="panel.name.startsWith('file')"
+              v-model:value="panel.data.value"
+              :language="panel.data.language"
+              :path="panel.data.path"
+              theme="vs-dark"
+              :options="MONACO_EDITOR_OPTIONS"
+            />
+          </template>
+          <template #tabEmptyContentRender="{ grid }">
+            <h2 :style="{ margin: 0 }">Empty Grid</h2>
+          </template>
+        </SplitLayout>
+      </slot>
+    </template>
+    <template #panelRender="{ panel }">
+      <template v-if="panel.name === 'explorer.file'">
+        <ScrollRect>
+          <img src="../assets/images/placeholder.png">
+        </ScrollRect>
       </template>
-      <template #titleBarIcon>
-        <SlotDisplay v-if="renderSlots" name="titleBarIcon" />
-        <img v-else src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+      <template v-else-if="panel.name === 'explorer.outline'">
+        <ScrollRect>
+          <img src="../assets/images/placeholder2.png">
+        </ScrollRect>
       </template>
-      <template v-for="name in renderSlotExtras" #[name]>
-        <SlotDisplay v-if="renderSlots" :name="name" />
+      <template v-else-if="panel.name === 'search'">
+        <ScrollRect>
+          <img src="../assets/images/placeholder5.png">
+        </ScrollRect>
       </template>
-      
-      <template #centerArea>
-        <slot name="center">
-          <SplitLayout
-            ref="splitLayout"
-            @panelClose="onPanelClose"
-            @canLoadLayout="loadInnerLayout"
-          >
-            <template #tabContentRender="{ panel }">
-              <ScrollRect v-if="panel.name === 'test1'">
-                <div>
-                  <button @click="testClosePanel()">Test close CodeLayout panel</button>
-                  <button @click="testCloseGrid()">Test close CodeLayout grid</button>
-                  <button @click="testCloseSplitLayoutPanel()">Test close this SplitLayout panel</button>
-                </div>
-                <TestDropHandler />
-              </ScrollRect>
-              <vue-monaco-editor
-                v-else-if="panel.name.startsWith('file')"
-                v-model:value="panel.data.value"
-                :language="panel.data.language"
-                :path="panel.data.path"
-                theme="vs-dark"
-                :options="MONACO_EDITOR_OPTIONS"
-              />
-            </template>
-            <template #tabEmptyContentRender="{ grid }">
-              <h2 :style="{ margin: 0 }">Empty Grid</h2>
-            </template>
-          </SplitLayout>
-        </slot>
+      <template v-else-if="panel.name === 'debug.a'">
+        <h1>debug.a</h1>
       </template>
-      <template #panelRender="{ panel }">
-        <template v-if="panel.name === 'explorer.file'">
-          <ScrollRect>
-            <img src="../assets/images/placeholder.png">
-          </ScrollRect>
-        </template>
-        <template v-else-if="panel.name === 'explorer.outline'">
-          <ScrollRect>
-            <img src="../assets/images/placeholder2.png">
-          </ScrollRect>
-        </template>
-        <template v-else-if="panel.name === 'search'">
-          <ScrollRect>
-            <img src="../assets/images/placeholder5.png">
-          </ScrollRect>
-        </template>
-        <template v-else-if="panel.name === 'debug.a'">
-          <h1>debug.a</h1>
-        </template>
-        <template v-else-if="panel.name === 'debug.b'">
-          <h1>debug.b</h1>
-          <p>../assets/images/placeholder5.png</p>
-        </template>
-        <template v-else-if="panel.name === 'bottom.ports'">
-          <div class="test-buttons">
-            <button @click="testPanelActive">Test active debug b</button>
-            <button @click="testFindPanel">Test find panel</button>
-          </div>
-          <img src="../assets/images/placeholder3.png">
-        </template>
-        <template v-else-if="panel.name === 'bottom.terminal'">
-          <img ref="testResizeFit" style="width:100%;height:100%" src="../assets/images/placeholder4.png">
-        </template>
-        <span v-else>Panel {{ panel.name }}, no content</span>
+      <template v-else-if="panel.name === 'debug.b'">
+        <h1>debug.b</h1>
+        <p>../assets/images/placeholder5.png</p>
       </template>
-      <template v-if="!renderSlots" #statusBar>
-        <span>Custom render Status bar area</span>
+      <template v-else-if="panel.name === 'bottom.ports'">
+        <div class="test-buttons">
+          <button @click="testPanelActive">Test active debug b</button>
+          <button @click="testFindPanel">Test find panel</button>
+        </div>
+        <img src="../assets/images/placeholder3.png">
       </template>
-    </CodeLayout>
-  </div>
+      <template v-else-if="panel.name === 'bottom.terminal'">
+        <img ref="testResizeFit" style="width:100%;height:100%" src="../assets/images/placeholder4.png">
+      </template>
+      <span v-else>Panel {{ panel.name }}, no content</span>
+    </template>
+    <template v-if="!renderSlots" #statusBar>
+      <span>Custom render Status bar area</span>
+    </template>
+  </CodeLayout>
 </template>
 
 <script setup lang="ts">
@@ -308,18 +306,18 @@ function loadInnerLayout() {
       data: { value: TestContent1, language: 'vue', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\examples\\views\\BasicUseage.vue', },
     });
     splitLeft.addPanel({
-      title: 'Test',
-      tooltip: 'A simple test panel',
-      name: 'test1',
-      closeType: 'none',
-      iconSmall: () => h(IconMarkdown),
-    });
-    splitLeft.addPanel({
       title: 'CodeLayoutHelp.md',
       tooltip: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md',
       name: 'file3',
       data: { value: TestContent2, language: 'markdown', path: 'F:\\Programming\\WebProjects\\vue-code-layout\\CodeLayoutHelp.md', },
       closeType: 'close',
+      iconSmall: () => h(IconMarkdown),
+    });
+    splitLeft.addPanel({
+      title: 'Test',
+      tooltip: 'A simple test panel',
+      name: 'test1',
+      closeType: 'none',
       iconSmall: () => h(IconMarkdown),
     });
   }

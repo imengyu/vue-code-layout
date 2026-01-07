@@ -1,23 +1,55 @@
 <template>
-  <div class="test">
-    <div class="test-top">
-      <div>
-        <h1>Vue Code layout</h1>
-        <router-link :to="{ name: 'BasicUseage' }" class="link first">Base Layou useage</router-link>
-        <router-link :to="{ name: 'SplitLayout' }" class="link first">Split Layout</router-link>
-        <router-link :to="{ name: 'DataSaveAndLoad' }" class="link first">Load and save</router-link>
-        <router-link :to="{ name: 'SlotsTest' }" class="link first">Slots</router-link>
-        <!-- <router-link :to="{ name: 'Theme' }">Custom Style</router-link> -->
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="app-title">
+            <span class="title-icon">⚙️</span>
+            Vue Code Layout
+          </h1>
+          <nav class="nav-menu">
+            <router-link :to="{ name: 'BasicUseage' }" class="nav-link">
+              <span class="link-icon">🏗️</span>
+              Base Layout
+            </router-link>
+            <router-link :to="{ name: 'SplitLayout' }" class="nav-link">
+              <span class="link-icon">🔀</span>
+              Split Layout
+            </router-link>
+            <router-link :to="{ name: 'DataSaveAndLoad' }" class="nav-link">
+              <span class="link-icon">💾</span>
+              Load & Save
+            </router-link>
+            <router-link :to="{ name: 'SlotsTest' }" class="nav-link">
+              <span class="link-icon">🧩</span>
+              Slots
+            </router-link>
+            <!-- <router-link :to="{ name: 'Theme' }" class="nav-link">
+              <span class="link-icon">🎨</span>
+              Custom Style
+            </router-link> -->
+          </nav>
+        </div>
+        <div class="header-right">
+          <div class="social-badges">
+            <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank" class="badge-link">
+              <img src="https://img.shields.io/npm/v/vue-code-layout.svg?style=for-the-badge" alt="npm version">
+            </a>
+            <a href="https://github.com/imengyu/vue-code-layout/blob/master/LICENSE.md" target="_blank" class="badge-link">
+              <img alt="GitHub License" src="https://img.shields.io/github/license/imengyu/vue-code-layout?style=for-the-badge">
+            </a>
+            <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank" class="badge-link">
+              <img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40imengyu%2Fvue3-context-menu?style=for-the-badge">
+            </a>
+          </div>
+        </div>
       </div>
-      <div>
-        <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank"><img class="m-1" src="https://img.shields.io/npm/v/vue-code-layout.svg?style=for-the-badge" alt="vue-marquee-text-component npm"></a>
-        <a href="https://github.com/imengyu/vue-code-layout/blob/master/LICENSE.md" target="_blank"><img alt="GitHub License" src="https://img.shields.io/github/license/imengyu/vue-code-layout?style=for-the-badge"></a>
-        <a href="https://www.npmjs.com/package/vue-code-layout" target="_blank"><img alt="NPM Downloads" src="https://img.shields.io/npm/d18m/%40imengyu%2Fvue3-context-menu?style=for-the-badge"></a>
+    </header>
+    <main class="app-main">
+      <div class="content-container">
+        <router-view />
       </div>
-    </div>
-    <div class="test-host">
-      <router-view />
-    </div>
+    </main>
   </div>
 </template>
 
@@ -29,193 +61,295 @@ export default defineComponent({})
 <style lang="scss">
 @import "../library/Scss/Base.scss";
 
-html, body, #app {
-  position: relative;
-  width: 100%;
+// 颜色变量定义
+$bg-primary: #1a1a1a;
+$bg-secondary: #2d2d2d;
+$bg-tertiary: #404040;
+$bg-light: rgba(255, 255, 255, 0.95);
+$text-primary: #e0e0e0;
+$text-secondary: #b0b0b0;
+$text-muted: #808080;
+$accent-primary: #666666;
+$accent-hover: #888888;
+$border-color: #333333;
+$shadow-color: rgba(0, 0, 0, 0.3);
+
+// 全局样式重置和基础设置
+* {
+  box-sizing: border-box;
   margin: 0;
-}
-.test {
-  position: relative;
-
-  .test-host {
-    margin-top: 10px;
-    margin-left: 0;
-    margin-right: 0;
-    height: 86vh;
-  }
-  .test-top {
-    padding-top: 20px;
-    padding-right: 150px;
-    height: 40px;
-    margin-left: 80px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-
-    > div {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-end;
-
-      img {
-        margin-left: 10px;
-      }
-    }
-
-    h1 {
-      margin: 0;
-      color: #000;
-      margin-right: 20px;
-    }
-    .link {
-      margin: 0 15px;
-      color: #1a7ff1;
-      text-decoration: underline;
-
-      &.first {
-        margin-left: 0;
-      }
-    }
-  }
-}
-.test-buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 10px;;
+  padding: 0;
 }
 
-.full-container {
-  position: relative;
+html, body, #app {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  background-color: var(--code-layout-color-background);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: $bg-primary;
+  color: $text-primary;
 }
+
+// 主容器
+.app-container {
+  display: flex;
+  flex-direction: column;
+}
+// 头部样式
+.app-header {
+  background: $bg-secondary;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px $shadow-color;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+  }
+}
+
+
+// 应用标题
+.app-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, $accent-primary 0%, $accent-hover 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+
+  .title-icon {
+    font-size: 2rem;
+  }
+}
+
+// 导航菜单
+.nav-menu {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 25px;
+    text-decoration: none;
+    color: $text-secondary;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    background: rgba($accent-primary, 0.1);
+    border: 2px solid transparent;
+
+    &:hover {
+      background: linear-gradient(135deg, $accent-primary 0%, $accent-hover 100%);
+      color: $bg-primary;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba($accent-primary, 0.3);
+    }
+
+    &.router-link-active {
+      background: linear-gradient(135deg, $accent-primary 0%, $accent-hover 100%);
+      color: $bg-primary;
+      box-shadow: 0 4px 15px rgba($accent-primary, 0.2);
+    }
+    .link-icon {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// 社交徽章
+.social-badges {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+
+  .badge-link {
+    display: inline-block;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    } 
+    img {
+      display: block;
+    }
+  }
+}
+
+// 主内容区域
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  .content-container {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    background: $bg-secondary;
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px $shadow-color;
+    overflow: hidden;
+    height: calc(86vh - 4rem);
+    border: 1px solid $border-color;
+  }
+}
+
+button {
+  padding: 5px 10px;
+  background-color: var(--code-layout-color-bg);
+  border: none;
+  background-color: var(--code-layout-color-background-hover); 
+  color: var(--code-layout-color-text); 
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--code-layout-color-background-hover-light); 
+  }
+}
+// 容器样式
 .horbox {
   display: flex;
   flex-direction: row;
   justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
-.box1 {
-  padding: 60px 0;
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  user-select: none;
-  border: 1px solid #3676ff;
-  background-color: #89bffc;
-}
-.box3 {
-  position: relative;
-  padding: 60px 0;
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  user-select: none;
-  border: 1px solid #ff9252;
-  background-color: #ffefbc;
-}
-.box4 {
-  padding: 10px 0;
-  text-align: center;
-  font-size: 14px;
-  border: 1px dashed #ececec;
-  background-color: #dadada;
-}
-.box6 {
-  padding: 60px 0;
-  text-align: center;
-  font-size: 18px;
-  user-select: none;
-  color: #000;
-  background-color: rgb(245, 245, 245);
-  border: 1px dashed #7e7e7e;
-}
-.box5 {
-  padding: 60px 0;
-  text-align: center;
-  font-size: 18px;
-  user-select: none;
-  color: #fff;
-  background-color: #7e7e7e;
-  border: 1px dashed #ececec;
-}
-.box2 {
-  width: 80%;
-  padding: 20px 60px;
-  margin: 0 auto;
-  margin-top: 10px;
-  border-radius: 10px;
-  background-color: #777777;
-  color: #fff;
-}
+
+// 代码样式
 code {
-  border-radius: 10px;
-}
-.grid {
-  display: grid;
-  grid-template-columns: 33.33% 33.33% 33.33%;
-  grid-template-rows: 33.33% 33.33% 33.33%;
-
-  div {
-    position: relative;
-    padding: 10px;
-    text-align: center;
-    font-size: 13px;
-    user-select: none;
-    border: 1px solid #ff9252;
-    background-color: #ffefbc;
-  }
+  border-radius: 8px;
+  background-color: $bg-primary !important;
+  color: $text-primary !important;
+  padding: 0.2rem 0.4rem;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
+// 响应式设计
 @media screen and (max-width: 1200px) {
-  .test {
-    .test-top {
-      height: 90px;
-    }
+  .header-content {
+    padding: 0 1.5rem;
+  }
+  
+  .header-left {
+    gap: 1rem;
+  }
+  
+  .app-title {
+    font-size: 1.5rem;
   }
 }
-@media screen and (max-width: 800px) {
-  .test {
-    .test-top {
-      height: 100px;
-      margin-left: 100px;
 
-      h1 {
-        display: block;
-        font-size: 27px;
-      }
-      a {
-        margin: 0 10px;
-      }
-    }
-  }
-  .fork-img img {
-    width: 100px;
-    height: 100px;
-  }
-  .horbox {
+@media screen and (max-width: 992px) {
+  .header-content {
     flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .nav-menu {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .nav-link {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+  
+  .social-badges {
+    width: 100%;
+    justify-content: center;
   }
 }
 
-@media screen and (max-width: 425px) {
-  .test {
-    .test-top {
-      margin-left: 80px;
-      height: 120px;
-
-      h1 {
-        font-size: 22px;
-      }
-    }
+@media screen and (max-width: 768px) {
+  .app-header {
+    padding: 1rem 0;
   }
-  .fork-img img {
-    width: 80px;
-    height: 80px;
+  
+  .header-content {
+    padding: 0 1rem;
+  }
+  
+  .app-title {
+    font-size: 1.3rem;
+  }
+  
+  .title-icon {
+    font-size: 1.5rem;
+  }
+  
+  .nav-menu {
+    gap: 0.5rem;
+  }
+  
+  .nav-link {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .app-main {
+    padding: 1rem;
+  }
+  
+  .content-container {
+    min-height: calc(86vh - 2rem);
+  }
+  
+  .social-badges {
+    gap: 0.5rem;
+  }
+  
+  .badge-link img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .app-title {
+    font-size: 1.2rem;
+  }
+  
+  .nav-link {
+    min-width: auto;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  .link-icon {
+    display: none;
   }
 }
 </style>
