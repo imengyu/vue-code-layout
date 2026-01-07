@@ -59,7 +59,7 @@ export default defineComponent({})
 </script>
 
 <style lang="scss">
-@import "../library/Scss/Base.scss";
+@use "../library/Scss/Base.scss" as *;
 
 // 颜色变量定义
 $bg-primary: #1a1a1a;
