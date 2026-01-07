@@ -12,6 +12,15 @@
       <SlotDisplay v-if="renderSlots" name="titleBarIcon" />
       <img v-else src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
     </template>
+    <template v-if="renderSlots" #titleBarCustomizeLayout>
+      <CodeLayoutCustomizeLayout
+        :showButtons="[
+          'togglePrimarySideBar',
+          'togglePanel',
+          'toggleSecondarySideBar',
+        ]"
+      />
+    </template>
     <template v-for="name in renderSlotExtras" #[name]>
       <SlotDisplay v-if="renderSlots" :name="name" />
     </template>
@@ -98,7 +107,8 @@ import type { MenuOptions } from '@imengyu/vue3-context-menu';
 import { 
   CodeLayout, SplitLayout, type CodeLayoutSplitNInstance, 
   type CodeLayoutConfig, type CodeLayoutInstance, type CodeLayoutPanelInternal, 
-  defaultCodeLayoutConfig, useResizeChecker
+  defaultCodeLayoutConfig, useResizeChecker,
+  CodeLayoutCustomizeLayout
 } from 'vue-code-layout';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import TestContent1 from '../assets/text/Useage.vue?raw';
