@@ -266,7 +266,7 @@
         padding: 3px;
         border-radius: var(--code-layout-font-size-small);
         font-size: var(--code-layout-font-size-small);
-        min-width: var(--code-layout-font-size-small);
+        min-width: calc(var(--code-layout-font-size-small) * 1.5);
         line-height: var(--code-layout-font-size-small);
         text-align: center;
         background-color: var(--code-layout-color-highlight);

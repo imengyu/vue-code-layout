@@ -1,9 +1,9 @@
-import { isReactive, reactive, type VNode } from "vue";
+import { reactive, type VNode } from "vue";
 import { LateClass } from "./Composeable/LateClass";
 import type { CodeLayoutLangDefine } from "./Language";
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import { PanelMenuBuiltins, type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
 import { FLAG_CODE_LAYOUT } from "./Composeable/DragDrop";
+import { assert, assertNotNull } from "./Utils/Assert";
 
 /**
  * Layout Type Definition
@@ -316,23 +316,6 @@ export interface CodeLayoutInstance {
    * @param name Group name.
    */
   relayoutGroup(name: string): void;
-  /**
-   * Save the layout dragged by the user to the JSON data, and after the next entry, call 'loadLayout' to reload and restore the original layout from the JSON data.
-   * 
-   * Note: Some basic layout data (CodeLayoutConfig) needs to be save after called this function.
-   */
-  saveLayout(): any;
-  /**
-   * Clear all panels.
-   */
-  clearLayout(): void;
-  /**
-   * Load the previous layout from JSON data, will clear all panels,
-   * instantiatePanelCallback will sequentially call all panels, where you can process panel data.
-   * @param json json data from `saveLayout`.
-   * @param instantiatePanelCallback process layout data panel.
-   */
-  loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
 }
 
 //内部类定义
@@ -347,6 +330,7 @@ export interface CodeLayoutPanelHosterContext {
   addPanelInstanceRef(panel: CodeLayoutPanelInternal): void,
   deletePanelInstanceRef(panelName: string): void,
   existsPanelInstanceRef(panelName: string): boolean,
+  clearPanelInstanceRef(): void,
   childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void,
   removePanelInternal(panel: CodeLayoutPanelInternal): undefined|CodeLayoutPanelInternal;
   closePanelInternal(panel: CodeLayoutPanelInternal): void;
@@ -354,16 +338,14 @@ export interface CodeLayoutPanelHosterContext {
 
 export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPanel {
 
-  public constructor(context: CodeLayoutPanelHosterContext) {
-    super();
-    this.context = context;
-  }
-
   private _size = 0;
   private _open = false;
   private _visible = true;
 
-  context: CodeLayoutPanelHosterContext;
+  /**
+   * Host layout context.
+   */
+  hoster: CodeLayoutPanelHosterContext|null = null;
   /**
    * Title of this panel.
    * 
@@ -487,13 +469,11 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
    */
   addPanel(panel: CodeLayoutPanel, startOpen = false, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
-
-    if (panelInternal.parentGroup)
-      throw new Error(`Panel ${panel.name} already added to ${panelInternal.parentGroup.name} !`);
-    if (this.context.existsPanelInstanceRef(panelInternal.name))
-      throw new Error(`A panel named ${panel.name} already exists`);
-
-    const panelResult = reactive(Object.assign(new CodeLayoutPanelInternal(this.context), panel));
+    assert(!panelInternal.parentGroup, `Panel ${panel.name} already added to ${panelInternal.parentGroup?.name} !`)
+    assertNotNull(this.hoster, 'Panel must be added to a layout !');
+    assert(!this.hoster.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists`);
+    const panelResult = reactive(Object.assign(new CodeLayoutPanelInternal(), panel));
+    panelResult.hoster = this.hoster;
     panelResult.children = [];
     panelResult.open = panel.startOpen ?? false;
     panelResult.size = panel.size ?? 0;
@@ -513,7 +493,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     if (panel.parentGroup !== this)
       throw new Error(`Panel ${panel.name} is not child of this group !`);
     if (shrink)
-      this.context.removePanelInternal(panel);
+      this.hoster?.removePanelInternal(panel);
     else
       this.removeChild(panel);
     return panel;
@@ -679,11 +659,12 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     else
       this.children.push(child);
     child.parentGroup = this;
+    child.hoster = this.hoster;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
-    this.context.addPanelInstanceRef(child);
+    this.hoster?.addPanelInstanceRef(child);
   }
   addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number) {
     for (const child of childs) {
@@ -698,9 +679,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       if (this.name === child.name)
         throw new Error('Try add self');
       child.parentGroup = this;
+      child.hoster = this.hoster;
       if (child.inhertParentGrid)
         child.parentGrid = this.parentGrid;
-      this.context.addPanelInstanceRef(child);
+      this.hoster?.addPanelInstanceRef(child);
     }
     if (!this.activePanel)
       this.activePanel = this.children[0];
@@ -708,10 +690,11 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   removeChild(child: CodeLayoutPanelInternal) {
     this.children.splice(this.children.indexOf(child), 1);
     child.parentGroup = null;
+    child.hoster = null;
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (child.name === this.activePanel?.name)
       this.reselectActiveChild();
-    this.context.deletePanelInstanceRef(child.name);
+    this.hoster?.deletePanelInstanceRef(child.name);
   }
   replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) {
     this.children.splice(
@@ -724,14 +707,18 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
 
-    this.context.deletePanelInstanceRef(oldChild.name);
-    this.context.addPanelInstanceRef(child);
+    this.hoster?.deletePanelInstanceRef(oldChild.name);
+    this.hoster?.addPanelInstanceRef(child);
     child.parentGroup = this;
+    child.hoster = this.hoster;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
   }
   hasChild(child: CodeLayoutPanelInternal) {
     return this.children.includes(child);
+  }
+  findChild(name: string) {
+    return this.children.find(child => child.name === name);
   }
 
   lastRelayoutSize = 0;
@@ -786,7 +773,6 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     this.size = json.size;
   }
 }
-
 /**
  * Definition of top-level grid group instance class.
  */
@@ -795,11 +781,10 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
   public constructor(
     name: CodeLayoutGrid,
     tabStyle: CodeLayoutPanelTabStyle,
-    context: CodeLayoutPanelHosterContext,
     onSwitchCollapse: (open: boolean) => void,
     onActiveSelf: () => void,
   ) {
-    super(context);
+    super();
     this.name = name;
     this.tabStyle = tabStyle;
     this.parentGrid = name;

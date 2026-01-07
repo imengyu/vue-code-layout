@@ -61,6 +61,7 @@ import { createMouseDragHandler } from '../Composeable/MouseHandler';
 import { useResizeChecker } from '../Composeable/ResizeChecker';
 import { ref, type PropType, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
 import type { CodeLayoutSplitNGridInternal } from './SplitN';
+import { assertNotNull } from '../Utils/Assert';
 
 export interface SplitNInstance {
   applyOrthogonalDragger(type: string, e: MouseEvent): void;
@@ -203,8 +204,7 @@ function adjustAndReturnAdjustedSize(
  * @returns 返回百分比
  */
 function getGridMinSize(grid: CodeLayoutSplitNGridInternal) {
-  if (!splitBase.value)
-    throw new Error('!splitBase.value');
+  assertNotNull(splitBase.value, '!splitBase.value');
   const containerSize = props.horizontal ? 
     splitBase.value.offsetWidth : 
     splitBase.value.offsetHeight;
@@ -451,8 +451,7 @@ const dragHandler = createMouseDragHandler<number>({
 
 //获取当前容器可分配的大小
 function getCanAllocSize() {
-  if (!splitBase.value)
-    throw new Error('!splitBase.value');
+  assertNotNull(splitBase.value, '!splitBase.value');
   const containerSize = props.horizontal ? 
     splitBase.value.offsetWidth : 
     splitBase.value.offsetHeight;
@@ -498,11 +497,7 @@ function allocZeroGridSize() {
  * @param resizedContainerSize 变化的大小，负数为放大，正数为缩小 (容器百分比)
  */
 function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
-
-  //console.log('relayoutAllWithResizedSize', resizedContainerSizePrecent);
-  
-  if (!splitBase.value)
-    throw new Error('!splitBase.value');
+  assertNotNull(splitBase.value, '!splitBase.value');
 
   const containerSizePrecent = 100;
   const containerSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;

@@ -38,6 +38,7 @@ import { useResizeChecker } from './Composeable/ResizeChecker';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
 import HtmlUtils from './Utils/HtmlUtils';
 import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector } from './Composeable/DragDrop';
+import { assertNotNull } from './Utils/Assert';
 
 const container = ref<HTMLElement>();
 const resizeDragging = ref(false);
@@ -381,8 +382,7 @@ function flushLayoutSizeCounter() {
 
 //获取当前容器可分配的大小
 function getCanAllocSize() {
-  if (!container.value)
-    throw new Error('No container');
+  assertNotNull(container.value, 'No container');
   const containerSize = props.horizontal ? container.value.offsetWidth : container.value.offsetHeight;
   const headerSize = layoutConfig.value.panelHeaderHeight;
 

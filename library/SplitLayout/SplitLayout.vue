@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, type Ref, type PropType, watch, onMounted, nextTick, onBeforeUnmount } from 'vue';
+import { ref, provide, type Ref, type PropType, watch, onMounted, nextTick, onBeforeUnmount, computed } from 'vue';
 import { type CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutGrid, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig } from '../CodeLayout';
 import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig } from './SplitN';
 import SplitNest from './SplitNest.vue';
@@ -32,28 +32,13 @@ const emit = defineEmits([
   'panelActive',
   'panelDrop',
   'gridActive',
-  'canLoadLayout',
-  'canSaveLayout',
+  'update:layoutData'
 ]);
 const props = defineProps({
-  /**
-   * Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging
-   */
-  rootGridType: {
-    type: String as PropType<CodeLayoutGrid>,
-    default: 'centerArea',
-  },
   /**
    * Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender.
    */
   showTabHeader: {
-    type: Boolean,
-    default: true,
-  },
-  /**
-   * Should save layout in window.beforeunload
-   */
-  saveBeforeUnload: {
     type: Boolean,
     default: true,
   },
@@ -65,12 +50,11 @@ const props = defineProps({
     default: () => defaultSplitLayoutConfig
   },
   /**
-   * The direction of the root grid.
-   * @default 'horizontal'
+   * Layout data
    */
-  rootGridDirection: {
-    type: String as PropType<'horizontal' | 'vertical'>,
-    default: 'horizontal',
+  layoutData: {
+    type: Object as PropType<CodeLayoutSplitNGridInternal>,
+    default: () => ({})
   },
 })
 
@@ -79,40 +63,18 @@ const hosterContext : CodeLayoutPanelHosterContext = {
   addPanelInstanceRef: (panel) => panelInstances.set(panel.name, panel),
   deletePanelInstanceRef: (panelName) => panelInstances.delete(panelName),
   existsPanelInstanceRef: (panelName) => panelInstances.has(panelName),
+  clearPanelInstanceRef: () => panelInstances.clear(),
   getRef: () => instance,
   removePanelInternal,
   childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
   closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
 }
-const rootGrid = ref(new CodeLayoutSplitNGridInternal(hosterContext));
-rootGrid.value.size = 100;
-rootGrid.value.noAutoShink = true;
-rootGrid.value.direction = props.rootGridDirection;
+const rootGrid = computed(() => {
+  props.layoutData.hoster = hosterContext;
+  props.layoutData.noAutoShink = true;
+  return props.layoutData;
+});
 const currentActiveGrid = ref<CodeLayoutSplitNGridInternal|null>(null);
-
-onMounted(() => {
-  rootGrid.value.accept = [ props.rootGridType ];
-  rootGrid.value.parentGrid = props.rootGridType;
-  emit('canLoadLayout', instance);
-  if (props.saveBeforeUnload)
-    window.addEventListener('beforeunload', saveLayoutAtUnmount)
-});
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', saveLayoutAtUnmount);
-  saveLayoutAtUnmount();
-})
-watch(() => props.rootGridType, (v) => {
-  rootGrid.value.accept = [ v ];
-  rootGrid.value.parentGrid = props.rootGridType;
-});
-watch(() => props.rootGridDirection, (v) => {
-  rootGrid.value.direction = v;
-  rootGrid.value.notifyRelayout();
-});
-
-function saveLayoutAtUnmount() {
-  emit('canSaveLayout', instance);
-}
 
 const instance = {
   getGridTreeDebugText: () => {
@@ -155,40 +117,6 @@ const instance = {
   activePanel(name) {
     panelInstances.get(name)?.activeSelf();
   },
-  clearLayout() {
-    rootGrid.value.childGrid.splice(0);
-    rootGrid.value.children.splice(0);
-    panelInstances.clear();
-  },
-  loadLayout(json, instantiatePanelCallback) {
-    if (!json)
-      return;
-    this.clearLayout();
-
-    function loadGrid(grid: any, gridInstance: CodeLayoutSplitNGridInternal) {
-      gridInstance.loadFromJson(grid);
-
-      if (grid.childGrid instanceof Array && grid.childGrid.length > 0) {
-        for (const childGrid of grid.childGrid) {
-          const childGridInstance = new CodeLayoutSplitNGridInternal(hosterContext);
-          loadGrid(childGrid, childGridInstance);
-          gridInstance.addChildGrid(childGridInstance);
-        }
-        gridInstance.notifyRelayout()
-      } else if (grid.childGrid instanceof Array) {
-        for (const childPanel of grid.children) {
-          const data = instantiatePanelCallback(childPanel);
-          const panel = gridInstance.addPanel(data);
-          panel.loadFromJson(childPanel);
-        }
-      }
-    }
-
-    loadGrid(json, rootGrid.value as CodeLayoutSplitNGridInternal);
-    rootGrid.value.notifyRelayout();
-  },
-  saveLayout: () => rootGrid.value.toJson(),
-  
 } as CodeLayoutSplitNInstance;
 
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);
@@ -338,7 +266,7 @@ function dragDropToPanel(
       )
     )) {
       //3.2
-      const newGrid = new CodeLayoutSplitNGridInternal(targetGridParent.context);//新面板包围的网格
+      const newGrid = new CodeLayoutSplitNGridInternal();//新面板包围的网格
       Object.assign(newGrid, {
         ...targetGrid,
         direction: targetGrid.direction,
@@ -362,8 +290,8 @@ function dragDropToPanel(
     } else {
       //3.3
       const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
-      const newGridTop = new CodeLayoutSplitNGridInternal(targetGrid.context);//上级包围的网格
-      const newGrid = new CodeLayoutSplitNGridInternal(targetGrid.context);//新面板包围的网格
+      const newGridTop = new CodeLayoutSplitNGridInternal();//上级包围的网格
+      const newGrid = new CodeLayoutSplitNGridInternal();//新面板包围的网格
       Object.assign(newGrid, {
         ...targetGrid,
         direction: targetGrid.direction === 'vertical' ? 'horizontal' : 'vertical',//相对的方向
@@ -398,10 +326,8 @@ function dragDropToPanel(
 
       newGrid.setActiveChild(panel);
 
-      if (targetGrid === rootGrid.value) {
-        rootGrid.value = newGridTop;
-        rootGrid.value.noAutoShink = true;
-      }
+      if (targetGrid === rootGrid.value)
+        emit('update:layoutData', newGridTop);
       else {
         if (!oldTargetGridParent)
           throw new Error('oldTargetGridParent is null');

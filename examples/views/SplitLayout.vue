@@ -1,60 +1,55 @@
 <template>
-  <div class="demo">
-    <SplitLayout
-      ref="splitLayoutRef"
-      :layoutConfig="config"
-      @panelClose="onPanelClose"
-      @panelDrop="onPanelDrop"
-      @panelActive="onPanelActive"
-      @panelContextMenu="onPanelMenu"
-      @gridActive="onGridActive"
-      @canLoadLayout="loadLayout"
-      @canSaveLayout="saveLayout"
-    >
-      <template #tabContentRender="{ panel }">
-        <span v-if="panel.name === 'datahelp'" class="demo-drag-test">
-          Data load and Save Help:
-          <br>Drag drop any grid and Refresh page, this page will save your layout data in localStorage.
-          <button @click="onResetAll">Reset all to default</button>
-        </span>
-        <div v-else-if="panel.name === 'dragtest'" class="demo-drag-test">
-          <textarea v-model="text1"></textarea>
-          <input v-model="text2" type="text" />
-        </div>
-        <h2 v-else :style="{ backgroundColor: colors[panel.data] }">
-          Grid {{ panel.name }} {{ (panel.parentGroup as CodeLayoutSplitNGridInternal).direction }}
-        </h2>
-      </template>
-      <template #tabEmptyContentRender="{ grid }">
-        <h2>
-          Empty Grid {{ grid.name }} {{ grid.direction }}
-          <br><button @click="onAddPanel(grid)">+ Add Panel</button>
-        </h2>
-      </template>
-      <template #tabHeaderExtraRender="{ grid }">
+  <SplitLayout
+    ref="splitLayoutRef"
+    :layoutConfig="config"
+    :layoutData="(layoutData as CodeLayoutSplitNRootGrid)"
+    @panelClose="onPanelClose"
+    @panelActive="onPanelActive"
+    @panelContextMenu="onPanelMenu"
+    @gridActive="onGridActive"
+  >
+    <template #tabContentRender="{ panel }">
+      <span v-if="panel.name === 'datahelp'" class="demo-drag-test">
+        Data load and Save Help:
+        <br>Drag drop any grid and Refresh page, this page will save your layout data in localStorage.
+        <button @click="onResetAll">Reset all to default</button>
+      </span>
+      <div v-else-if="panel.name === 'dragtest'" class="demo-drag-test">
+        <textarea v-model="text1"></textarea>
+        <input v-model="text2" type="text" />
+      </div>
+      <GridPlaceholder 
+        v-else 
+        :name="panel.name"
+        :direction="(panel.parentGroup as CodeLayoutSplitNGridInternal).direction"
+        :color="colors[panel.data]"
+      />
+    </template>
+    <template #tabEmptyContentRender="{ grid }">
+      <GridPlaceholder :name="'Empty ' + grid.name" :direction="grid.direction" flat>
         <button @click="onAddPanel(grid)">+ Add Panel</button>
-      </template>
-      <template #tabItemRender="{ index, panel, states }">
-        <SplitTabItem 
-          :panel="(panel as CodeLayoutSplitNPanelInternal)"
-          :states="states"
-        >
-          <template #title>
-            <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
-          </template>
-        </SplitTabItem>
-      </template>
-      <template v-for="name in renderSlotExtras" #[name]>
-        <SlotDisplay v-if="renderSlots" :name="name" />
-      </template>
-    </SplitLayout>
-    <div v-if="showData" class="demo-pre">
-      <button @click="onPanelReset()">Reset All Panel</button>
-      <button @click="onPanelDrop()">Refresh Panel Tree</button>
-      <br>
-      {{ debugGridTreeText }} 
-    </div>
-  </div>
+      </GridPlaceholder>
+    </template>
+    <template #tabHeaderExtraRender="{ grid }">
+      <SimpleTooltip content="Add Panel">
+        <button @click="onAddPanel(grid)" t>+</button>
+      </SimpleTooltip>
+    </template>
+    <template #tabItemRender="{ index, panel, states }">
+      <SplitTabItem 
+        :panel="(panel as CodeLayoutSplitNPanelInternal)"
+        :states="states"
+      >
+        <template #title>
+          <!-- Customize title color -->
+          <span :style="{ color: colors[panel.data] }">{{ panel.title }}</span>
+        </template>
+      </SplitTabItem>
+    </template>
+    <template v-for="name in renderSlotExtras" #[name]>
+      <SlotDisplay v-if="renderSlots" :name="name" />
+    </template>
+  </SplitLayout>
 </template>
 
 <script setup lang="ts">
@@ -62,25 +57,25 @@ import IconSearch from '../assets/icons/IconSearch.vue';
 import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
-import { ref, onMounted, h, onBeforeUnmount, reactive } from 'vue';
+import { ref, h, reactive } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
-import type { CodeLayoutSplitNGridInternal, CodeLayoutSplitNInstance } from 'vue-code-layout';
-import { defaultSplitLayoutConfig, SplitLayout, SplitTabItem } from 'vue-code-layout';
+import type { CodeLayoutSplitNGridInternal } from 'vue-code-layout';
+import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, SplitTabItem, SimpleTooltip } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
-import SlotDisplay from './SlotDisplay.vue';
+import SlotDisplay from '../components/SlotDisplay.vue';
+import { useLocalStorage } from '@/utils/SaveUtils';
+import GridPlaceholder from '@/components/GridPlaceholder.vue';
 
 const colors = [
-  '#fb0',
-  '#f00',
-  '#090',
-  '#02a',
-  '#155',
   '#f0f',
-  '#0a4',
-  '#cc0',
-  '#f80',
   '#f08',
-  '#0a8',
+  '#f00',
+  '#f80',
+  '#fb0',
+  '#cc0',
+  '#090',
+  '#0a4',
+  '#00a2ff',
   '#08f',
 ]
 const icons = [
@@ -89,7 +84,11 @@ const icons = [
   IconVue,
   IconFile,
 ];
+function getRandomIcon() {
+  return icons[Math.floor(Math.random() * icons.length)];
+}
 
+let count = 0;
 const text1 = ref('Test drag text here');
 const text2 = ref('Test drag text here');
 
@@ -116,13 +115,6 @@ const renderSlotExtras = props.renderSlots ? [
   'tabHeaderExtraRender', 'tabHeaderExtraEndRender', 
 ] : []
 
-function getRandomIcon() {
-  return icons[Math.floor(Math.random() * icons.length)];
-}
-
-const debugGridTreeText = ref('');
-const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
-
 const config = reactive<CodeLayoutSplitNConfig>({
   ...defaultSplitLayoutConfig,
   onNonPanelDrag(e, sourcePosition) {
@@ -137,13 +129,12 @@ const config = reactive<CodeLayoutSplitNConfig>({
     console.log('用户拖拽文件', e.dataTransfer?.files[0].name, sourcePosition, reference, referencePosition);
   },
 });
-
-let count = 0;
+const layoutData = ref(new CodeLayoutSplitNRootGrid());
+layoutData.value.direction = 'horizontal';
 
 function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
   console.log('onPanelClose', panel.name);
   resolve();
-  getDebugGridTreeText();
 }
 function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
   count++;
@@ -154,13 +145,6 @@ function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
     data: count,
     iconSmall: () => h(getRandomIcon()),
   });
-  getDebugGridTreeText();
-}
-function onPanelDrop() {
-  getDebugGridTreeText();
-}
-function onPanelReset() {
-  onResetAll();
 }
 function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
   e.stopPropagation();
@@ -221,15 +205,10 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
     ],
   });
 }
-
-function getDebugGridTreeText() {
-  debugGridTreeText.value = splitLayoutRef.value?.getGridTreeDebugText() ?? '';
-}
-
 function onResetAll() {
   localStorage.setItem('SplitLayoutDemoSaveData', '');
-  splitLayoutRef.value?.clearLayout();
-  loadLayout();
+  layoutData.value.clearLayout();
+  clearData();
   emit('resetAll');
 }
 function onPanelActive(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
@@ -239,134 +218,108 @@ function onGridActive(old: CodeLayoutSplitNGridInternal, grid: CodeLayoutSplitNG
   console.log('onGridActive', old?.name ?? 'null', '->', grid?.name ?? 'null');
 }
 
-
-function loadLayout() {
-  if (splitLayoutRef.value) {
-    const grid = splitLayoutRef.value.getRootGrid();
-    grid.direction = 'horizontal';
-
-    const data = localStorage.getItem('SplitLayoutDemoSaveData');
-    if (props.enableSave && data) {
-      //If load layout from data, need fill panel data
-      splitLayoutRef.value.loadLayout(JSON.parse(data), (panel) => {
-        if (panel.name === 'datahelp') {
-          panel.title = `Data load and Save Help`;
-          panel.tooltip = `Help`;
-          panel.iconSmall = () => h(IconMarkdown);
-        } else {
-          count++;
-          panel.title = `Panel${count}`;
-          panel.tooltip = `Panel${count} tooltip`;
-          panel.iconSmall = () => h(getRandomIcon());
-          panel.closeType = count === 1 ? 'unSave' : 'close';
-          panel.data = count;
-        }
-        return panel;
-      });
-      console.log('loadLayout from data ', data);
-      
-    } else {
-      console.log('loadLayout from new');
-      count = 0;
-      
-      const grid1 = grid.addGrid({
-        name: 'grid1',
-        visible: true,
-        size: 0,
-        closeType: 'close',
-      });
-      const grid2 = grid.addGrid({
-        name: 'grid2',
-        visible: true,
-        size: 0,
-        minSize: 100,
-      });
-      const grid3 = grid1.addGrid({
-        name: 'grid3',
-        visible: true,
-        size: 0,
-        minSize: 0,
-      });
-      const grid4 = grid1.addGrid({
-        name: 'grid4',
-        visible: true,
-        size: 0,
-        minSize: 100,
-        canMinClose: true,
-      });
-
-      grid3.addPanel({
-        title: `Drag test`,
-        tooltip: `Drag test`,
-        name: `dragtest`,
-        data: count,
-        iconSmall: () => h(getRandomIcon()),
-      });
-      for (let i = 0; i < 8; i++) {
+//Save layout data to local storage
+const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) => {
+  if (data) {
+    //If load layout from data, need fill panel data
+    layoutData.value.loadLayout(data, (panel) => {
+      if (panel.name === 'datahelp') {
+        panel.title = `Data load and Save Help`;
+        panel.tooltip = `Help`;
+        panel.iconSmall = () => h(IconMarkdown);
+      } else {
         count++;
-        grid3.addPanel({
-          title: `Panel${count}`,
-          tooltip: `Panel${count} tooltip`,
-          name: `panel${count}`,
-          closeType: i === 0 ? 'unSave' : 'close',
-          iconSmall: () => h(getRandomIcon()),
-          data: i,
-        });
+        panel.title = `Panel${count}`;
+        panel.tooltip = `Panel${count} tooltip`;
+        panel.iconSmall = () => h(getRandomIcon());
+        panel.closeType = count === 1 ? 'unSave' : 'close';
+        panel.data = count;
       }
-
+      return panel;
+    });
+    console.log('loadLayout from data ', data);
+  } else {
+    console.log('loadLayout from new');
+    const grid = layoutData.value;
+    const grid1 = grid.addGrid({
+      name: 'grid1',
+      visible: true,
+      size: 0,
+      closeType: 'close',
+    });
+    const grid2 = grid.addGrid({
+      name: 'grid2',
+      visible: true,
+      size: 0,
+      minSize: 100,
+    });
+    const grid3 = grid1.addGrid({
+      name: 'grid3',
+      visible: true,
+      size: 0,
+      minSize: 0,
+    });
+    const grid4 = grid1.addGrid({
+      name: 'grid4',
+      visible: true,
+      size: 0,
+      minSize: 100,
+      canMinClose: true,
+    });
+    for (let i = 0; i < 8; i++) {
       count++;
-      grid2.addPanel({
-        title: `Panel with actions`,
+      grid3.addPanel({
+        title: `Panel${count}`,
         tooltip: `Panel${count} tooltip`,
         name: `panel${count}`,
-        closeType: 'close',
-        badge: '2',
+        closeType: i === 0 ? 'unSave' : 'close',
         iconSmall: () => h(getRandomIcon()),
-        actions: [
-          {
-            icon: () => h(IconSearch),
-            tooltip: 'Search',
-            onClick: () => {
-              console.log('Search');
-            },
-          },
-        ],
-        data: count,
+        data: i,
       });
-
-      getDebugGridTreeText();
-
-      if (props.enableSave) {
-        grid4.addPanel({
-          title: `Data load and Save Help`,
-          tooltip: `Help`,
-          name: `datahelp`,
-          iconSmall: () => h(IconMarkdown),
-        });
-      }
-
-      const file1 = splitLayoutRef.value.getPanelByName('file1')
-      
-      file1?.closePanel()
-
-      grid.notifyRelayout();
     }
+    grid3.addPanel({
+      title: `Drag test`,
+      tooltip: `Drag test`,
+      name: `dragtest`,
+      data: count,
+      closeType: 'close',
+      iconSmall: () => h(getRandomIcon()),
+    });
+    count++;
+    grid2.addPanel({
+      title: `Panel with actions`,
+      tooltip: `Panel${count} tooltip`,
+      name: `panel${count}`,
+      closeType: 'close',
+      badge: '2',
+      iconSmall: () => h(getRandomIcon()),
+      actions: [
+        {
+          icon: () => h(IconSearch),
+          tooltip: 'Search',
+          onClick: () => {
+            console.log('Search');
+          },
+        },
+      ],
+      data: count,
+    });
+    if (props.enableSave) {
+      grid4.addPanel({
+        title: `Data load and Save Help`,
+        tooltip: `Help`,
+        name: `datahelp`,
+        iconSmall: () => h(IconMarkdown),
+      });
+    }
+    grid.notifyRelayout();
   }
-}
-function saveLayout() {
-  if (props.enableSave && splitLayoutRef.value) {
-    localStorage.setItem('SplitLayoutDemoSaveData', JSON.stringify(splitLayoutRef.value.saveLayout()));
-  }
-
-  splitLayoutRef.value?.getActiveGird()?.activePanel
-}
-
-onMounted(() => {
-  window.addEventListener('beforeunload', saveLayout);
+}, () => {
+  //Save to json
+  console.log('saveLayout', layoutData.value);
+  return layoutData.value.children.length > 0 ? layoutData.value.saveLayout() : null;
 });
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', saveLayout);
-})
+
 </script>
 
 <style scoped>
@@ -375,6 +328,7 @@ h2 {
   text-align: center;
   line-height: 100px;
   margin: 0;
+  background-color: #00a2ff;
   color: var(--code-layout-color-text-light);
 }
 .demo {
