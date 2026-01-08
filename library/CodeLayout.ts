@@ -1,9 +1,11 @@
 import { reactive, type VNode } from "vue";
 import { LateClass } from "./Composeable/LateClass";
-import type { CodeLayoutLangDefine } from "./Language";
 import { PanelMenuBuiltins, type PanelMenuRegistryItem } from "./Composeable/PanelMenu";
 import { FLAG_CODE_LAYOUT } from "./Composeable/DragDrop";
-import { assert, assertNotNull } from "./Utils/Assert";
+import { assert, requireNotNull } from "./Utils/Assert";
+import type { CodeLayoutLangDefine } from "./Language";
+import type { CodeLayoutRootGrid } from "./CodeLayoutRootGrid";
+import { defaultAccept } from "./CodeLayoutConsts";
 
 /**
  * Layout Type Definition
@@ -283,6 +285,11 @@ export type CodeLayoutPanelCloseType = 'unSave'|'close'|'none';
  */
 export interface CodeLayoutInstance {
   /**
+   * Create a root grid instance.
+   * @returns Root grid instance.
+   */
+  createRootGrid(): CodeLayoutRootGrid,
+  /**
    * Get panel instance by name.
    * @param name The panel name.
    * @returns Found panel instance, if this panel is not found in the component, return undefined
@@ -319,21 +326,58 @@ export interface CodeLayoutInstance {
 }
 
 //内部类定义
-
-export interface CodeLayoutPanelHosterContext {
+export interface CodeLayoutRootRefDefine {
   /**
    * Get the root layout component instance.
    * 
    * @returns CodeLayoutInstance if in codelayout, CodeLayoutSplitNInstance if in splitlayout.
    */
   getRef(): any;
-  addPanelInstanceRef(panel: CodeLayoutPanelInternal): void,
-  deletePanelInstanceRef(panelName: string): void,
-  existsPanelInstanceRef(panelName: string): boolean,
-  clearPanelInstanceRef(): void,
   childGridActiveChildChanged(panel: CodeLayoutPanelInternal): void,
   removePanelInternal(panel: CodeLayoutPanelInternal): undefined|CodeLayoutPanelInternal;
   closePanelInternal(panel: CodeLayoutPanelInternal): void;
+}
+export class CodeLayoutRootRef {
+  private _rootGrid: CodeLayoutRootRefDefine|undefined;
+  private panelInstances = new Map<string, CodeLayoutPanelInternal>();
+
+  constructor(rootGrid?: CodeLayoutRootRefDefine|undefined) {
+    this._rootGrid = rootGrid;
+  }
+  setRoot(rootGrid: CodeLayoutRootRefDefine|null) {
+    this._rootGrid = rootGrid ?? undefined;
+  }
+  /**
+   * Get the root layout component instance.
+   * 
+   * @returns CodeLayoutRootRefDefine
+   */
+  getRoot() {
+    return requireNotNull(this._rootGrid);
+  }
+  /**
+   * Get panel instance by name.
+   * @param name The panel name.
+   * @returns Found panel instance, if this panel is not found in the component, return undefined
+   */
+  getPanelByName(name: string): CodeLayoutPanelInternal | undefined {
+    return this.panelInstances.get(name);
+  }
+  forEachPanelInstanceRef(callback: (panel: CodeLayoutPanelInternal) => void) {
+    this.panelInstances.forEach(callback);
+  }
+  addPanelInstanceRef(panel: CodeLayoutPanelInternal) {
+    this.panelInstances.set(panel.name, panel);
+  }
+  deletePanelInstanceRef(panelName: string) {
+    this.panelInstances.delete(panelName);
+  }
+  existsPanelInstanceRef(panelName: string) {
+    return this.panelInstances.has(panelName);
+  }
+  clearPanelInstanceRef() {
+    this.panelInstances.clear();
+  }
 }
 
 export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPanel {
@@ -341,11 +385,14 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   private _size = 0;
   private _open = false;
   private _visible = true;
+  _root : CodeLayoutRootRef|null = null;
 
   /**
-   * Host layout context.
+   * Get the root instance.
    */
-  hoster: CodeLayoutPanelHosterContext|null = null;
+  get root() {
+    return requireNotNull(this._root, 'This panel is not added to any layout!');
+  }
   /**
    * Title of this panel.
    * 
@@ -470,10 +517,9 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   addPanel(panel: CodeLayoutPanel, startOpen = false, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
     assert(!panelInternal.parentGroup, `Panel ${panel.name} already added to ${panelInternal.parentGroup?.name} !`)
-    assertNotNull(this.hoster, 'Panel must be added to a layout !');
-    assert(!this.hoster.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists`);
+    assert(!this.root.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists`);
     const panelResult = reactive(Object.assign(new CodeLayoutPanelInternal(), panel));
-    panelResult.hoster = this.hoster;
+    panelResult._root = this._root;
     panelResult.children = [];
     panelResult.open = panel.startOpen ?? false;
     panelResult.size = panel.size ?? 0;
@@ -493,7 +539,7 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     if (panel.parentGroup !== this)
       throw new Error(`Panel ${panel.name} is not child of this group !`);
     if (shrink)
-      this.hoster?.removePanelInternal(panel);
+      this.root.getRoot().removePanelInternal(panel);
     else
       this.removeChild(panel);
     return panel;
@@ -659,12 +705,12 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     else
       this.children.push(child);
     child.parentGroup = this;
-    child.hoster = this.hoster;
+    child._root = this._root;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
     if (!this.activePanel)
       this.activePanel = child;
-    this.hoster?.addPanelInstanceRef(child);
+    this.root.addPanelInstanceRef(child);
   }
   addChilds(childs: CodeLayoutPanelInternal[], startIndex?: number) {
     for (const child of childs) {
@@ -679,10 +725,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
       if (this.name === child.name)
         throw new Error('Try add self');
       child.parentGroup = this;
-      child.hoster = this.hoster;
+      child._root = this._root;
       if (child.inhertParentGrid)
         child.parentGrid = this.parentGrid;
-      this.hoster?.addPanelInstanceRef(child);
+      this.root.addPanelInstanceRef(child);
     }
     if (!this.activePanel)
       this.activePanel = this.children[0];
@@ -690,11 +736,11 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
   removeChild(child: CodeLayoutPanelInternal) {
     this.children.splice(this.children.indexOf(child), 1);
     child.parentGroup = null;
-    child.hoster = null;
+    child._root = null;
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (child.name === this.activePanel?.name)
       this.reselectActiveChild();
-    this.hoster?.deletePanelInstanceRef(child.name);
+    this.root.deletePanelInstanceRef(child.name);
   }
   replaceChild(oldChild: CodeLayoutPanelInternal, child: CodeLayoutPanelInternal) {
     this.children.splice(
@@ -706,11 +752,10 @@ export class CodeLayoutPanelInternal extends LateClass implements CodeLayoutPane
     //如果被删除面板是激活面板，则选另外一个面板激活
     if (this.activePanel?.name === oldChild.name)
       this.activePanel = child;
-
-    this.hoster?.deletePanelInstanceRef(oldChild.name);
-    this.hoster?.addPanelInstanceRef(child);
+    this.root.deletePanelInstanceRef(oldChild.name);
+    this.root.addPanelInstanceRef(child);
     child.parentGroup = this;
-    child.hoster = this.hoster;
+    child._root = this._root;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
   }
@@ -822,6 +867,44 @@ export class CodeLayoutGridInternal extends CodeLayoutPanelInternal {
 
   toString() {
     return `Grid: ${this.name} size: ${this.size}`
+  }
+
+  getPanelByName(name: string) : CodeLayoutPanelInternal|null {
+    return this.root.getPanelByName(name) ?? null;
+  }
+  /**
+   * Add a panel group to this grid.
+   * @param panel The panel group to add.
+   * @returns The added panel group instance.
+   */
+  addGroup(panel: CodeLayoutPanel) {
+    const panelInternal = panel as CodeLayoutPanelInternal;
+    if (panelInternal.parentGrid && panelInternal.parentGrid !== 'none')
+      throw new Error(`Group ${panel.name} already added to ${panelInternal.parentGrid} !`);
+    if (this.root.existsPanelInstanceRef(panelInternal.name))
+      throw new Error(`A panel named ${panel.name} already exists`);
+    const groupResult = reactive(Object.assign(new CodeLayoutPanelInternal(), panel));
+    groupResult.open = panel.startOpen ?? false;
+    groupResult.size = panel.size ?? 0;
+    groupResult.accept = panel.accept ?? defaultAccept;
+    groupResult.parentGrid = this.name as CodeLayoutGrid;
+    this.addChild(groupResult as CodeLayoutPanelInternal);
+    return groupResult as CodeLayoutPanelInternal;
+  }
+  /**
+   * Remove a panel group from this grid.
+   * @param panel The panel group to remove.
+   * @returns The removed panel group instance.
+   */
+  removeGroup(panel: CodeLayoutPanelInternal) {
+    const grid = panel.parentGrid;
+    if (!grid || grid === 'none')
+      throw new Error(`Group ${panel.name} already removed from any grid !`);
+    if (!this.children.includes(panel))
+      throw new Error(`Group ${panel.name} not found in grid ${this.name} !`);
+    this.removeChild(panel);
+    panel.parentGrid = 'none';
+    return panel;
   }
 }
 
@@ -1053,3 +1136,4 @@ export interface CodeLayoutContext {
   relayoutTopGridProp: (grid: CodeLayoutGrid, visible: boolean) => void,
   instance: CodeLayoutInstance;
 }
+

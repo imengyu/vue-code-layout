@@ -60,10 +60,9 @@ import IconFile from '../assets/icons/IconFile.vue';
 import { ref, h, reactive } from 'vue';
 import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal } from 'vue-code-layout';
-import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, SplitTabItem, SimpleTooltip } from 'vue-code-layout';
+import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, SplitTabItem, SimpleTooltip, useLocalStorage } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
 import SlotDisplay from '../components/SlotDisplay.vue';
-import { useLocalStorage } from '@/utils/SaveUtils';
 import GridPlaceholder from '@/components/GridPlaceholder.vue';
 
 const colors = [

@@ -1,7 +1,8 @@
 import { nextTick, reactive, type Ref } from "vue";
 import { CodeLayoutGridInternal, CodeLayoutPanelInternal, 
-  type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, 
-  type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid 
+  type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, 
+  type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid, 
+  CodeLayoutRootRef
 } from "../CodeLayout";
 import { FLAG_SPLIT_LAYOUT } from "../Composeable/DragDrop";
 import { assert, assertNotNull } from "../Utils/Assert";
@@ -75,9 +76,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
    * This method will trigger panelClose event in SplitLayout.
    */
   closePanel(): void {
-    if (!this.hoster)
-      throw new Error(`Panel ${this.name} was not added to any layout !`);
-    this.hoster.closePanelInternal(this);
+    this.root.getRoot().closePanelInternal(this);
   }
 
   /**
@@ -253,8 +252,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     if (panelInternal.parentGroup)
       throw new Error(`Panel ${grid.name} already added to ${panelInternal.parentGroup.name} !`);
 
-    const panelResult = reactive(new CodeLayoutSplitNGridInternal());
-    Object.assign(panelResult, grid);
+    const panelResult = reactive(Object.assign(new CodeLayoutSplitNGridInternal(), grid));
     panelResult.children = [];
     panelResult.childGrid = [];
     panelResult.open = true;
@@ -278,17 +276,15 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   addPanel(panel: CodeLayoutSplitNPanel, startOpen?: boolean, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
     
-
     assert(!panelInternal.parentGroup, `Panel ${panel.name} already added to ${panelInternal.parentGroup?.name} !`);
-    assertNotNull(this.hoster, `Panel ${panel.name} was not added to any layout !`);
-    assert(!this.hoster.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists in this layout`);
+    assert(!this.root.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists in this layout`);
   
     const panelResult = reactive(Object.assign(new CodeLayoutSplitNPanelInternal(), panel));
     panelResult.children = [];
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
     this.addChild(panelResult as CodeLayoutSplitNPanelInternal, index);
-    this.hoster.addPanelInstanceRef(panelResult as CodeLayoutSplitNPanelInternal);
+    this.root.addPanelInstanceRef(panelResult as CodeLayoutSplitNPanelInternal);
     return panelResult as CodeLayoutSplitNPanelInternal;
   }
 
@@ -315,11 +311,11 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
 
   setActiveChild(child: CodeLayoutPanelInternal|null) {
     super.setActiveChild(child);
-    this.hoster?.childGridActiveChildChanged(this);
+    this.root.getRoot().childGridActiveChildChanged(this);
   }
   reselectActiveChild(): void {
     super.reselectActiveChild();
-    this.hoster?.childGridActiveChildChanged(this);
+    this.root.getRoot().childGridActiveChildChanged(this);
   }
 
   onActive?: (grid: CodeLayoutSplitNGrid) => void;
@@ -337,7 +333,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     else
       this.childGrid.push(child);
     child.parentGroup = this;
-    child.hoster = this.hoster;
+    child._root = this._root;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
     return child;
@@ -349,7 +345,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
       this.childGrid.push(...childs);
     for (const child of childs) {
       child.parentGroup = this;
-      child.hoster = this.hoster;
+      child._root = this._root;
       if (child.inhertParentGrid)
         child.parentGrid = this.parentGrid;
     }
@@ -357,7 +353,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   removeChildGrid(child: CodeLayoutSplitNGridInternal) {
     this.childGrid.splice(this.childGrid.indexOf(child), 1);
     child.parentGroup = null;
-    child.hoster = null;
+    child._root = null;
   }
   replaceChildGrid(oldChild: CodeLayoutSplitNGridInternal, child: CodeLayoutSplitNGridInternal) {
     const index = this.childGrid.indexOf(oldChild);
@@ -370,7 +366,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     );  
     if (oldChild.parentGroup === this) 
       oldChild.parentGroup = null;
-    child.hoster = this.hoster;
+    child._root = this._root;
     child.parentGroup = this;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
@@ -405,6 +401,7 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
     this.direction = 'horizontal';
     this.canMinClose = false;
     this.noAutoShink = true;
+    this._root = new CodeLayoutRootRef();
   }
 
   /**
@@ -413,7 +410,7 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
   clearLayout() {
     this.childGrid.splice(0);
     this.children.splice(0);
-    this.hoster?.clearPanelInstanceRef();
+    this._root?.clearPanelInstanceRef();
   }
   /**
    * Load the previous layout from JSON data, will clear all panels,
@@ -455,6 +452,24 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
    */
   saveLayout() {
     return this.toJson();
+  }
+
+  /**
+   * Get grid instance by name.
+   * @param name The grid name.
+   * @returns Grid instance, if grid is not found in the component, return undefined
+   */
+  getGridByName(name: string)  {
+    function loop(grid: CodeLayoutSplitNGridInternal, name2: string) : CodeLayoutSplitNGridInternal|undefined {
+      for (const iterator of grid.childGrid) {
+        if (iterator.name === name2)
+          return iterator;
+        const a = loop(iterator, name2);
+        if (a)
+          return a;
+      }
+    }
+    return loop(this, name);
   }
 }
 

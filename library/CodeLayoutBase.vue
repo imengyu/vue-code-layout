@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <div ref="container" class="code-layout-root">
+  <div class="code-layout-root">
     <slot name="titleBarTop" />
     <div v-show="config.titleBar" class="code-layout-title-bar">
       <div>
@@ -35,9 +35,8 @@
       <div class="code-layout-inner-0">
         <SplitLayout 
           ref="splitLayoutRef"
-          rootGridType="rootGrid"
           :showTabHeader="false"
-          :layoutData="splitLayoutRootGrid"
+          :layoutData="(splitLayoutRootGrid as CodeLayoutSplitNRootGrid)"
         >
           <template #gridRender="{ grid }">
             <CodeLayoutTagControl>
@@ -77,23 +76,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType, watch, computed } from 'vue';
-import type { CodeLayoutConfig } from './CodeLayout';
+import { ref, type PropType, watch, onBeforeUnmount, onMounted, nextTick } from 'vue';
 import { CodeLayoutSplitNGridInternal, CodeLayoutSplitNRootGrid } from './SplitLayout/SplitN';
+import type { CodeLayoutConfig } from './CodeLayout';
+import type { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
 import CodeLayoutTagControl from './CodeLayoutTagControl.vue';
-import { assertNotNull } from './Utils/Assert';
-import type { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
 
-export interface CodeLayoutBaseInstance {
-  getRef: () => HTMLElement | undefined;
-}
+const splitLayoutRootGrid = ref(new CodeLayoutSplitNRootGrid());
 
-const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
+const props = defineProps({
+  config: {
+    type: Object as PropType<CodeLayoutConfig>,
+    required: true,
+  },
+  rootGrid: {
+    type: Object as PropType<CodeLayoutRootGrid>,
+    required: false,
+  },
+});
 
-  assertNotNull(props.rootGrid, 'CodeLayoutBase: rootGrid is not defined');
+const currentBottom = ref<CodeLayoutSplitNGridInternal>();
 
-  const rootGrid = new CodeLayoutSplitNRootGrid();
+function loadLayout() {
+  if (isNextNoChangeLayout())
+    return;
+  if (!props.rootGrid)
+    throw new Error('CodeLayoutBase: rootGrid is not defined');
+ 
+  const rootGrid = splitLayoutRootGrid.value as CodeLayoutSplitNRootGrid;
   const config = props.config;
   const inversePrimary = props.config.primarySideBarPosition === 'right';
   const bottomIsInSide = props.config.panelAlignment.endsWith('-side');
@@ -101,7 +112,7 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
   rootGrid.parentGrid = 'none';
 
   const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = (inversePrimary ? props.rootGrid!.primarySideBar : props.rootGrid!.secondarySideBar)!;
+    const panel = (inversePrimary ? props.rootGrid!.primarySideBar : props.rootGrid!.secondarySideBar).toJson();
     panel.visible = inversePrimary ? config.primarySideBar : config.secondarySideBar;
     panel.size = inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth;
     panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
@@ -109,13 +120,15 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
     panel.inhertParentGrid = false;
     panel.stretchable = false;
     panel.parentGrid = inversePrimary ? 'primarySideBar' : 'secondarySideBar';
-    panel.onMinCloseChanged = (grid, visible) => {
+    const instance = parent.addChildGrid(panel);
+    instance.onMinCloseChanged = (grid, visible) => {
+      setNextNoChangeLayout();
       inversePrimary? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
     };
-    return parent.addChildGrid(panel);
+    return instance;
   }
   const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = (inversePrimary? props.rootGrid!.secondarySideBar : props.rootGrid!.primarySideBar)!;
+    const panel = (inversePrimary? props.rootGrid!.secondarySideBar : props.rootGrid!.primarySideBar).toJson();
     panel.visible = inversePrimary? config.secondarySideBar : config.primarySideBar;
     panel.size = inversePrimary? config.secondarySideBarWidth : config.primarySideBarWidth;
     panel.minSize = inversePrimary? config.secondarySideBarMinWidth : config.primarySideBarMinWidth;
@@ -123,14 +136,16 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
     panel.parentGrid = inversePrimary ? 'secondarySideBar' : 'primarySideBar';
     panel.canMinClose = true;
     panel.stretchable = false;
-    panel.onMinCloseChanged = (grid, visible) => {
+    const instance = parent.addChildGrid(panel);
+    instance.onMinCloseChanged = (grid, visible) => {
+      setNextNoChangeLayout();
       inversePrimary? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
     };
-    return parent.addChildGrid(panel);
+    return instance;
   }
   const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = props.rootGrid!.bottomPanel!;
-    const fullSize = bottomIsInSide ? (100 - props.rootGrid!.primarySideBar!.size - props.rootGrid!.secondarySideBar!.size) : 100;
+    const panel = props.rootGrid!.bottomPanel.toJson();
+    const fullSize = bottomIsInSide ? (100 - props.rootGrid!.primarySideBar.size - props.rootGrid!.secondarySideBar.size) : 100;
     panel.visible = config.bottomPanel;
     panel.size = config.bottomPanelMaximize ? fullSize : (config.bottomPanelHeight < fullSize ? config.bottomPanelHeight : 20);
     panel.minSize = config.bottomPanelMinHeight;
@@ -138,10 +153,11 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
     panel.inhertParentGrid = false;
     panel.stretchable = false;
     panel.parentGrid = 'bottomPanel';
-    panel.onMinCloseChanged = (grid, visible) => {
+    currentBottom.value = parent.addChildGrid(panel, reverseBottom ? 0 : undefined);
+    currentBottom.value.onMinCloseChanged = (grid, visible) => {
+      setNextNoChangeLayout();
       config.bottomPanel = visible;
     };
-    currentBottom.value = parent.addChildGrid(panel, reverseBottom ? 0 : undefined);
     return currentBottom.value;
   }    
   const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
@@ -172,8 +188,9 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
     return grid;
   }    
 
-  rootGrid.clearLayout();
+  splitLayoutRootGrid.value.clearLayout();
   rootGrid.direction = 'horizontal';
+
 
   switch (props.config.panelAlignment) {
     case 'left': {
@@ -235,44 +252,88 @@ const splitLayoutRootGrid = computed<CodeLayoutSplitNRootGrid>(() => {
   }
     
   rootGrid.notifyRelayout();
-  emit('layoutChanged');
-  return rootGrid;
+}
+
+let nextNoChangeLayout = false;
+
+function setNextNoChangeLayout() {
+  nextNoChangeLayout = true;
+}
+function isNextNoChangeLayout() {
+  if (nextNoChangeLayout) {
+    nextNoChangeLayout = false;
+    return true;
+  }
+  return false;
+}
+
+watch(() => props.config.bottomPanel, () => loadLayout());
+watch(() => props.config.secondarySideBar, () => loadLayout());
+watch(() => props.config.primarySideBar, () => loadLayout());
+watch(() => props.config.bottomPanelMaximize, (v) => {
+  if (isNextNoChangeLayout())
+    return;
+  if (v)
+    relayoutAfterVarChange();
+  else
+    loadLayout();
 });
-const container = ref<HTMLElement>();
-
-const props = defineProps({
-  config: {
-    type: Object as PropType<CodeLayoutConfig>,
-    required: true,
-  },
-  rootGrid: {
-    type: Object as PropType<CodeLayoutRootGrid>,
-    required: false,
-  },
-});
-const emit = defineEmits([
-  'layoutChanged',
-]);
-
-const currentBottom = ref<CodeLayoutSplitNGridInternal>();
-
 watch(() => currentBottom.value?.size, (v) => {
   if (props.rootGrid) {
     const config = props.config;
     const bottomIsInSide = props.config.panelAlignment.endsWith('-side');
     const fullSize = bottomIsInSide ? (100 - props.rootGrid.primarySideBar.size - props.rootGrid.secondarySideBar.size) : 100;
     if (v) {
-      if(v < fullSize - 1 && config.bottomPanelMaximize) { 
+      if(v < fullSize - 1 && config.bottomPanelMaximize) {
+        nextNoChangeLayout = true;
         config.bottomPanelMaximize = false;
       } else if (v >= fullSize && !config.bottomPanelMaximize) {
+        nextNoChangeLayout = true;
         config.bottomPanelMaximize = true;
       }
     }
   }
 });
+watch(() => props.config.panelAlignment, () => loadLayout());
+watch(() => props.config.panelPosition, () => loadLayout());
+watch(() => props.config.bottomPanelHeight, () => loadLayout());
+watch(() => props.config.bottomPanelMinHeight, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarMinWidth, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarPosition, () => relayoutAfterVarChange());
+watch(() => props.config.primarySideBarWidth, () => loadLayout());
+watch(() => props.config.secondarySideBarMinWidth, () => relayoutAfterVarChange());
+watch(() => props.config.secondaryActivityBarPosition, () => relayoutAfterVarChange());
+watch(() => props.config.secondarySideBarWidth, () => loadLayout());
 
-defineExpose<CodeLayoutBaseInstance>({
-  getRef: () => container.value,
+function relayoutAfterVarChange() {
+  saveGridLayoutDataToConfig();
+  loadLayout();
+}
+function saveGridLayoutDataToConfig() {
+  const config = props.config;
+  const bottomPanel = splitLayoutRootGrid.value.root.getPanelByName('bottomPanel');
+  const primarySideBar = splitLayoutRootGrid.value.root.getPanelByName('primarySideBar');
+  const secondarySideBar = splitLayoutRootGrid.value.root.getPanelByName('secondarySideBar');
+  if (bottomPanel) {
+    config.bottomPanel = bottomPanel.visible;
+    config.bottomPanelHeight = bottomPanel.size;
+  }
+  if (primarySideBar) {
+    config.primarySideBar = primarySideBar.visible;
+    config.primarySideBarWidth = primarySideBar.size;
+  }
+  if (secondarySideBar) {
+    config.secondarySideBar = secondarySideBar.visible;
+    config.secondarySideBarWidth = secondarySideBar.size;
+  }
+}
+
+onMounted(() => {
+  nextTick(() => {
+    loadLayout();
+  });
 });
-
+onBeforeUnmount(() => {
+  saveGridLayoutDataToConfig();
+});
 </script>

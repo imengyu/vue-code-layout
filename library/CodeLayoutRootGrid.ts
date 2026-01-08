@@ -1,12 +1,8 @@
-import type { Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutConfig, type CodeLayoutGrid, type CodeLayoutPanel } from "./CodeLayout";
+import { markRaw, type Ref } from "vue";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, CodeLayoutRootRef, type CodeLayoutConfig, type CodeLayoutPanel } from "./CodeLayout";
 import { CodeLayoutSplitNGridInternal } from "./SplitLayout/SplitN";
 import { assertNotNull } from "./Utils/Assert";
-
-/**
- * Default accept grid names for panel drag and drop.
- */
-export const defaultAccept : CodeLayoutGrid[] = [ 'bottomPanel', 'primarySideBar','secondarySideBar' ];
+import { defaultAccept } from "./CodeLayoutConsts";
 
 /**
  * Root grid of CodeLayout.
@@ -16,6 +12,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
   constructor() {
     super('rootGrid', 'none', () => {}, () => {});
 
+    this._root = markRaw(new CodeLayoutRootRef());
     this.primarySideBar = new CodeLayoutSplitNGridInternal('primarySideBar', 'hidden', 
       (open) => {
         assertNotNull(this.layoutConfig);
@@ -82,7 +79,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.primarySideBar.setActiveChild(null);
     this.secondarySideBar.setActiveChild(null);
     this.bottomPanel.setActiveChild(null);
-    this.hoster?.clearPanelInstanceRef();
+    this._root?.clearPanelInstanceRef();
   }
   /**
    * Save the layout dragged by the user to the JSON data, and after the next entry, call 'loadLayout' to reload and restore the original layout from the JSON data.

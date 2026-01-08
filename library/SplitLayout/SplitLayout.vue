@@ -18,8 +18,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, type Ref, type PropType, watch, onMounted, nextTick, onBeforeUnmount, computed } from 'vue';
-import { type CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutGrid, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig } from '../CodeLayout';
+import { ref, provide, type Ref, type PropType, nextTick, computed } from 'vue';
+import { type CodeLayoutPanelInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig, type CodeLayoutRootRefDefine } from '../CodeLayout';
 import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
@@ -58,19 +58,14 @@ const props = defineProps({
   },
 })
 
-const panelInstances = new Map<string, CodeLayoutPanelInternal>();
-const hosterContext : CodeLayoutPanelHosterContext = {
-  addPanelInstanceRef: (panel) => panelInstances.set(panel.name, panel),
-  deletePanelInstanceRef: (panelName) => panelInstances.delete(panelName),
-  existsPanelInstanceRef: (panelName) => panelInstances.has(panelName),
-  clearPanelInstanceRef: () => panelInstances.clear(),
+const hosterContext : CodeLayoutRootRefDefine = {
   getRef: () => instance,
   removePanelInternal,
   childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
   closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
 }
 const rootGrid = computed(() => {
-  props.layoutData.hoster = hosterContext;
+  props.layoutData.root.setRoot(hosterContext);
   props.layoutData.noAutoShink = true;
   return props.layoutData;
 });
@@ -100,7 +95,7 @@ const instance = {
     return str;
   },
   getRootGrid: () => rootGrid.value as CodeLayoutSplitNGridInternal,
-  getPanelByName: (name) => panelInstances.get(name),
+  getPanelByName: (name) => props.layoutData._root?.getPanelByName(name),
   getActiveGird: () => (currentActiveGrid.value || rootGrid.value) as CodeLayoutSplitNGridInternal,
   getGridByName: (name) => {
     function loop(grid: CodeLayoutSplitNGridInternal, name2: string) : CodeLayoutSplitNGridInternal|undefined {
@@ -115,7 +110,12 @@ const instance = {
     return loop(rootGrid.value as CodeLayoutSplitNGridInternal, name);
   },
   activePanel(name) {
-    panelInstances.get(name)?.activeSelf();
+    const panel = props.layoutData.root.getPanelByName(name);
+    if (!panel) {
+      console.warn(`Panel ${name} not found`);
+      return;
+    }
+    panel.activeSelf();
   },
 } as CodeLayoutSplitNInstance;
 

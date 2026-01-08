@@ -86,11 +86,11 @@ import {
   type CodeLayoutConfig, type CodeLayoutInstance,
   defaultCodeLayoutConfig, useResizeChecker,
   CodeLayoutCustomizeLayout,
-  CodeLayoutRootGrid
+  CodeLayoutRootGrid,
+  useLocalStorage,
 } from 'vue-code-layout';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import SlotDisplay from '../components/SlotDisplay.vue';
-import { useLocalStorage } from '@/utils/SaveUtils';
 import { assertNotNull } from '../../library/Utils/Assert';
 import BasicSplitUseage from './BasicSplitUseage.vue';
 
@@ -368,6 +368,12 @@ const {
             },
           ]
           break;
+        default:
+          panel.title = panel.name;
+          panel.tooltip = `Panel ${panel.name}`;
+          panel.iconLarge = () => h(IconSearch);
+          panel.iconSmall = () => h(IconSearch);
+          break;
       }
       return panel;
     });
@@ -408,7 +414,6 @@ const {
     }
 
     const bottomGroup = codeLayout.value.getRootGrid('bottomPanel');
-
     const groupRight1 = codeLayout.value.addGroup({
       title: 'Right1',
       tooltip: 'Right1',
@@ -432,12 +437,12 @@ const {
       name: 'right1.right2',
     });
     groupRight2.addPanel({
-      title: 'Right2',
+      title: 'right2.right2',
       tooltip: 'Right2',
       name: 'right2.right2',
     });
     groupRight2.addPanel({
-      title: 'Right3 No drag',
+      title: 'right2.right3',
       tooltip: 'Right3',
       name: 'right2.right3',
       draggable: false,
@@ -482,19 +487,19 @@ const {
       ]
     });
     groupDebug.addPanel({
-      title: 'A',
+      title: 'debug.a',
       tooltip: 'Debug a',
       name: 'debug.a',
       iconSmall: () => h(IconSearch),
     });
     groupDebug.addPanel({
-      title: 'B',
+      title: 'debug.b',
       tooltip: 'Debug b',
       name: 'debug.b',
       iconSmall: () => h(IconSearch),
     });
     groupDebug.addPanel({
-      title: 'C',
+      title: 'debug.c',
       tooltip: 'Debug c',
       name: 'debug.c',
       iconSmall: () => h(IconSearch),
@@ -529,7 +534,6 @@ const {
     bottomGroup.onResize = () => {
       console.log('bottomGroup resized!', bottomGroup.size);
     };
-
     console.log(bottomGroup);
     console.log(codeLayout.value?.getRootGrid('rootGrid'))
   }

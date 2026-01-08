@@ -3,6 +3,7 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 
 export * from './CodeLayout'
 export * from './CodeLayoutRootGrid';
+export * from './CodeLayoutConsts';
 export * from './SplitLayout/SplitN';
 export * from './Composeable/DragDrop';
 export * from './Composeable/LateClass';
@@ -11,6 +12,7 @@ export * from './Composeable/ResizeChecker';
 export * from './Composeable/MiniTimeout';
 export * from './Composeable/PanelMenu';
 export * from './Language/index';
+export * from './Utils/SaveUtils';
 
 import CodeLayout from './CodeLayout.vue'
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue'

@@ -146,8 +146,8 @@ import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vu
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
 import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
-import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
-import { defaultAccept, type CodeLayoutRootGrid } from './CodeLayoutRootGrid';
+import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutRootRefDefine } from './CodeLayout';
+import { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
 import { useKeyBoardControllerTop } from './Composeable/KeyBoardController';
 import { assertNotNull } from './Utils/Assert';
 
@@ -202,29 +202,25 @@ const props = defineProps({
   },
 });
 const { layoutConfig } = toRefs(props);
-const panelInstances = new Map<string, CodeLayoutPanelInternal>();
-const hosterContext : CodeLayoutPanelHosterContext = {
-  addPanelInstanceRef: (panel) => panelInstances.set(panel.name, panel),
-  deletePanelInstanceRef: (panelName) => panelInstances.delete(panelName),
-  existsPanelInstanceRef: (panelName) => panelInstances.has(panelName),
-  clearPanelInstanceRef: () => panelInstances.clear(),
+const hosterContext : CodeLayoutRootRefDefine = {
   getRef: () => codeLayoutInstance,
   removePanelInternal,
   childGridActiveChildChanged() {},
   closePanelInternal() {}
 }
 const rootGrid = computed(() => {
-  props.layoutData.hoster = hosterContext;
-  props.layoutData.noAutoShink = true;
-  props.layoutData.layoutConfig = layoutConfig;
-  props.layoutData.bottomPanelGroup = bottomPanelGroup;
-  props.layoutData.primarySideBarGroup = primarySideBarGroup;
-  props.layoutData.secondarySideBarGroup = secondarySideBarGroup;
-  props.layoutData.children.forEach((child) => {
-    child.hoster = hosterContext;
-  });
+  bindRootGridToHosterContext(props.layoutData);
   return props.layoutData;
 });
+
+function bindRootGridToHosterContext(grid: CodeLayoutRootGrid) {
+  grid.root.setRoot(hosterContext);
+  grid.noAutoShink = true;
+  grid.layoutConfig = layoutConfig;
+  grid.bottomPanelGroup = bottomPanelGroup.value;
+  grid.primarySideBarGroup = primarySideBarGroup.value;
+  grid.secondarySideBarGroup = secondarySideBarGroup.value;
+}
 
 //activity bar 位置根据设置进行切换
 function loadActivityBarPosition() {
@@ -277,6 +273,11 @@ const codeLayoutInstance : CodeLayoutInstance = {
   relayoutGroup,
   getPanelByName,
   getRootGrid,
+  createRootGrid() {
+    const rootGrid = new CodeLayoutRootGrid();
+    bindRootGridToHosterContext(rootGrid);
+    return rootGrid;
+  },
 };
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
@@ -456,7 +457,7 @@ function dragDropToPanelNear(
     })) as unknown as CodeLayoutPanelInternal;
     reference.open = true;
     newGroup.addChild(reference);
-    panelInstances.set(newGroup.name, newGroup);
+    rootGrid.value.root.addPanelInstanceRef(newGroup);
 
     switch (referencePosition) {
       case 'left':
@@ -591,7 +592,7 @@ function relayoutAfterRemovePanel(group: CodeLayoutPanelInternal, isInTab: boole
       firstChildren.open = true;
       firstChildren.size = 0;//只有一个容器后直接占满容器
       gridInstance.replaceChild(group, firstChildren);
-      panelInstances.delete(group.name);
+      props.layoutData.root.deletePanelInstanceRef(group.name);
       return;
     }
   }
@@ -601,12 +602,12 @@ function relayoutAfterRemovePanel(group: CodeLayoutPanelInternal, isInTab: boole
     firstChildren.open = true;
     firstChildren.size = 0;//只有一个容器后直接占满容器
     group.parentGroup!.replaceChild(group, firstChildren);
-    panelInstances.delete(group.name);
+    props.layoutData.root.deletePanelInstanceRef(group.name);
     return;
   }
 
   //普通组移除状态下，无需其他操作，通知面板进行布局
-  panelInstances.get(group.name)?.relayoutAllWithRemovePanel(panel);
+  props.layoutData.root.getPanelByName(group.name)?.relayoutAllWithRemovePanel(panel);
 }
 
 //布局加载与保存
@@ -658,44 +659,20 @@ function getRootGrid(target: CodeLayoutGrid) : CodeLayoutGridInternal {
   throw new Error(`Unknown grid ${target}`);
 }
 function getPanelByName(name: string) {
-  return panelInstances.get(name);
+  return props.layoutData.root.getPanelByName(name);
 }
 function addGroup(panel: CodeLayoutPanel, target: CodeLayoutGrid) {
-  const panelInternal = panel as CodeLayoutPanelInternal;
-
-  if (panelInternal.parentGrid && panelInternal.parentGrid !== 'none')
-    throw new Error(`Group ${panel.name} already added to ${panelInternal.parentGrid} !`);
-  if (panelInstances.has(panelInternal.name))
-    throw new Error(`A panel named ${panel.name} already exists`);
-
-  const groupResult = reactive(Object.assign(new CodeLayoutPanelInternal(), panel));
-  groupResult.open = panel.startOpen ?? false;
-  groupResult.size = panel.size ?? 0;
-  groupResult.accept = panel.accept ?? defaultAccept;
-  groupResult.parentGrid = target;
-  hosterContext.addPanelInstanceRef(groupResult as CodeLayoutPanelInternal);
-  getRootGrid(target).addChild(groupResult as CodeLayoutPanelInternal);
-
-  return groupResult as CodeLayoutPanelInternal;
+  return getRootGrid(target).addGroup(panel);
 }
 function removeGroup(panel: CodeLayoutPanelInternal) {
-  const grid = panel.parentGrid;
-  if (!grid || grid === 'none')
-    throw new Error(`Group ${panel.name} already removed from any grid !`);
-
-  const gridInstance = getRootGrid(grid);
-
-  gridInstance.removeChild(panel);
-  panel.parentGrid = 'none';
-  panelInstances.delete(panel.name);
-
+  getRootGrid(panel.parentGrid).removeGroup(panel);
   return panel;
 }
 function relayoutAll() {
-  panelInstances.forEach(p => p.notifyRelayout());
+  props.layoutData.root.forEachPanelInstanceRef(p => p.notifyRelayout());
 }
 function relayoutGroup(name: string) {
-  panelInstances.get(name)?.notifyRelayout();
+  props.layoutData.root.getPanelByName(name)?.notifyRelayout();
 }
 
 defineExpose(codeLayoutInstance);
