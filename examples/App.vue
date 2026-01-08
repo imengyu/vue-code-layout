@@ -12,7 +12,7 @@
               <span class="link-icon">🏗️</span>
               Base Layout
             </router-link>
-            <router-link :to="{ name: 'SplitLayout' }" class="nav-link">
+            <router-link :to="{ name: 'SplitLayoutTest' }" class="nav-link">
               <span class="link-icon">🔀</span>
               Split Layout
             </router-link>

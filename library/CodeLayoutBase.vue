@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="code-layout-root">
+    <CodeLayoutRootEmpty v-if="!rootGrid" />
     <slot name="titleBarTop" />
     <div v-show="config.titleBar" class="code-layout-title-bar">
       <div>
@@ -82,6 +83,7 @@ import type { CodeLayoutConfig } from './CodeLayout';
 import type { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
 import SplitLayout from './SplitLayout/SplitLayout.vue';
 import CodeLayoutTagControl from './CodeLayoutTagControl.vue';
+import CodeLayoutRootEmpty from './CodeLayoutRootEmpty.vue';
 
 const splitLayoutRootGrid = ref(new CodeLayoutSplitNRootGrid());
 

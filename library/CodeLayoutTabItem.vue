@@ -81,7 +81,7 @@ const {
   container, panel, horizontal, 
   () => emit('focusSelf'),
   (e) => context.dragDropNonPanel(e, false, 'tab-header'),
-  (dragPanel) => checkDropPanelDefault(dragPanel, panel.value, dragOverState)
+  (dragPanel) => checkDropPanelDefault(dragPanel, panel.value.parentGroup, panel.value, dragOverState)
 );
 
 function handleDrop(e: DragEvent) {

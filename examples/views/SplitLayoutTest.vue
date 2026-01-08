@@ -18,6 +18,7 @@
         <textarea v-model="text1"></textarea>
         <input v-model="text2" type="text" />
       </div>
+      <SplitLayoutNestTest v-else-if="panel.name === 'nesttest'" />
       <GridPlaceholder 
         v-else 
         :name="panel.name"
@@ -64,6 +65,7 @@ import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, SplitT
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
 import SlotDisplay from '../components/SlotDisplay.vue';
 import GridPlaceholder from '@/components/GridPlaceholder.vue';
+import SplitLayoutNestTest from './SplitLayoutNestTest.vue';
 
 const colors = [
   '#f0f',
@@ -223,7 +225,11 @@ const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) =>
   if (data) {
     //If load layout from data, need fill panel data
     layoutData.value.loadLayout(data, (panel) => {
-      if (panel.name === 'datahelp') {
+      if (panel.parentGrid === 'nesttest') {
+        panel.title = `Test nest`;
+        panel.tooltip = `Test nest SplitLayout`;
+        panel.iconSmall = () => h(IconMarkdown);
+      } else if (panel.name === 'datahelp') {
         panel.title = `Data load and Save Help`;
         panel.tooltip = `Help`;
         panel.iconSmall = () => h(IconMarkdown);
@@ -281,6 +287,14 @@ const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) =>
       title: `Drag test`,
       tooltip: `Drag test`,
       name: `dragtest`,
+      data: count,
+      closeType: 'close',
+      iconSmall: () => h(getRandomIcon()),
+    });
+    grid3.addPanel({
+      name: 'nesttest',
+      title: `Test nest`,
+      tooltip: `Test nest SplitLayout`,
       data: count,
       closeType: 'close',
       iconSmall: () => h(getRandomIcon()),

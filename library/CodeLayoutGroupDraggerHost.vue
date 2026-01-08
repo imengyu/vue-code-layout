@@ -595,7 +595,7 @@ const {
   (dragPanel) => {
     return (
       group.value.lastLayoutSizeCounter < group.value.lastRelayoutSize //仅容器有空白区域时才有效
-      && checkDropPanelDefault(dragPanel, group.value, dragOverState)
+      && checkDropPanelDefault(dragPanel, group.value, group.value, dragOverState)
     );
   }
 );

@@ -165,7 +165,7 @@ const {
   element, panel, horizontal,
   () => {},
   (e) => context.dragDropNonPanel(e, false, 'normal'),
-  (dragPanel) => checkDropPanelDefault(dragPanel, panel.value, dragOverState)
+  (dragPanel) => checkDropPanelDefault(dragPanel, panel.value.parentGroup, panel.value, dragOverState)
 );
 
 function handleDrop(e: DragEvent) {

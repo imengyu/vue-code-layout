@@ -311,7 +311,7 @@ CodeLayout的根网格类。
 | size | 当前面板的大小（像素），创建时指定为0将由组件自动分配大小 | `number` | 0 |
 | parentGroup | 获取当前面板的父级组 | `CodeLayoutPanelInternal` | - |
 | parentGrid | 获取当前面板所属的顶级组 | `CodeLayoutGrid` | - |
-| accept | 设置当前面板可以拖放到哪些顶级网格上 | `CodeLayoutGrid[]` | - |
+| accept | 当作为父组时，设置哪些面板可以拖放成为子面板，默认从父级继承 | `CodeLayoutGrid[]` | - |
 | noHide | 是否禁止用户对当前面板做出隐藏操作 | `boolean` | `false` |
 | noAutoShink | 是否禁止自动收缩当前网格(仅组有效) | `boolean` | `false` |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |

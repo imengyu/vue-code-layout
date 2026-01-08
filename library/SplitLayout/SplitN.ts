@@ -395,10 +395,11 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
  * This grid is the root grid of SplitLayout, and it is the only grid that can be set to SplitLayout.layoutData.
  */
 export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
-  constructor() {
+  constructor(grid: CodeLayoutGrid = 'centerArea') {
     super();
     this.name = 'root';
     this.direction = 'horizontal';
+    this.parentGrid = grid;
     this.canMinClose = false;
     this.noAutoShink = true;
     this._root = new CodeLayoutRootRef();

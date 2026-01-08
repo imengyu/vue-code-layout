@@ -311,7 +311,7 @@ Due to the use of the same data instance for groups and panels, some properties 
 | size | The size of the current panel (in pixels), specified as 0 when created, will be automatically allocated by the component | `number` | 0 |
 | parentGroup | Parent grid instance of this panel. | `CodeLayoutPanelInternal` | - |
 | parentGrid | Parent toplevel grid name of this panel. | `CodeLayoutGrid` | - |
-| accept | Set which grids the current panel can be dragged and dropped onto. | `CodeLayoutGrid[]` | - |
+| accept | When self is parent group(grid), Set which panel can be dropped into. Default is inherit from parent grid. | `CodeLayoutGrid[]` | - |
 | noHide | Set whether users cannot hide this panel. | `boolean` | `false` |
 | noAutoShink | Set whether the current grid triggers its own remove/merge operation after all subpanels/grids are removed. Set to true will keep grid display, even if it does not have child panels/grids.(Only valid for group) | `boolean` | `false` |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |

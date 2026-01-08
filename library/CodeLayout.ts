@@ -270,7 +270,9 @@ export const defaultCodeLayoutConfig : CodeLayoutConfig = {
 
 //用户接口定义
 
-export type CodeLayoutGrid = 'primarySideBar'|'secondarySideBar'|'bottomPanel'|'centerArea'|'centerArea1'|'centerArea2'|'rootGrid'|'none';
+export type CodeLayoutGrid = 'primarySideBar'|'secondarySideBar'|'bottomPanel'|'centerArea'|'rootGrid'|'none'|
+  //Some center area grid.
+  'centerArea1'|'centerArea2'|'centerArea3'|'centerArea4'|'centerArea5'|'centerArea6';
 
 export type CodeLayoutPanelCloseType = 'unSave'|'close'|'none';
 
@@ -967,7 +969,9 @@ export interface CodeLayoutPanel {
   draggable?: boolean;
 
   /**
-   * Set which grids the current panel can be dragged and dropped onto.
+   * When self is parent group(grid), Set which panel can be dropped into.
+   * 
+   * Default is inherit from parent grid.
    */
   accept?: CodeLayoutGrid[];
   /**

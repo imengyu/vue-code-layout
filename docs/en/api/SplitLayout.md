@@ -217,7 +217,6 @@ Panel type definition of SplitLayout.
 | size | The size of the current panel (in pixels), specified as 0 when created, will be automatically allocated by the component | `number` | 0 |
 | parentGroup | Parent grid instance of this panel. | `CodeLayoutSplitNPanelInternal` | - |
 | parentGrid | Parent toplevel grid name of this panel. | `CodeLayoutGrid` | - |
-| accept | Set which grids the current panel can be dragged and dropped onto. | `CodeLayoutGrid[]` | - |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | Custom data attached to the current panel. | `any` | - |
 | onResize | Resize callback for this panel | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
@@ -309,6 +308,7 @@ Grid type definition of SplitLayout.
 | stretchable | Set whether this grid can be stretched when the container is resized, the non stretchable mesh will maintain a fixed pixel size. | `boolean` | `true` |
 | direction | Layout direction. | `'vertical'│'horizontal'` | `'vertical'` |
 | childGrid | Child grid of this grid. | `CodeLayoutSplitNGridInternal[]` | - |
+| accept | Set which panel can be dropped into. Default is inherit from parent grid. | `CodeLayoutGrid[]` | - |
 
 ### `addGrid(grid: CodeLayoutSplitNGrid): CodeLayoutSplitNPanelInternal`
 

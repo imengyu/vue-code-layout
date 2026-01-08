@@ -215,7 +215,6 @@ const rootGrid = new CodeLayoutSplitNRootGrid();
 | size | 当前面板的大小（百分比），创建时指定为0将由组件自动分配大小 | `number` | 0 |
 | parentGroup | 获取当前面板的父级组 | `CodeLayoutSplitNPanelInternal` | - |
 | parentGrid | 获取当前面板所属的顶级组 | `CodeLayoutGrid` | - |
-| accept | 设置当前面板可以拖放到哪些顶级网格上 | `CodeLayoutGrid[]` | - |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | 面板的自定义数据 | `any` | - |
 | onResize | 当面板大小更改时回调 | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
@@ -307,6 +306,7 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
 | stretchable | 设置容器大小更改时是否可以拉伸此网格，不可拉伸的网格会保持固定大小。 | `boolean` | `true` |
 | direction | 布局方向 | `'vertical' or 'horizontal'` | `'vertical'` |
 | childGrid | 子面板数组 | `CodeLayoutSplitNGridInternal[]` | - |
+| accept | 设置哪些面板可以拖放成为子面板，默认从父级继承 | `CodeLayoutGrid[]` | - |
 
 ### `addGrid(grid: CodeLayoutSplitNGrid): CodeLayoutSplitNPanelInternal`
 

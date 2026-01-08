@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import { ref, watch, type PropType, inject, toRefs, type Ref } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLayoutSplitNPanelInternal } from './SplitN';
-import { getCurrentDragExternalPanels, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { checkDropPanelDefault, getCurrentDragExternalPanels, usePanelDragOverDetector } from '../Composeable/DragDrop';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
@@ -171,12 +171,7 @@ const tabHeaderDragOverDetector = usePanelDragOverDetector(
   tabScroll, grid, horizontal,
   () => {}, 
   (e) => context.dragDropNonPanel(e, false, 'tab-header'),
-  (dragPanel) => {
-    return (
-      (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
-      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.grid.parentGrid))
-    );
-  }
+  (dragPanel) => checkDropPanelDefault(dragPanel, props.grid, null, tabHeaderDragOverDetector.dragOverState),
 );
 
 function handleTabHeaderDrop(e: DragEvent) {
@@ -197,8 +192,7 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
   (e) => context.dragDropNonPanel(e, false, 'tab-content'),
   (dragPanel) => {
     return (
-      (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
-      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.grid.parentGrid))
+      checkDropPanelDefault(dragPanel, props.grid, null, tabContentDragOverDetector.dragOverState)
       && !(grid.value.hasChild(dragPanel) && grid.value.children.length === 1) //当前面板只有一个，并且这一个就是它自己，则不可拖放
     );
   },

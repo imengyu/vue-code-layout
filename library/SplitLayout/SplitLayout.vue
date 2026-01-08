@@ -1,20 +1,23 @@
 <template>
-  <SplitNest :grid="(rootGrid as CodeLayoutSplitNGridInternal)">
-    <template #grid="{ grid }">
-      <slot v-if="showTabHeader" name="tabRender" :grid="grid">
-        <SplitTab 
-          :grid="grid"
-          @tabItemContextMenu="(a, b) => emit('panelContextMenu', a, b)"
-          @tabActive="onTabActiveChild"
-        >    
-          <template v-for="(_, name) in $slots" #[name]="slotData">
-            <slot :name v-bind="slotData || {}"></slot>
-          </template>
-        </SplitTab>
-      </slot>
-      <slot v-else name="gridRender" :grid="grid" />
-    </template>
-  </SplitNest>
+  <div class="code-layout-split-root">
+    <CodeLayoutRootEmpty v-if="!rootGrid" />
+    <SplitNest v-else :grid="(rootGrid as CodeLayoutSplitNGridInternal)" v-bind="$attrs">
+      <template #grid="{ grid }">
+        <slot v-if="showTabHeader" name="tabRender" :grid="grid">
+          <SplitTab 
+            :grid="grid"
+            @tabItemContextMenu="(a, b) => emit('panelContextMenu', a, b)"
+            @tabActive="onTabActiveChild"
+          >    
+            <template v-for="(_, name) in $slots" #[name]="slotData">
+              <slot :name v-bind="slotData || {}"></slot>
+            </template>
+          </SplitTab>
+        </slot>
+        <slot v-else name="gridRender" :grid="grid" />
+      </template>
+    </SplitNest>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -25,6 +28,7 @@ import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
 import { useKeyBoardControllerTop } from '../Composeable/KeyBoardController';
+import CodeLayoutRootEmpty from '../CodeLayoutRootEmpty.vue';
 
 const emit = defineEmits([ 
   'panelClose', 
@@ -54,7 +58,7 @@ const props = defineProps({
    */
   layoutData: {
     type: Object as PropType<CodeLayoutSplitNRootGrid>,
-    default: () => ({})
+    default: null
   },
 })
 
@@ -65,6 +69,8 @@ const hosterContext : CodeLayoutRootRefDefine = {
   closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
 }
 const rootGrid = computed(() => {
+  if (!props.layoutData)
+    return null;
   props.layoutData.root.setRoot(hosterContext);
   props.layoutData.noAutoShink = true;
   if (!props.layoutData.accept)

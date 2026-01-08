@@ -1,18 +1,24 @@
 import { computed, inject, onBeforeUnmount, onMounted, provide, ref, type Ref } from "vue";
-import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutPanelInternal } from "../CodeLayout";
+import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutGridInternal, CodeLayoutPanelInternal } from "../CodeLayout";
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMiniTimeOut } from "./MiniTimeout";
 import { useDragEnterLeaveFilter } from "./DragEnterLeaveFilter";
 
 export function checkDropPanelDefault(
   dragPanel: CodeLayoutPanelInternal,
-  referencePanel: CodeLayoutPanelInternal,
+  dropGroup: CodeLayoutPanelInternal|null,
+  referencePanel: CodeLayoutPanelInternal|null,
   dragOverState: Ref<CodeLayoutDragDropReferencePosition>,
 ) {
   return (
     dragPanel !== referencePanel
-    && (!dragPanel.accept || dragPanel.accept.includes(referencePanel.parentGrid))
-    && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, referencePanel.parentGrid, referencePanel, dragOverState.value))
+    && (!dropGroup?.accept || dropGroup.accept.includes(dragPanel.parentGrid))
+    && (!dragPanel.preDropCheck || dragPanel.preDropCheck(
+      dragPanel, 
+      referencePanel?.parentGrid || dropGroup?.parentGrid || 'none', 
+      referencePanel || dropGroup || undefined, 
+      dragOverState.value
+    ))
   );
 }
 
@@ -187,6 +193,7 @@ export function usePanelDragOverDetector(
 
     // 如果是内部拖拽数据，则不应该让浏览器处理弹出窗口
     e.preventDefault();
+    e.dataTransfer.dropEffect = 'none';
 
     //检查面板，面板并且不能是自己或者自己的父级
     if (
@@ -197,6 +204,7 @@ export function usePanelDragOverDetector(
       )
       || dragCustomHandler(e)
     ) {
+      
       e.stopPropagation();
       e.dataTransfer.dropEffect = 'copy';
 
