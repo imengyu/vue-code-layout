@@ -46,6 +46,7 @@ const emit = defineEmits([
   'click', 
   'rangeSelect', 
   'additionSelect', 
+  'dragStart',
   'dragEnd',
   'contextMenu',
 ])
@@ -60,6 +61,9 @@ const {
     const a = props.dragAddPanels?.(panel.value) ?? [];
     console.log('onBeforeDragAddPanels', a);
     return a;
+  },
+  onDragStart() {
+    emit('dragStart');
   },
   onDragEnd() {
     emit('dragEnd');

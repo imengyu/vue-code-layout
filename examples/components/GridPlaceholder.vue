@@ -9,7 +9,7 @@
     :style="{ backgroundColor: `color-mix(in srgb, #000 40%, ${props.color} 60%)` }"
   >
     <h2 >
-      Grid {{ props.name }} {{ props.direction }}
+      {{ props.name }}
     </h2>
     <slot></slot>
   </div>
@@ -53,7 +53,7 @@ const props = defineProps({
     font-weight: 600;
     margin: 0;
     margin-bottom: 10px;
-    padding: 16px 24px;
+    padding: 7px 14px;
     background: rgba(255, 255, 255, 0.8);
     color: #000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);

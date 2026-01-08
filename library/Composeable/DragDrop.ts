@@ -53,6 +53,7 @@ export function usePanelDraggerRoot(key: string) {
 export function usePanelDragger(config?: {
   onBeforeDragAddPanels?: () => CodeLayoutPanelInternal[],
   onDragEnd?: () => void,
+  onDragStart?: () => void,
 }) {
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
   const setDragPanelState = inject('setDragPanelState') as () => void;
@@ -75,6 +76,7 @@ export function usePanelDragger(config?: {
     }
   }
   function handleDragStart(panel: CodeLayoutPanelInternal, ev: DragEvent) {
+    config?.onDragStart?.();
     if (config?.onBeforeDragAddPanels) {
       const panels = config.onBeforeDragAddPanels();
       for (const p of panels) {
@@ -89,7 +91,6 @@ export function usePanelDragger(config?: {
       clearAllCurrentDragPanels();
       return;
     }
-
     ev.stopPropagation();
     (ev.target as HTMLElement).classList.add("dragging");
     dragSelfState.value = true;
