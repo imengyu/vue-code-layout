@@ -253,8 +253,6 @@ const menuData : MenuOptions = {
 };
 
 function onResetAll() {
-  localStorage.setItem('CodeLayoutDemoSaveConfig', '');
-  localStorage.setItem('CodeLayoutDemoSaveData', '');
   layoutData.value.clearLayout();
   clearConfigData();
   clearLayoutData();

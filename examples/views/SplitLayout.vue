@@ -205,7 +205,6 @@ function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
   });
 }
 function onResetAll() {
-  localStorage.setItem('SplitLayoutDemoSaveData', '');
   layoutData.value.clearLayout();
   clearData();
   emit('resetAll');

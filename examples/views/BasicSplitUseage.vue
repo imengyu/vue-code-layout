@@ -56,7 +56,7 @@ function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
   resolve();
 }
 function loadLayout() {
-  const grid = splitLayoutData.value;    
+  const grid = splitLayoutData.value;
   const splitLeft = grid.addGrid({
     name: 'split1',
   });

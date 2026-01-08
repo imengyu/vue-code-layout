@@ -5,6 +5,18 @@ nav:
   order: 5
 ---
 
+## v1.3.0 - 2026/01/10 <Badge type="tip" text="Break Change" />
+
+
+
+## v1.2.4 - 2026/01/07
+
+* [Fix] Fix instance openPanel closePanel togglePanel not work issue [#40](https://github.com/imengyu/vue-code-layout/issues/40)
+* [Fix] Fix centerarea not shown correctly when bottomPanel maximized and hidden
+* [Fix] (SplitLayout): Add handling for the target grid and parent grid being the same in drag and drop panel operations ([#37](https://github.com/imengyu/vue-code-layout/issues/37))
+* [Fix] (SplitLayout): Resolves the layout issue where non-stretchable panels cannot adjust when the container size changes ([#36](https://github.com/imengyu/vue-code-layout/issues/36))
+* [Add] (CodeLayout): Add configurable options for custom layout components ([#34](https://github.com/imengyu/vue-code-layout/issues/34)) (by [Yannnser](https://github.com/Yannnser))
+
 ## v1.2.2 - 2025/09/07
 
 * [Fix] Update vue3-context-menu to 1.5.2 ([#31](https://github.com/imengyu/vue-code-layout/issues/31))

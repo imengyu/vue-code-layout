@@ -41,7 +41,7 @@ createApp(App)
   <div class="demo">
     <SplitLayout
       ref="splitLayoutRef"
-      @canLoadLayout="loadLayout"
+      :layoutData="(splitLayoutData as CodeLayoutSplitNRootGrid)"
       @panelClose="onPanelClose"
     >
       <template #tabContentRender="{ panel }">
@@ -65,8 +65,12 @@ createApp(App)
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, h } from 'vue';
-import type { CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, CodeLayoutSplitNGridInternal } from 'vue-code-layout';
+import { ref, nextTick, h, onMounted } from 'vue';
+import { 
+  type CodeLayoutSplitNInstance,
+  type CodeLayoutPanelInternal, type CodeLayoutSplitNGridInternal, 
+  CodeLayoutSplitNRootGrid 
+} from 'vue-code-layout';
 
 const colors = [
   '#fb0',
@@ -85,6 +89,8 @@ const colors = [
 
 //Instance ref
 const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
+//Layout data
+const splitLayoutData = ref(new CodeLayoutSplitNRootGrid());
 
 let count = 0;
 
@@ -106,56 +112,56 @@ function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
 
 //Add panel data to components
 function loadLayout() {
-  if (splitLayoutRef.value) {
-    const grid = splitLayoutRef.value.getRootGrid();
-    const grid1 = grid.addGrid({
-      name: 'grid1',
-      visible: true,
-      size: 0,
-    });
-    const grid2 = grid.addGrid({
-      name: 'grid2',
-      visible: true,
-      size: 0,
-      minSize: 100,
-    });
-    const grid3 = grid1.addGrid({
-      name: 'grid3',
-      visible: true,
-      size: 0,
-      minSize: 0,
-    });
-    grid1.addGrid({
-      name: 'grid4',
-      visible: true,
-      size: 0,
-      minSize: 100,
-      canMinClose: true,
-    });
+  const grid1 = splitLayoutData.value.addGrid({
+    name: 'grid1',
+    visible: true,
+    size: 0,
+  });
+  const grid2 = splitLayoutData.value.addGrid({
+    name: 'grid2',
+    visible: true,
+    size: 0,
+    minSize: 100,
+  });
+  const grid3 = grid1.addGrid({
+    name: 'grid3',
+    visible: true,
+    size: 0,
+    minSize: 0,
+  });
+  grid1.addGrid({
+    name: 'grid4',
+    visible: true,
+    size: 0,
+    minSize: 100,
+    canMinClose: true,
+  });
 
-    for (let i = 0; i < 2; i++) {
-      count++;
-      grid3.addPanel({
-        title: `Panel${count}`,
-        tooltip: `Panel${count} tooltip`,
-        name: `panel${count}`,
-        closeType: 'close',
-        data: count,
-      });
-    }
-    for (let i = 0; i < 2; i++) {
-      count++;
-      grid2.addPanel({
-        title: `Panel${count}`,
-        tooltip: `Panel${count} tooltip`,
-        name: `panel${count}`,
-        closeType: 'close',
-        data: count,
-      });
-    }
-    grid.notifyRelayout();
+  for (let i = 0; i < 2; i++) {
+    count++;
+    grid3.addPanel({
+      title: `Panel${count}`,
+      tooltip: `Panel${count} tooltip`,
+      name: `panel${count}`,
+      closeType: 'close',
+      data: count,
+    });
   }
+  for (let i = 0; i < 2; i++) {
+    count++;
+    grid2.addPanel({
+      title: `Panel${count}`,
+      tooltip: `Panel${count} tooltip`,
+      name: `panel${count}`,
+      closeType: 'close',
+      data: count,
+    });
+  }
+  splitLayoutData.value.notifyRelayout();
 }
+onMounted(() => {
+  loadLayout();
+});
 
 </script>
 
@@ -197,14 +203,17 @@ import { CodeLayoutSplitNInstance } from 'vue-code-layout';
 
 //Bind the splitLayoutRef variable to the SplitLayout component through the ref attribute
 const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
+//Layout data
+const splitLayoutData = ref(new CodeLayoutSplitNRootGrid());
 ```
 
 ### Get Root Grid
 
-The component provides a method to obtain the root grid:
+The component provides a method to obtain the root grid, which is equivalent to `splitLayoutData.value`。
 
 ```ts
-const grid = splitLayoutRef.value.getRootGrid();
+const rootGrid = splitLayoutRef.value.getRootGrid();
+const rootGrid = splitLayoutData.value;
 ```
 
 ### Root Grid Direction
@@ -212,8 +221,7 @@ const grid = splitLayoutRef.value.getRootGrid();
 The default layout direction for the root grid is horizontal (layout direction is only used for sub grids, sub panels are displayed in Tab mode), You can also change it to vertical.
 
 ```ts
-const grid = splitLayoutRef.value.getRootGrid();
-grid.direction = 'vertical';
+rootGrid.direction = 'vertical';
 ```
 
 ### Add Grid/Panel
@@ -221,7 +229,7 @@ grid.direction = 'vertical';
 You can add a grid to the root, for example, the following code adds a grid to the root:
 
 ```ts
-const grid1 = grid.addGrid({
+const grid1 = rootGrid.addGrid({
   name: 'grid1',
   visible: true,
   size: 0,
@@ -249,7 +257,7 @@ When adding a panel, the 'name' attribute must be unique, so you can use name to
 
 ```ts
 //Add panels to obtain panels and modify badge
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.badge = '3';
 ```
 
@@ -262,8 +270,8 @@ User can close panel.
 The panel supports the close button. When creating the panel, you can specify the close button or modify the properties after obtaining the instance:
 
 ```ts
-const grid1 = grid.addGrid({
-  name: 'grid1',
+const file1 = rootGrid.addPanel({
+  name: 'file1',
   visible: true,
   size: 0,
   closeType: 'close', //Display close button
@@ -272,7 +280,7 @@ const grid1 = grid.addGrid({
 
 ```ts
 //Obtain panels and modify closeType
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.closeType = 'unSave';
 ```
 
@@ -300,7 +308,7 @@ function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void, rejec
 In the code, the `closePanel` `function on the panel instance can also be manually called to perform a close operation, which is consistent with the user's click to close.
 
 ```ts
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.closePanel();
 ```
 
@@ -311,7 +319,7 @@ Users are allowed to drag and drop panels between grids. By default, when all pa
 If you do not want the grids you manually added to be removed, you can specify that shrinking is not allowed when creating the panels, so that when the grid is empty, it will not be removed, and the tabEmptyContentRender slot will be called during rendering, where you can render custom content.
 
 ```ts
-const grid1 = grid.addGrid({
+const grid1 = rootGrid.addGrid({
   name: 'grid1',
   visible: true,
   size: 0,
@@ -521,78 +529,94 @@ function onDragOver(e: DragEvent) {
 
 ## Saving and Loading Data
 
-SplitLayout supports you to save user dragged layouts to JSON data, and then reload and restore the original layout from JSON data on the next entry.
+SplitLayout supports saving the layout after user drag and drop as JSON data, and loading and restoring the original layout from JSON data when entering the application next time. Here is a complete example based on an actual project:
 
-SplitLayout supports two events, `canLoadLayout` and `canSaveLayout`. In the event callback, the current component instance will be returned. You can perform load and save operations in the event callback, or at other times, you can freely control the load and save operations by calling the `loadLayout` and `saveLayout` functions on the component instance.
+The project provides a `useLocalStorage` utility class that allows for convenient automatic saving and loading of data.
+
+The `useLocalStorage` utility class automatically performs operations at the following times:
+
+* **When the page loads**: Automatically loads data from local storage
+* **Before the page unloads, when the component is unloaded**: Automatically saves data to local storage
+
+This way ensures that the user's layout modifications are not lost when the page is refreshed or the application is re-entered.
+
+::: tip
+Tip: Layout data does not store non-serializable objects, such as functions, icons, and for internationalization purposes, it also does not store titles (title), hover tips (tooltip). This part of the data needs to be manually set from the callback when loading.
+:::
 
 ```vue
 <template>
-  <SplitLayout 
-    ref="splitLayout"
-    style="height: 400px"
-    @canLoadLayout="loadLayout"
-    @canSaveLayout="saveLayout"
-  />
+  <SplitLayout
+    ref="splitLayoutRef"
+    :layoutConfig="config"
+    :layoutData="(layoutData as CodeLayoutSplitNRootGrid)"
+  >
+    <!-- Other template content -->
+  </SplitLayout>
 </template>
 
-<script lang="ts" setup>
-const splitLayout = ref<CodeLayoutSplitNInstance>();
+<script setup lang="ts">
+import { ref, h, reactive } from 'vue';
+import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
+import type { CodeLayoutSplitNGridInternal } from 'vue-code-layout';
+import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, useLocalStorage } from 'vue-code-layout';
 
-//Load and save operations can be performed in event callbacks, which are triggered by default during component initialization and uninstallation
-//The event will pass the component instance ref, which can be directly called, equivalent to splitLayout.value
-function loadLayout(ref: CodeLayoutSplitNInstance) {
-  //Load here
-}
-function saveLayout(ref: CodeLayoutSplitNInstance) {
-  //Save here
+const layoutData = ref(new CodeLayoutSplitNRootGrid());
+layoutData.value.direction = 'horizontal';
+
+// Reset all layout data
+function onResetAll() {
+  layoutData.value.clearLayout();
+  clearData();
 }
 
-//You can also load/save data by calling component instance methods at other custom times
-onMounted(() => {
-  splitLayout.value.loadLayout();
-})
+// Save layout data to local storage
+const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) => {
+  if (data) {
+    // Load layout data and repopulate panel non-serialized properties
+    layoutData.value.loadLayout(data, (panel) => {
+      count++;
+      panel.title = `Panel${count}`;
+      panel.tooltip = `Panel${count} tooltip`;
+      panel.iconSmall = () => h(getRandomIcon());
+      panel.closeType = count === 1 ? 'unSave' : 'close';
+      panel.data = count;
+      return panel;
+    });
+    console.log('loadLayout from data ', data);
+  } else {
+    // Initialize layout data
+    console.log('loadLayout from new');
+    const grid = layoutData.value;
+    const grid1 = grid.addGrid({
+      name: 'grid1',
+      visible: true,
+      size: 0,
+      closeType: 'close',
+    });
+    const grid2 = grid.addGrid({
+      name: 'grid2',
+      visible: true,
+      size: 0,
+      minSize: 100,
+    });
+    // Add more grids and panels...
+    
+    grid.notifyRelayout();
+  }
+}, () => {
+  // Save to JSON
+  console.log('saveLayout', layoutData.value);
+  return layoutData.value.children.length > 0 ? layoutData.value.saveLayout() /* Serialize to JSON */ : null;
+});
 </script>
 ```
 
-### Save data
+## Component Unmounting Tip
 
-Save layout data by calling the `saveLayout` method.
-
-```ts
-const json = splitLayout.value.saveLayout();
-localStorage.setItem('SplitLayoutData', json);
-```
-
-### Load data
-
-Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). So you also need to fill in these data based on the panel name in the callback of loadLayout to instantiated the panel.
-
-```ts
-const data = localStorage.getItem('SplitLayoutData');
-if (data) {
-  //If load layout from data, need fill panel data
-  splitLayout.value.loadLayout(JSON.parse(data), (panel) => {
-    switch (panel.name) {
-      case 'file1':
-        panel.title = 'File 1';
-        panel.tooltip = 'File 1 path';
-        panel.badge = '2';
-        panel.iconLarge = () => h(IconFile);
-        break;
-    }
-    return panel;
-  });
-} else {
-  //No data, create new layout
-  //...
-}
-```
-
-## TIP: Component unmont
-
-Tip: Vue may unmont and recreate your components in the following two situations:
+Tip: Vue may unmount and recreate your components in the following two situations:
 
 * Users drag and drop a panel to another panel
-* In development mode, when you modify the code, HMR overloads
+* In development mode, when you modify the code, HMR reloads
 
-At this point, Vue may unmont and recreate your component, causing the component state to be lost. Therefore, you need to handle your own component and save the relevant state.
+At this point, Vue may unmount and recreate your component, causing the component state to be lost. Therefore, you need to handle your own component and save the relevant state.

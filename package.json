@@ -40,7 +40,7 @@
     "vite-plugin-markdown-preview": "^1.1.1",
     "vite-plugin-raw": "^1.0.3",
     "vite-plugin-vue-devtools": "^8.0.5",
-    "vitepress": "^1.0.1",
+    "vitepress": "^1.6.4",
     "vitepress-plugin-sandpack": "^1.1.4",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",

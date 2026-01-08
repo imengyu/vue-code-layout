@@ -24,7 +24,7 @@ export default defineConfig({
         ],
         footer: {
           message: 'Released under the MIT License.',
-          copyright: 'Copyright © 2024 imengyu.top'
+          copyright: 'Copyright © 2026 imengyu.top'
         },
         nav: [
           { text: 'Guide', link: '/en/guide/start' },
@@ -81,7 +81,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024 imengyu.top'
+      copyright: 'Copyright © 2026 imengyu.top'
     },
     nav: [
       { text: '教程', link: '/guide/install' },

@@ -18,9 +18,7 @@ defineProps({
 <style>
 .slot-display {
   display: block;
-  background-color: #f0f0f0;
-  border: 1px solid #969696;
-  color: #333;
+  color: #fff;
   max-height: 30px;
   word-break: break-all;
   white-space: nowrap;
@@ -31,7 +29,7 @@ defineProps({
   flex-shrink: 0;
 
   svg {
-    fill: #333;
+    fill: #fff;
     width: 20px;
     height: 20px;
   }
