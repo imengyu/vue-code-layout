@@ -8,9 +8,8 @@
 | :----: | :----: | :----: | :----: |
 | saveBeforeUnload | 是否应该在 `window.beforeunload` 时触发 `canSaveLayout` 事件 | `boolean` | `true` |
 | showTabHeader | 是否显示TAB分组组件，当为 `true` 时，支持一个网格多个子面板，应该在tabContentRender插槽中渲染组件；当为 `false` 时，仅支持网格分割不支持面板与拖拽功能，应该在gridRender中自己渲染内容。 | `boolean` | `true` |
-| rootGridType | 指定根网格的类型，通常用于在多个组件中设置不同的类型以限制互相拖拽 | `CodeLayoutGrid` | `'centerArea'` |
-| rootGridDirection | 指定根网格的方向，通常用于在多个组件中设置不同的方向 | `'horizontal' \| 'vertical'` | `'horizontal'` |
 | layoutConfig | 基础布局数据 | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
+| layoutData | 布局数据 | [`CodeLayoutSplitNRootGrid`](#CodeLayoutSplitNRootGrid) | — |
 
 ## Events
 
@@ -21,8 +20,6 @@
 | panelActive | 当用户点击激活面板时触发事件 | `lastActivePanel: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal` |
 | panelDrop | 当用户拖拽面板放置时触发事件 | `panel: CodeLayoutSplitNPanelInternal, referencePanel: CodeLayoutSplitNPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition` |
 | gridActive | 当用户点击激活网格时触发事件 | `lastActivePanel: CodeLayoutSplitNGridInternal, panel: CodeLayoutSplitNGridInternal` |
-| canLoadLayout | 组件加载时触发此事件，可在此事件中执行加载布局操作 | `ref: CodeLayoutSplitNInstance` |
-| canSaveLayout | 组件卸载时触发此事件，可在此事件中执行加载保存操作 | `ref: CodeLayoutSplitNInstance` |
 
 ## Slots
 
@@ -167,6 +164,42 @@ if (data) {
 | 类型 | 说明 |
 | :----: | :----: |
 | `object` | 布局数据 |
+
+## CodeLayoutSplitNRootGrid
+
+SplitLayout的根网格，是唯一可以设置为SplitLayout.layoutData的网格。
+
+### 构造函数
+
+创建一个新的根网格实例。
+
+```ts
+const rootGrid = new CodeLayoutSplitNRootGrid();
+```
+
+### `clearLayout(): void`
+
+说明：
+
+同 `CodeLayoutSplitNGridInternal.clearLayout`.
+
+### `loadLayout(json: object, instantiatePanelCallback: (panel: any) => CodeLayoutSplitNPanel): void`
+
+说明：
+
+同 `CodeLayoutSplitNGridInternal.loadLayout`.
+
+### `saveLayout(): object`
+
+说明：
+
+同 `CodeLayoutSplitNGridInternal.saveLayout`.
+
+### `getGridByName(name: string): CodeLayoutSplitNGridInternal | undefined`
+
+说明：
+
+同 `CodeLayoutSplitNGridInternal.getGridByName`.
 
 ## CodeLayoutSplitNPanelInternal
 

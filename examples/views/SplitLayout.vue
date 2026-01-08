@@ -137,13 +137,15 @@ function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
 }
 function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
   count++;
-  grid.addPanel({
+  const newPanel = grid.addPanel({
     title: `Panel${count}`,
     tooltip: `Panel${count}`,
     name: `panel${count}`,
     data: count,
+    closeType: 'close',
     iconSmall: () => h(getRandomIcon()),
   });
+  newPanel.activeSelf();
 }
 function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
   e.stopPropagation();

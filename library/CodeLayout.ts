@@ -323,6 +323,21 @@ export interface CodeLayoutInstance {
    * @param name Group name.
    */
   relayoutGroup(name: string): void;
+  /**
+   * Clear all layout data.
+   */
+  clearLayout(): void;
+  /**
+   * Load layout from json data.
+   * @param json Json data.
+   * @param instantiatePanelCallback Callback to instantiate panel.
+   */
+  loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
+  /**
+   * Save layout to json data.
+   * @returns Json data.
+   */
+  saveLayout(): any;
 }
 
 //内部类定义

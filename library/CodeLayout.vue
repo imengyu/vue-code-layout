@@ -273,6 +273,9 @@ const codeLayoutInstance : CodeLayoutInstance = {
   relayoutGroup,
   getPanelByName,
   getRootGrid,
+  clearLayout: () => props.layoutData.clearLayout(),
+  loadLayout: (json, instantiatePanelCallback) => props.layoutData.loadLayout(json, instantiatePanelCallback),
+  saveLayout: () => props.layoutData.saveLayout(),
   createRootGrid() {
     const rootGrid = new CodeLayoutRootGrid();
     bindRootGridToHosterContext(rootGrid);

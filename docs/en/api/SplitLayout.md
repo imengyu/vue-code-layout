@@ -8,9 +8,8 @@ Split layout components in the file editor center.
 | :----: | :----: | :----: | :----: |
 | saveBeforeUnload | Should the canSaveLayout event be triggered when window. beforeupload | `boolean` | `true` |
 | showTabHeader | Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender. | `boolean` | `true` |
-| rootGridType | Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging | `CodeLayoutGrid` | `'centerArea'` |
-| rootGridDirection | Specify the direction of the root grid, usually used to set different directions in multiple components | `'horizontal' \| 'vertical'` | `'horizontal'` |
 | layoutConfig | SplitLayout other config | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
+| layoutData | Layout data | [`CodeLayoutSplitNRootGrid`](#CodeLayoutSplitNRootGrid) | — |
 
 ## Events
 
@@ -21,8 +20,6 @@ Split layout components in the file editor center.
 | panelActive | Trigger event when the user clicks to activate the panel | `lastActivePanel: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal` |
 | panelDrop | Trigger event when the user drags and drops the panel | `panel: CodeLayoutSplitNPanelInternal, referencePanel: CodeLayoutSplitNPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition` |
 | gridActive | Trigger event when the user clicks to activate the grid | `lastActivePanel: CodeLayoutSplitNGridInternal, panel: CodeLayoutSplitNGridInternal` |
-| canLoadLayout | This event is triggered when a component is loaded, and loading layout operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
-| canSaveLayout | This event is triggered when the component is unmount, and loading and saving operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
 
 ## Slots
 
@@ -169,6 +166,42 @@ Returns:
 | Type | Description |
 | :----: | :----: |
 | `object` | json |
+
+## CodeLayoutSplitNRootGrid
+
+Root grid of SplitLayout.
+
+### Constructor
+
+Create a new root grid instance.
+
+```ts
+const rootGrid = new CodeLayoutSplitNRootGrid();
+```
+
+### `clearLayout(): void`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.clearLayout`.
+
+### `loadLayout(json: object, instantiatePanelCallback: (panel: any) => CodeLayoutSplitNPanel): void`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.loadLayout`.
+
+### `saveLayout(): object`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.saveLayout`.
+
+### `getGridByName(name: string): CodeLayoutSplitNGridInternal | undefined`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.getGridByName`.
 
 ## CodeLayoutSplitNPanelInternal
 

@@ -525,6 +525,21 @@ export interface CodeLayoutSplitNInstance {
    * Obtain a grid that is currently actived by user and can be used to add panels.
    */
   getActiveGird() : CodeLayoutSplitNGridInternal|undefined;
+  /**
+   * Clear all layout data.
+   */
+  clearLayout(): void;
+  /**
+   * Load layout from json data.
+   * @param json Json data.
+   * @param instantiatePanelCallback Callback to instantiate panel.
+   */
+  loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
+  /**
+   * Save layout to json data.
+   * @returns Json data.
+   */
+  saveLayout(): any;
 
   getGridTreeDebugText() : string;
 

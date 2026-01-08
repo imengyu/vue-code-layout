@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { ref, provide, type Ref, type PropType, nextTick, computed } from 'vue';
 import { type CodeLayoutPanelInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig, type CodeLayoutRootRefDefine } from '../CodeLayout';
-import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig } from './SplitN';
+import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig, CodeLayoutSplitNRootGrid } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
@@ -53,7 +53,7 @@ const props = defineProps({
    * Layout data
    */
   layoutData: {
-    type: Object as PropType<CodeLayoutSplitNGridInternal>,
+    type: Object as PropType<CodeLayoutSplitNRootGrid>,
     default: () => ({})
   },
 })
@@ -67,6 +67,8 @@ const hosterContext : CodeLayoutRootRefDefine = {
 const rootGrid = computed(() => {
   props.layoutData.root.setRoot(hosterContext);
   props.layoutData.noAutoShink = true;
+  if (!props.layoutData.accept)
+    props.layoutData.accept = [props.layoutData.parentGrid];
   return props.layoutData;
 });
 const currentActiveGrid = ref<CodeLayoutSplitNGridInternal|null>(null);
@@ -117,6 +119,9 @@ const instance = {
     }
     panel.activeSelf();
   },
+  clearLayout: () => props.layoutData.clearLayout(),
+  loadLayout: (json, instantiatePanelCallback) => props.layoutData.loadLayout(json, instantiatePanelCallback),
+  saveLayout: () => props.layoutData.saveLayout(),
 } as CodeLayoutSplitNInstance;
 
 const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);

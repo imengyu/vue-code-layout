@@ -17,14 +17,7 @@ nav:
 | langConfig | 组件内置语言数据定义 | [`CodeLayoutLangConfig`](#CodeLayoutLangConfig) | — |
 | mainMenuConfig | 内置主菜单配置 | [`MenuOptions`](../guide/code-layout.md#内置主菜单) | — |
 | emptyText | 组中没有面板时的空文本 | `string` | `'Drag a view here to display'` |
-| saveBeforeUnload | 是否应该在 window.beforeunload 时触发 canSaveLayout 事件 | `boolean` | `true` |
-
-## Events
-
-| 事件名 | 描述 | 参数 |
-| :----: | :----: | :----: |
-| canLoadLayout | 组件加载时触发此事件，可在此事件中执行加载布局操作 | `ref: CodeLayoutInstance` |
-| canSaveLayout | 组件卸载时触发此事件，可在此事件中执行加载保存操作 | `ref: CodeLayoutInstance` |
+| layoutData | 布局数据 | [`CodeLayoutRootGrid`](#CodeLayoutRootGrid) | — |
 
 ## Slots
 
@@ -262,6 +255,38 @@ const config = reactive<CodeLayoutConfig>({
 | :----: | :----: | :----: | :----: |
 | lang | 指定组件使用的语言 | `string` | `en` |
 | stringsOverride | 覆盖语言字符串 | [`Partial<CodeLayoutLangDefine>`](../guide/i18n) | - |
+
+## CodeLayoutRootGrid
+
+CodeLayout的根网格类。
+
+### 构造函数
+
+创建一个新的根网格实例。
+
+| 属性 | 描述 | 类型 | 默认值 |
+| :----: | :----: | :----: | :----: |
+| primarySideBar | 主侧边栏网格 | `CodeLayoutSplitNGridInternal` | - |
+| secondarySideBar | 辅助侧边栏网格 | `CodeLayoutSplitNGridInternal` | - |
+| bottomPanel | 底部面板网格 | `CodeLayoutSplitNGridInternal` | - |
+
+### `clearLayout(): void`
+
+说明：
+
+同 `CodeLayoutInstance.clearLayout`。
+
+### `saveLayout(): any`
+
+说明：
+
+同 `CodeLayoutInstance.saveLayout`。
+
+### `loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void`
+
+说明：
+
+同 `CodeLayoutInstance.loadLayout`。
 
 ## CodeLayoutPanelInternal
 

@@ -7,10 +7,10 @@ Editor shell layout component.
 | Property | Description | Type | Default |
 | :----: | :----: | :----: | :----: |
 | layoutConfig | Base layout config | [`CodeLayoutConfig`](#CodeLayoutConfig) | — |
+| layoutData | Root grid of the layout | [`CodeLayoutRootGrid`](#CodeLayoutRootGrid) | — |
 | langConfig | Language config | [`CodeLayoutLangConfig`](#CodeLayoutLangConfig) | — |
 | mainMenuConfig | Main menu (in top left) config | [`MenuOptions`](../guide/code-layout.md#built-in-main-menu) | — |
 | emptyText | The empty text when no panel in the group | `string` | `'Drag a view here to display'` |
-| saveBeforeUnload | Should the canSaveLayout event be triggered when window. beforeupload | `boolean` | `true` |
 
 ## Events
 
@@ -255,6 +255,38 @@ Basic language defined objects.
 | :----: | :----: | :----: | :----: |
 | lang | Language of component | `string` | `en` |
 | stringsOverride | Override some strings of current language. | [`Partial<CodeLayoutLangDefine>`](../guide/i18n) | - |
+
+## CodeLayoutRootGrid
+
+CodeLayout root grid class.
+
+### Constructor
+
+Create a new root grid instance.
+
+| Property | Description | Type | Default |
+| :----: | :----: | :----: | :----: |
+| primarySideBar | Primary sidebar grid | `CodeLayoutSplitNGridInternal` | - |
+| secondarySideBar | Secondary sidebar grid | `CodeLayoutSplitNGridInternal` | - |
+| bottomPanel | Bottom panel grid | `CodeLayoutSplitNGridInternal` | - |
+
+### `clearLayout(): void`
+
+Description：
+
+Same as `CodeLayoutInstance.clearLayout`.
+
+### `saveLayout(): any`
+
+Description：
+
+Same as `CodeLayoutInstance.saveLayout`.
+
+### `loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void`
+
+Description：
+
+Same as `CodeLayoutInstance.loadLayout`.
 
 ## CodeLayoutPanelInternal
 

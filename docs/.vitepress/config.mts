@@ -29,7 +29,7 @@ export default defineConfig({
         nav: [
           { text: 'Guide', link: '/en/guide/start' },
           { text: 'API Reference', link: '/en/api/CodeLayout' },
-          { text: 'Changelog', link: '/change/index' },
+          { text: 'Changelog', link: '/en/change/index' },
         ],
         sidebar: {
           '/en/guide/': [
