@@ -42,6 +42,7 @@ createApp(App)
   <CodeLayout 
     ref="codeLayout"
     :layout-config="config"
+    :layout-data="layoutData"
     style="height: 100vh"
   >
     <template #panelRender="{ panel }">
@@ -58,7 +59,8 @@ createApp(App)
 import { ref, reactive, onMounted, nextTick, h } from 'vue';
 import IconFile from './IconFile.vue';
 import IconSearch from './IconSearch.vue';
-import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig } from 'vue-code-layout';
+//1. Import component
+import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig, CodeLayoutRootGrid } from 'vue-code-layout';
 
 //2. Define the basic definition of layout
 const config = reactive<CodeLayoutConfig>({
@@ -88,6 +90,8 @@ const config = reactive<CodeLayoutConfig>({
 
 //Instance ref
 const codeLayout = ref<CodeLayoutInstance>();
+//Define layout data
+const layoutData = ref(new CodeLayoutRootGrid());
 
 /**
  * 3. Add panel data to components
@@ -240,10 +244,11 @@ You can add your panels to the components, or obtain panel instances for corresp
 To using the CodeLayout component, you need to first obtain its instance, and then call the method on the instance:
 
 ```ts
-import { CodeLayoutInstance } from 'vue-code-layout';
+import { type CodeLayoutInstance, CodeLayoutRootGrid } from 'vue-code-layout';
 
 //Bind the codeLayoutInstance variable to the CodeLayout component through the ref attribute
 const codeLayoutInstance = ref<CodeLayoutInstance>();
+const layoutData = ref(new CodeLayoutRootGrid());
 ```
 
 ### Get Root Group
@@ -257,11 +262,20 @@ const bottomPanel = codeLayoutInstance.value.getRootGrid('bottomPanel');
 
 ```
 
+Root layout data also provides these methods:
+
+```ts
+const primarySideBar = layoutData.value.primarySideBar;
+const secondarySideBar = layoutData.value.secondarySideBar;
+const bottomPanel = layoutData.value.bottomPanel;
+```
+
 ### Add Group/Panel
 
 You can add groups to the root, for example, the following code adds a group titled "Explorer" to the first sidebar:
 
 ```ts
+//Add group to root with instance method
 const groupExplorer = codeLayout.value.addGroup({
   title: 'Explorer',
   tooltip: 'Explorer',
@@ -270,6 +284,14 @@ const groupExplorer = codeLayout.value.addGroup({
   iconLarge: () => h(IconFile),
 }, 'primarySideBar');
 
+//Add group use grid method
+const groupExplorer = primarySideBar.addGroup({
+  title: 'Explorer',
+  tooltip: 'Explorer',
+  name: 'explorer',
+  badge: '2',
+  iconLarge: () => h(IconFile),
+});
 ```
 
 After obtaining the group, you can add panels to the custom group or root group:
@@ -314,9 +336,11 @@ bottomPanel.addPanel({
 });
 ```
 
+:::info
 Tip: Currently, CodeLayout does not support nested groups within groups (VSCode also does not have nested group functionality). When users drag and drop, nested groups will not be generated. Therefore, when using code to add, do not nest groups as it may cause problems.
 
 Groups can only be nested up to one level (groups can only be generated under the root group).
+:::
 
 ### Get panel instance
 
@@ -324,7 +348,8 @@ When adding a panel, the `name` attribute must be guaranteed to be unique, so yo
 
 ```ts
 //Get the panel and modify the badge
-const groupExplorer = codeLayout.value.getPanelByName('explorer')
+const groupExplorer = layoutData.value.getPanelByName('explorer') //Method in layout data
+const groupExplorer = codeLayout.value.getPanelByName('explorer') //Method in instance
 groupExplorer.badge = '3';
 ```
 
@@ -522,155 +547,151 @@ function onDragOver(e: DragEvent) {
 }
 ```
 
-## Saving and Loading Data
+## Save and Load Data
 
-CodeLayout supports you to save the layout dragged by the user to JSON data, and then reload it from JSON data to restore the original layout after the next entry.
+CodeLayout supports saving the layout after user drag operations as JSON data, and loading it from JSON data to restore the original layout when entering the application next time. Here's a complete example based on an actual project:
 
-CodeLayout supports two events, `canLoadLayout` and `canSaveLayout`. In the event callback, the current component instance will be returned. You can perform load and save operations in the event callback, or at other times, you can freely control the load and save operations by calling the `loadLayout` and `saveLayout` functions on the component instance.
+The project provides a `useLocalStorage` utility class that allows for easy implementation of automatic data saving and loading.
+
+The `useLocalStorage` utility class automatically performs operations at the following times:
+
+* **When the page loads**: Automatically loads data from local storage
+* **Before page unload and when the component is unmounted**: Automatically saves data to local storage
+
+This ensures that users' layout modifications are not lost when the page is refreshed or when they re-enter the application.
+
+::: tip
+Tip: Layout data does not store non-serializable objects, such as functions and icons, and for internationalization purposes, it also does not store `title` and `tooltip`. This information needs to be manually set from callbacks when loading.
+:::
 
 ```vue
 <template>
   <CodeLayout 
     ref="codeLayout"
-    :layout-config="config"
-    style="height: 400px"
-    @canLoadLayout="loadLayout"
-    @canSaveLayout="saveLayout"
-  />
+    :layoutConfig="config"
+    :layoutData="(layoutData as CodeLayoutRootGrid)"
+    :mainMenuConfig="menuData"
+  >
+    <!-- Component content -->
+  </CodeLayout>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
-import type { CodeLayoutInstance } from 'vue-code-layout';
+import { ref, reactive, onMounted } from 'vue';
+import { 
+  CodeLayout, 
+  type CodeLayoutConfig, 
+  type CodeLayoutInstance, 
+  defaultCodeLayoutConfig,
+  CodeLayoutRootGrid,
+  useLocalStorage,
+} from 'vue-code-layout';
+import { h } from 'vue';
+import IconFile from '@/assets/icons/IconFile.vue';
+import IconSearch from '@/assets/icons/IconSearch.vue';
 
 const codeLayout = ref<CodeLayoutInstance>();
+const layoutData = ref(new CodeLayoutRootGrid());
 
-//Load and save operations can be performed in event callbacks, which are triggered by default during component initialization and uninstallation
-//The event will pass the component instance ref, which can be directly called, equivalent to codeLayout.value
-function loadLayout(ref: CodeLayoutInstance) {
-  //Load here
-}
-function saveLayout(ref: CodeLayoutInstance) {
-  //Save here
-}
-
-//You can also load/save data by calling component instance methods at other custom times
-onMounted(() => {
-  codeLayout.value.loadLayout();
-})
-</script>
-```
-
-### Load data
-
-Therae re are two data need load:
-
-* Basic layout data (CodeLayoutConfig), which defines the size of each basic group, whether to display it, basic layout settings, etc.
-* Group and Panel data (Layout data).
-
-The basic layout data only needs to be reloaded into variables after saving.
-
-```ts
-import { toRaw, reactive } from 'vue';
-import type { CodeLayoutConfig } from 'vue-code-layout';
-
-//Load basic layout data
+// Configuration information
+const codeLayoutConfig: CodeLayoutConfig = {
+  ...defaultCodeLayoutConfig,
+  titleBar: true,
+  activityBar: true,
+  primarySideBar: true,
+  // Other configuration items
+};
 const config = reactive<CodeLayoutConfig>({
-  //This is just an example. There are multiple methods to fill in the data, and you can use your preferred method
-  ...JSON.parse(localStorage.getItem('LayoutConfig'))
+  ...codeLayoutConfig,
+  // Other reactive configurations
 });
-```
 
-Layout data only stores the basic position, size, and other information of each layout, and does not contain information that cannot be serialized (such as callback functions and icons). So you also need to fill in these data based on the panel name in the callback of loadLayout to instantiated the panel.
-
-```ts
-const data = localStorage.getItem('LayoutData');
-if (data) {
-  //If load layout from data, need fill panel data
-  codeLayout.value.loadLayout(JSON.parse(data), (panel) => {
-    switch (panel.name) {
-      case 'explorer':
-        panel.title = 'Explorer';
-        panel.tooltip = 'Explorer';
-        panel.badge = '2';
-        panel.iconLarge = () => h(IconFile);
-        break;
-      case 'search':
-        panel.title = 'Search';
-        panel.tooltip = 'Search';
-        panel.iconLarge = () => h(IconSearch);
-        break;
-      case 'explorer.file':
-        panel.title = 'VUE-CODE-LAYOUT';
-        panel.tooltip = 'vue-code-layout';
-        panel.actions = [
-          { 
-            name: 'test',
-            icon: () => h(IconSearch),
-            onClick() {},
-          },
-          { 
-            name: 'test2',
-            icon: () => h(IconFile),
-            onClick() {},
-          },
-        ]
-        panel.iconSmall = () => h(IconSearch);
-        break; 
-      case 'explorer.outline':
-        panel.title = 'OUTLINE';
-        panel.tooltip = 'Outline';
-        panel.actions = [
-          { 
-            name: 'test',
-            icon: () => h(IconSearch),
-            onClick() {},
-          },
-          { 
-            name: 'test2',
-            icon: () => h(IconFile),
-            onClick() {},
-          },
-        ]
-        panel.iconSmall = () => h(IconSearch);
-        break;
-      case 'bottom.ports':
-        panel.title = 'PORTS';
-        panel.tooltip = 'Ports';
-        panel.iconSmall = () => h(IconSearch);
-        break;  
-      case 'bottom.terminal':
-        panel.title = 'TERMINAL';
-        panel.tooltip = 'Terminal';
-        panel.iconSmall = () => h(IconSearch);
-        break;
+// Save layout configuration
+const { clearData: clearConfigData } = useLocalStorage(
+  'CodeLayoutDemoSaveConfig',
+  null,
+  // Callback when loading
+  (dataObj) => {
+    if (dataObj) {
+      for (const key in dataObj) {
+        (config as Record<string, any>)[key] = (dataObj as Record<string, any>)[key];
+      }
     }
-    return panel;
-  });
-} else {
-  //No data, create new layout
-  //...
+  },
+  // Callback when saving
+  () => {
+    return config;
+  }
+);
+
+// Save layout data
+const { clearData: clearLayoutData } = useLocalStorage(
+  'CodeLayoutDemoSaveData',
+  null,
+  // Callback when loading
+  (data) => {
+    if (data) {
+      // Load layout data and refill panel properties that are not serialized
+      layoutData.value.loadLayout(data, (panel) => {
+        // Set different properties based on panel name
+        switch (panel.name) {
+          case 'explorer':
+            panel.title = 'Explorer';
+            panel.tooltip = 'Explorer';
+            panel.badge = '2';
+            panel.iconLarge = () => h(IconFile);
+            break;
+          case 'search':
+            panel.title = 'Search';
+            panel.tooltip = 'Search';
+            panel.iconLarge = () => h(IconSearch);
+            break;
+          case 'explorer.file':
+            panel.title = 'VUE-CODE-LAYOUT';
+            panel.tooltip = 'vue-code-layout';
+            panel.iconSmall = () => h(IconSearch);
+            break;
+          // Other panel configurations...
+          default:
+            panel.title = panel.name;
+            panel.tooltip = `Panel ${panel.name}`;
+            panel.iconLarge = () => h(IconSearch);
+            panel.iconSmall = () => h(IconSearch);
+            break;
+        }
+        return panel;
+      });
+    } else {
+      // No saved data, create a new layout
+      if (codeLayout.value) {
+        // Create initial layout
+        const groupExplorer = codeLayout.value.addGroup({
+          title: 'Explorer',
+          tooltip: 'Explorer',
+          name: 'explorer',
+          badge: '2',
+          iconLarge: () => h(IconFile),
+        }, 'primarySideBar');
+        
+        // Add other panels...
+      }
+    }
+  },
+  // Callback when saving
+  () => {
+    // Only save if there are contents in the layout
+    return layoutData.value.children.length > 0 ? layoutData.value.saveLayout() /** Serialize to json */ : null;
+  }
+);
+
+// Reset all layout data
+function onResetAll() {
+  layoutData.value.clearLayout();
+  // useLocalStorage internally encapsulates that it will automatically call the load callback again after clearing
+  clearConfigData();
+  clearLayoutData();
 }
-```
-
-### Save data
-
-Save layout data by calling the `saveLayout` method.
-
-At the same time, you should also save the basic layout data (CodeLayoutConfig), simply call the `saveLayout` function and save the config variable.
-
-```ts
-import { toRaw, reactive } from 'vue';
-import type { CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //Save basic layout data
+</script>
 ```
 
 ## Built-in main menu

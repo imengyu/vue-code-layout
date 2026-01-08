@@ -2,7 +2,7 @@
 
 ## 基础示例
 
-推荐将 SplitLayout 置于顶级组件或者 CodeLayout 的 centerArea 插槽并设置宽高占满屏幕。
+推荐将 SplitLayout 置于顶级组件或者 CodeLayout 的 `centerArea` 插槽并设置宽高占满屏幕。
 
 ::: warning
 本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
@@ -513,70 +513,6 @@ function onDragOver(e: DragEvent) {
 
 SplitLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。
 
-SplitLayout 支持 `canLoadLayout`、`canSaveLayout` 两个事件，事件回调中会返回当前组件实例，你可以在事件回调中执行加载与保存操作，也可以在其他时机通过调用组件实例上的 `loadLayout`, `saveLayout` 函数自由控制加载与保存操作。
-
-```vue
-<template>
-  <SplitLayout 
-    ref="splitLayout"
-    style="height: 400px"
-    @canLoadLayout="loadLayout"
-    @canSaveLayout="saveLayout"
-  />
-</template>
-
-<script lang="ts" setup>
-const splitLayout = ref<CodeLayoutSplitNInstance>();
-
-//可以在事件回调中执行加载与保存操作，默认事件回调会在组件初始化与卸载时触发
-//事件会传递组件实例 ref，可以直接调用，等同于 splitLayout.value
-function loadLayout(ref: CodeLayoutSplitNInstance) {
-  //在这里加载
-}
-function saveLayout(ref: CodeLayoutSplitNInstance) {
-  //在这里保存
-}
-
-//也可以在其他自定时机通过调用组件实例方法来加载/保存数据
-onMounted(() => {
-  splitLayout.value.loadLayout();
-})
-</script>
-```
-
-### 保存数据
-
-通过调用 saveLayout 方法保存布局数据。
-
-```ts
-const json = splitLayout.value.saveLayout();
-localStorage.setItem('SplitLayoutData', json);
-```
-
-### 加载数据
-
-布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以你还需要在 loadLayout 的回调，根据面板名称填充这些数据，以实例化面板。
-
-```ts
-const data = localStorage.getItem('SplitLayoutData');
-if (data) {
-  //If load layout from data, need fill panel data
-  splitLayout.value.loadLayout(JSON.parse(data), (panel) => {
-    switch (panel.name) {
-      case 'file1':
-        panel.title = 'File 1';
-        panel.tooltip = 'File 1 path';
-        panel.badge = '2';
-        panel.iconLarge = () => h(IconFile);
-        break;
-    }
-    return panel;
-  });
-} else {
-  //No data, create new layout
-  //...
-}
-```
 
 ## 组件卸载提示
 
