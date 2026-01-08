@@ -8,7 +8,7 @@ nav:
 ## v1.3.0 - 2026/01/10 <Badge type="tip" text="Break Change" />
 
 * [Add] CodeLayout, SplitLayout: The layout data is now passed in through prop and controlled by the user to avoid data loss after the component is recreated. Old event `loadLayout` and `saveLayout` are removed.
-For new data load and save way, please check [example](../en/guide/code-layout.md#save-and-load-data).
+For new data load and save way, please check [example](../guide/code-layout.md#save-and-load-data).
   * Prop:
     * layoutData: Layout data, data now controlled by user.
 * [Remove] CodeLayout and SplitLayout
