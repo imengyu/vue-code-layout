@@ -5,7 +5,7 @@ nav:
   order: 5
 ---
 
-## v1.3.0 - 2026/01/10 <Badge type="tip" text="Break Change" />
+## v1.2.5 - 2026/06/15 <Badge type="tip" text="Break Change" />
 
 * [Add] CodeLayout, SplitLayout: The layout data is now passed in through prop and controlled by the user to avoid data loss after the component is recreated. Old event `loadLayout` and `saveLayout` are removed.
 For new data load and save way, please check [example](../guide/code-layout.md#save-and-load-data).
@@ -20,6 +20,7 @@ For new data load and save way, please check [example](../guide/code-layout.md#s
 * [Remove] SplitLayout prop: These props are removed, use `layoutData.parentGrid` and `layoutData.direction` instead.
   * rootGridType
   * rootGridDirection
+* [Add] [SplitN](../guide/split-layout.md#splitn) A draggable grid component has been exported, which can be used standalone for simple left-right panel dragging needs.
 
 ## v1.2.4 - 2026/01/07
 

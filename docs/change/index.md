@@ -5,10 +5,10 @@ nav:
   order: 5
 ---
 
-## v1.3.0 - 2026/01/10 <Badge type="tip" text="破坏性变更" />
+## v1.2.5 - 2026/06/15 <Badge type="tip" text="破坏性变更" />
 
 * [新增] CodeLayout, SplitLayout: 布局数据现在通过属性传入并由用户控制，避免组件重新创建后数据丢失。移除了旧事件 `loadLayout` 和 `saveLayout`。
-有关新的数据加载和保存方式，请查看 [示例](../en/guide/code-layout.md#save-and-load-data)。
+有关新的数据加载和保存方式，请查看 [示例](../guide/code-layout.md#save-and-load-data)。
   * 属性:
     * layoutData: 布局数据，现在由用户控制。
 * [移除] CodeLayout 和 SplitLayout
@@ -20,6 +20,7 @@ nav:
 * [移除] SplitLayout 属性: 这些属性已移除，请使用 `layoutData.parentGrid` 和 `layoutData.direction` 替代。
   * rootGridType
   * rootGridDirection
+* [新增] [SplitN](../guide/split-layout.md#独立组件) 独立面板拖拽组件，适用于简单的左右面板拖拽。
 
 ## v1.2.4 - 2026/01/07
 
