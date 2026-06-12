@@ -412,6 +412,7 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
     this.childGrid.splice(0);
     this.children.splice(0);
     this._root?.clearPanelInstanceRef();
+    return this;
   }
   /**
    * Load the previous layout from JSON data, will clear all panels,
@@ -422,7 +423,7 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
    */
   loadLayout(json: object, instantiatePanelCallback: (panel: any) => CodeLayoutSplitNPanel) {
     if (!json)
-      return;
+      return this;
     this.clearLayout();
 
     function loadGrid(grid: any, gridInstance: CodeLayoutSplitNGridInternal) {
@@ -446,6 +447,7 @@ export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
 
     loadGrid(json, this);
     this.notifyRelayout();
+    return this;
   }
   /**
    * Save layout to json.

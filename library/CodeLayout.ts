@@ -1009,7 +1009,7 @@ export interface CodeLayoutPanel {
   /**
    * Set tab style of this grid.
    * 
-   * * Only used in CodeLayout.
+   * ### If used in CodeLayout:
    * 
    * Tab style:
    * * none: No tab control.
@@ -1021,6 +1021,10 @@ export interface CodeLayoutPanel {
    * * hidden: Has tab control but tab header was hidden.
    * 
    * Default: 'none'
+   * 
+   * ### If used in SplitLayout:
+   * 
+   * * hidden: Tab header was hidden.
    */
   tabStyle?: CodeLayoutPanelTabStyle;
   /**

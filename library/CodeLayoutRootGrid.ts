@@ -80,6 +80,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.secondarySideBar.setActiveChild(null);
     this.bottomPanel.setActiveChild(null);
     this._root?.clearPanelInstanceRef();
+    return this;
   }
   /**
    * Save the layout dragged by the user to the JSON data, and after the next entry, call 'loadLayout' to reload and restore the original layout from the JSON data.
@@ -104,7 +105,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.clearLayout();
 
     if (!json)
-      return;
+      return this;
 
     function loadGrid(gridData: any, gridInstance: CodeLayoutPanelInternal) {
       gridInstance.loadFromJson(gridData);
@@ -126,6 +127,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     if (json.bottom) {
       loadGrid(json.bottom, this.bottomPanel as CodeLayoutPanelInternal);
     }
+    return this;
   }
 
 }

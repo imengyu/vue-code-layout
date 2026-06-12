@@ -8,7 +8,7 @@
   >
     <!--tab list-->
     <div
-      v-if="grid.children.length > 0" 
+      v-if="grid.children.length > 0 && grid.tabStyle !== 'hidden'" 
       ref="tabScroll" 
       :class="[
         'code-layout-split-tab-list',
