@@ -7,7 +7,7 @@
     ]"
   >
     <div 
-      v-for="(child, index) in grid.childGrid"
+      v-for="(child, index) in grids"
       :key="child.name"
       :style="{
         width: horizontal ? `${child.visible ? child.size : 0}%` : undefined,
@@ -60,12 +60,8 @@ import HtmlUtils from '../Utils/HtmlUtils';
 import { createMouseDragHandler } from '../Composeable/MouseHandler';
 import { useResizeChecker } from '../Composeable/ResizeChecker';
 import { ref, type PropType, onMounted, nextTick, watch, onBeforeUnmount } from 'vue';
-import type { CodeLayoutSplitNGridInternal } from './SplitN';
+import type { CodeLayoutSplitNGrid, CodeLayoutSplitNGridInternal } from './SplitN';
 import { assertNotNull } from '../Utils/Assert';
-
-export interface SplitNInstance {
-  applyOrthogonalDragger(type: string, e: MouseEvent): void;
-}
 
 const emit = defineEmits([
   'orthogonalDraggerHover', 
@@ -73,9 +69,9 @@ const emit = defineEmits([
 ]);
 
 const props = defineProps({
-  grid: {
-    type: Object as PropType<CodeLayoutSplitNGridInternal>,
-    default: null,
+  grids: {
+    type: Object as PropType<Array<CodeLayoutSplitNGrid>>,
+    default: () => [],
   },
   /**
    * Is horizontal?
@@ -125,7 +121,7 @@ let dragging = false;
 let orthogonalNeedUnHovering = false;
 
 interface PanelResizePanelData {
-  panel: CodeLayoutSplitNGridInternal, 
+  panel: CodeLayoutSplitNGrid, 
   intitalSize: number;
 }
 
@@ -139,7 +135,7 @@ interface PanelResizePanelData {
  */
 function adjustAndReturnAdjustedSize(
   containerSize: number, 
-  panel: CodeLayoutSplitNGridInternal, 
+  panel: CodeLayoutSplitNGrid, 
   intitalSize: number, 
   increaseSize: number
 ) {
@@ -203,7 +199,7 @@ function adjustAndReturnAdjustedSize(
  * @param grid 面板
  * @returns 返回百分比
  */
-function getGridMinSize(grid: CodeLayoutSplitNGridInternal) {
+function getGridMinSize(grid: CodeLayoutSplitNGrid) {
   assertNotNull(splitBase.value, '!splitBase.value');
   const containerSize = props.horizontal ? 
     splitBase.value.offsetWidth : 
@@ -218,7 +214,7 @@ function getGridMinSize(grid: CodeLayoutSplitNGridInternal) {
  * @param grid 面板
  * @returns 返回像素
  */
-function getGridMinSizePx(grid: CodeLayoutSplitNGridInternal) {
+function getGridMinSizePx(grid: CodeLayoutSplitNGrid) {
   if (!grid.minSize)
     return 0;
   let minSize = 0;
@@ -237,15 +233,15 @@ function calcDraggerLeftSize() {
   dragPanelLeftSize = 0;
   dragPanelRightSize = 0;
   dragPanelArray = [];
-  for (let i = 0; i < props.grid.childGrid.length; i++) {
-    const panel = props.grid.childGrid[i];
+  for (let i = 0; i < props.grids.length; i++) {
+    const panel = props.grids[i];
     if (i < dragPanelSplitIndex && panel.visible)
-      dragPanelLeftSize += panel.size;
+      dragPanelLeftSize += panel.size || 0;
     else if (i >= dragPanelSplitIndex && panel.visible)
-      dragPanelRightSize += panel.size;
+      dragPanelRightSize += panel.size || 0;
     dragPanelArray.push({
       panel,
-      intitalSize: panel.size, 
+      intitalSize: panel.size || 0, 
     })
   }
 }
@@ -457,8 +453,7 @@ function getCanAllocSize() {
     splitBase.value.offsetHeight;
   let notAllocSpaceAndOpenCount = 0;
   let canAllocSize = 100;
-  for (const grid of props.grid.childGrid) {
-    grid.lastRelayoutSize = containerSize;
+  for (const grid of props.grids) {
     if (grid.size > 0)
       canAllocSize -= grid.visible ? grid.size : 0;
     else
@@ -479,8 +474,8 @@ function getAvgAllocSize() {
 //初始大小情况下，有可能有些面板空间还未分配，现在分配这些空间
 function allocZeroGridSize() {
   const allocSize = getAvgAllocSize();
-  for (const grid of props.grid.childGrid) {
-    if (grid.visible && grid.size <= 0) {
+  for (const grid of props.grids) {
+    if (grid.visible && (grid.size <= 0 || !grid.size)) {
       grid.size = Math.max(allocSize, getGridMinSize(grid));
       if (isNaN(grid.size))
         grid.size = getGridMinSize(grid);
@@ -504,7 +499,7 @@ function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
   const resizeLarge = (resizedContainerSizePrecent < 0);
 
   let allPanelsSize = 0;
-  const openedPanels = props.grid.childGrid.filter(p => {
+  const openedPanels = props.grids.filter(p => {
     if (!p.visible)
       return false;
     allPanelsSize += p.size;
@@ -523,7 +518,7 @@ function relayoutAllWithResizedSize(resizedContainerSizePrecent: number) {
   //向打开的面板分配大小
   for (let i = 0; i < openedPanels.length; i++) {
     const panel = openedPanels[i];
-    const { adjustedSize } = adjustAndReturnAdjustedSize(containerSize, panel, panel.size, -resizedContainerSizePrecent);
+    const { adjustedSize } = adjustAndReturnAdjustedSize(containerSize, panel, panel.size || 0, -resizedContainerSizePrecent);
     resizedContainerSizePrecent += adjustedSize;
     if (!resizeLarge && resizedContainerSizePrecent <= 0)
       break;
@@ -543,7 +538,7 @@ function relayoutAllWithNewPanel(panels: CodeLayoutSplitNGridInternal[], referen
     panels[0].size = allocSize;
   } else {
     //否则平均重新分配全部网格
-    for (const grid of props.grid.childGrid)
+    for (const grid of props.grids)
       grid.size = 0;
     allocZeroGridSize();
   }
@@ -554,12 +549,12 @@ function relayoutAllWithRemovePanel(panel: CodeLayoutSplitNGridInternal) {
 } 
 //当容器大小改变时，重新布局已存在面板
 function relayoutAllWhenSizeChange(newSize: number) {
-  const grids = props.grid.childGrid.filter(p => p.visible);
+  const grids = props.grids.filter(p => p.visible);
 
   //全部可以扩展，直接利用百分比，无须调整
   if (grids
     .filter(p => p.visible)
-    .reduce((a, b) => a && b.stretchable, true)
+    .reduce((a, b) => a && (b.stretchable || true), true)
   )
     return;
 
@@ -590,16 +585,6 @@ function relayoutAllWhenSizeChange(newSize: number) {
 function relayoutAll() {
   allocZeroGridSize();
 }
-//钩子函数
-function loadPanelFunctions() {
-  props.grid.listenLateAction('notifyRelayout', () => relayoutAll());
-  props.grid.listenLateAction('relayoutAllWithNewPanel', relayoutAllWithNewPanel);
-  props.grid.listenLateAction('relayoutAllWithResizedSize', relayoutAllWithResizedSize);
-  props.grid.listenLateAction('relayoutAllWithRemovePanel', relayoutAllWithRemovePanel);
-}
-function unloadPanelFunctions(oldValue: CodeLayoutSplitNGridInternal) {
-  oldValue.unlistenAllLateAction();
-}
 
 //更改大小后重新布局
 
@@ -611,14 +596,9 @@ const {
   props.horizontal ? undefined : relayoutAllWhenSizeChange
 );
 
-watch(() => props.grid, (newValue, oldValue) => {
-  unloadPanelFunctions(oldValue);
-  loadPanelFunctions();
+watch(() => props.grids, () => {
   allocZeroGridSize();
-});
-watch(() => props.grid.childGrid.length, () => {
-  allocZeroGridSize();
-})
+}, { deep: true })
 
 onMounted(() => {
   nextTick(() => {
@@ -626,16 +606,19 @@ onMounted(() => {
       oldSize = props.horizontal ? splitBase.value.offsetWidth : splitBase.value.offsetHeight;
     startResizeChecker();
     allocZeroGridSize();
-    loadPanelFunctions();
   });
 });
 onBeforeUnmount(() => {
   stopResizeChecker();
-  unloadPanelFunctions(props.grid);
 });
 
-defineExpose<SplitNInstance>({
+defineExpose({
   applyOrthogonalDragger,
+  relayoutAllWithResizedSize,
+  relayoutAllWithNewPanel,
+  relayoutAllWhenSizeChange,
+  relayoutAllWithRemovePanel,
+  relayoutAll,
 });
 
 </script>

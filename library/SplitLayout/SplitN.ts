@@ -21,6 +21,10 @@ export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
    * Default: true
    */
   stretchable?: boolean;
+  /**
+   * Size of this panel. (percentage size)
+   */
+  size: number;
 
   /**
    * Callback when canMinClose is set to true, and this panel visible was changed by user dragging.

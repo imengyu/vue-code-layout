@@ -3,7 +3,7 @@
     v-if="grid.childGrid?.length"
     ref="splitLayoutRef"
     :key="grid.name"
-    :grid="grid"
+    :grids="grid.childGrid"
     :horizontal="grid.direction === 'horizontal'"
     :indexOfParent="indexOfParent"
     :isLastOfParent="isLastOfParent"
@@ -11,9 +11,9 @@
   >
     <template #grid="{ grid: childGrid, index }">
       <SplitNest 
-        v-if="childGrid.childGrid?.length"
+        v-if="(childGrid as CodeLayoutSplitNGridInternal).childGrid?.length"
         :key="childGrid.name"
-        :grid="childGrid"
+        :grid="(childGrid as CodeLayoutSplitNGridInternal)"
         :indexOfParent="index"
         :isLastOfParent="index === grid.childGrid.length - 1"
         @orthogonalDraggerHover="(a, b) => handlerChilldOrthogonalDraggerHover(index, a, b)"
@@ -23,18 +23,18 @@
           <slot name="grid" v-bind="param" />
         </template>
       </SplitNest>
-      <slot v-else name="grid" :grid="childGrid" :index="index" />
+      <slot v-else name="grid" :grid="(childGrid as CodeLayoutSplitNGridInternal)" :index="index" />
     </template>
   </SplitN>
   <slot v-else name="grid" :grid="grid" :index="0" />
 </template>
 
 <script setup lang="ts">
-import SplitN, { type SplitNInstance } from './SplitN.vue';
+import SplitN from './SplitN.vue';
 import type { CodeLayoutSplitNGridInternal } from './SplitN';
-import { ref, type PropType } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, type PropType } from 'vue';
 
-defineProps({
+const props = defineProps({
   grid: {
     type: Object as PropType<CodeLayoutSplitNGridInternal>,
     default: null,
@@ -56,7 +56,7 @@ defineEmits<{
   (e: 'orthogonalDraggerDrag', type: string, ev: MouseEvent) : any;
 }>();
 
-const splitLayoutRef = ref<SplitNInstance>();
+const splitLayoutRef = ref<InstanceType<typeof SplitN>>();
 const topForceDraggerActiveState = ref(0);
 
 function handlerChilldOrthogonalDraggerHover(index: number, type: string, hover: boolean) {
@@ -73,5 +73,27 @@ function handlerChilldOrthogonalDraggerDrag(index: number, type: string, e: Mous
   if (topForceDraggerActiveState.value > 0)
     splitLayoutRef.value?.applyOrthogonalDragger(type, e);
 }
+
+//钩子函数
+function loadPanelFunctions() {
+  props.grid.listenLateAction('notifyRelayout', () => splitLayoutRef.value?.relayoutAll());
+  props.grid.listenLateAction('relayoutAllWithNewPanel', (p1, p2) => splitLayoutRef.value?.relayoutAllWithNewPanel(p1, p2));
+  props.grid.listenLateAction('relayoutAllWithResizedSize', (p1) => splitLayoutRef.value?.relayoutAllWithResizedSize(p1));
+  props.grid.listenLateAction('relayoutAllWithRemovePanel', (p1) => splitLayoutRef.value?.relayoutAllWithRemovePanel(p1));
+}
+function unloadPanelFunctions(oldValue: CodeLayoutSplitNGridInternal) {
+  oldValue.unlistenAllLateAction();
+}
+
+watch(() => props.grid, (newValue, oldValue) => {
+  unloadPanelFunctions(oldValue);
+  loadPanelFunctions();
+});
+onMounted(() => {
+  loadPanelFunctions();
+});
+onBeforeUnmount(() => {
+  unloadPanelFunctions(props.grid);
+});
 
 </script>

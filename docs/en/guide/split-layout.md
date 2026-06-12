@@ -612,6 +612,76 @@ const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) =>
 </script>
 ```
 
+## SplitN
+
+A draggable grid component has been exported, which can be used standalone for simple left-right panel dragging needs. Component reference: [SplitN](../api/SplitN.md).
+
+```vue preview
+<template>
+  <div class="demo">
+    <SplitN
+      ref="splitLayoutRef"
+      :grids="grids"
+    >
+      <template #grid="{ grid }">
+        <h2 :style="{ backgroundColor: colors[grid.data] }">Grid {{ grid.name }}</h2>
+      </template>
+    </SplitN>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, nextTick, h, onMounted } from 'vue';
+import { SplitN, type CodeLayoutSplitNGrid } from 'vue-code-layout';
+
+const colors = [
+  '#0a4',
+  '#f80',
+  '#08f',
+]
+const grids = ref<CodeLayoutSplitNGrid[]>([
+  {
+    name: 'grid1',
+    visible: true,
+    size: 0,
+    data: 0,
+  },
+  {
+    name: 'grid2',
+    visible: true,
+    size: 0,
+    data: 1,
+  },
+  {
+    name: 'grid3',
+    visible: true,
+    size: 0,
+    data: 2,
+  }
+]);
+
+</script>
+
+
+<style scoped>
+h2 {
+  height: 100%;
+  text-align: center;
+  line-height: 100px!important;
+  margin: 0!important;
+  color: var(--code-layout-color-text-light);
+}
+.demo {
+  height: 400px;
+  display: flex;
+  flex-direction: row;
+  color: var(--code-layout-color-text-light);
+  background-color: var(--code-layout-color-background);
+}
+</style>
+
+```
+
 ## Component Unmounting Tip
 
 Tip: Vue may unmount and recreate your components in the following two situations:

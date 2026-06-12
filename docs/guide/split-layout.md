@@ -603,6 +603,76 @@ const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) =>
 </script>
 ```
 
+## 独立组件
+
+独立导出了可拖拽网格组件，在只有简单的左右面板拖拽需求下可以单独使用。组件参考 [SplitN](../api/SplitN.md)。
+
+```vue preview
+<template>
+  <div class="demo">
+    <SplitN
+      ref="splitLayoutRef"
+      :grids="grids"
+    >
+      <template #grid="{ grid }">
+        <h2 :style="{ backgroundColor: colors[grid.data] }">Grid {{ grid.name }}</h2>
+      </template>
+    </SplitN>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, nextTick, h, onMounted } from 'vue';
+import { SplitN, type CodeLayoutSplitNGrid } from 'vue-code-layout';
+
+const colors = [
+  '#0a4',
+  '#f80',
+  '#08f',
+]
+const grids = ref<CodeLayoutSplitNGrid[]>([
+  {
+    name: 'grid1',
+    visible: true,
+    size: 0,
+    data: 0,
+  },
+  {
+    name: 'grid2',
+    visible: true,
+    size: 0,
+    data: 1,
+  },
+  {
+    name: 'grid3',
+    visible: true,
+    size: 0,
+    data: 2,
+  }
+]);
+
+</script>
+
+
+<style scoped>
+h2 {
+  height: 100%;
+  text-align: center;
+  line-height: 100px!important;
+  margin: 0!important;
+  color: var(--code-layout-color-text-light);
+}
+.demo {
+  height: 400px;
+  display: flex;
+  flex-direction: row;
+  color: var(--code-layout-color-text-light);
+  background-color: var(--code-layout-color-background);
+}
+</style>
+
+```
+
 ## 组件卸载提示
 
 提示：以下两种情况，Vue可能会将你的组件卸载重新创建：
