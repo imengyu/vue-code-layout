@@ -29,6 +29,7 @@
   <CodeLayout 
     ref="codeLayout"
     :layout-config="config"
+    :layout-data="layoutData"
     style="height: 400px"
   >
     <template #panelRender="{ panel }">
@@ -43,7 +44,8 @@
 
 <script lang="ts" setup>
 import { ref, reactive, onMounted, nextTick, h } from 'vue';
-import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig } from 'vue-code-layout';
+//1. 导入组件
+import { type CodeLayoutConfig, type CodeLayoutInstance, defaultCodeLayoutConfig, CodeLayoutRootGrid } from 'vue-code-layout';
 import IconFile from '../../examples/assets/icons/IconFile.vue';
 import IconSearch from '../../examples/assets/icons/IconSearch.vue';
 
@@ -74,8 +76,9 @@ const config = reactive<CodeLayoutConfig>({
   bottomPanelMaximize: false
 });
 
-//定义实例
+//定义实例和数据
 const codeLayout = ref<CodeLayoutInstance>();
+const layoutData = ref(new CodeLayoutRootGrid());
 
 /**
  * 3. 向组件中添加面板数据
@@ -197,10 +200,11 @@ onMounted(() => {
 要操作 CodeLayout 组件，需要先获取它的实例，然后调用实例上的方法：
 
 ```ts
-import { CodeLayoutInstance } from 'vue-code-layout';
+import { type CodeLayoutInstance, CodeLayoutRootGrid } from 'vue-code-layout';
 
 //将 codeLayoutInstance 变量通过 ref 属性绑定到 CodeLayout 组件上
 const codeLayoutInstance = ref<CodeLayoutInstance>();
+const layoutData = ref(new CodeLayoutRootGrid());
 ```
 
 ### 获取根组
@@ -214,11 +218,20 @@ const bottomPanel = codeLayoutInstance.value.getRootGrid('bottomPanel'); //获�
 
 ```
 
+根布局数据中同样有这些方法：
+
+```ts
+const primarySideBar = layoutData.value.primarySideBar; //获取第一侧边栏组
+const secondarySideBar = layoutData.value.secondarySideBar; //获取第二侧边栏组
+const bottomPanel = layoutData.value.bottomPanel; //获取底栏组
+```
+
 ### 添加组/面板
 
 你可以向根中添加组，例如，下面的代码向第一侧边栏添加了一个标题是“Explorer”的组：
 
 ```ts
+//通过实例方法添加组
 const groupExplorer = codeLayout.value.addGroup({
   title: 'Explorer',
   tooltip: 'Explorer',
@@ -227,6 +240,14 @@ const groupExplorer = codeLayout.value.addGroup({
   iconLarge: () => h(IconFile),
 }, 'primarySideBar');
 
+//也可以直接向根组添加组
+const groupExplorer = primarySideBar.addGroup({
+  title: 'Explorer',
+  tooltip: 'Explorer',
+  name: 'explorer',
+  badge: '2',
+  iconLarge: () => h(IconFile),
+});
 ```
 
 获取到组后，你可以在自定义组或者根组中添加面板：
@@ -271,9 +292,11 @@ bottomPanel.addPanel({
 });
 ```
 
+:::info
 提示：目前 CodeLayout 不支持组中再嵌套组（VSCode 中也没有嵌套组的功能），用户拖拽时不会产生嵌套的组，因此您在使用代码添加时不要嵌套组，在非根组组中再嵌套组将不会显示。
 
 组最多只嵌套一级（仅根组下可产生组）。
+:::
 
 ### 获取面板
 
@@ -281,8 +304,10 @@ bottomPanel.addPanel({
 
 ```ts
 //获取面板并修改badge
-const groupExplorer = codeLayout.value.getPanelByName('explorer')
+const groupExplorer = layoutData.value.getPanelByName('explorer') //从布局数据中获取面板
+const groupExplorer = codeLayout.value.getPanelByName('explorer') //从实例中获取面板
 groupExplorer.badge = '3';
+//
 ```
 
 ### 面板显示、隐藏
@@ -470,155 +495,167 @@ const config = reactive<CodeLayoutConfig>({
 });
 ```
 
+### 拖拽提示
+
+当内嵌自定义组件需要处理拖拽时，请在自己的拖拽处理函数中调用 `e.stopPropagation()` 来阻止事件冒泡，否则事件会冒泡至CodeLayout组件内部，使之无法处理拖拽。
+
+```ts
+//在自定义组件中处理拖拽事件
+function onDragOver(e: DragEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+```
+
 ## 保存与加载数据
 
-CodeLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。
+CodeLayout 支持将用户拖拽后的布局保存为 JSON 数据，并在下次进入应用时从 JSON 数据中加载恢复原布局。以下是一个基于实际项目的完整示例：
 
-CodeLayout 支持 `canLoadLayout`、`canSaveLayout` 两个事件，事件回调中会返回当前组件实例，你可以在事件回调中执行加载与保存操作，也可以在其他时机通过调用组件实例上的 `loadLayout`, `saveLayout` 函数自由控制加载与保存操作。
+项目中提供了 `useLocalStorage` 工具类，可以方便地实现数据的自动保存与加载。
+
+`useLocalStorage` 工具类会自动在以下时机执行操作：
+
+* **页面加载时**：自动从本地存储加载数据
+* **页面卸载前、组件卸载时**：自动将数据保存到本地存储
+
+这种方式可以确保用户的布局修改在页面刷新或重新进入应用时不会丢失。
+
+::: tip
+提示：布局数据不会存储不可序列化的对象，例如函数、图标，并且为了国际化也不会存储标题（title）、悬浮提示（tooltip），这部分
+数据需要在加载时从回调中手动设置。
+:::
 
 ```vue
 <template>
   <CodeLayout 
     ref="codeLayout"
-    :layout-config="config"
-    style="height: 400px"
-    @canLoadLayout="loadLayout"
-    @canSaveLayout="saveLayout"
-  />
+    :layoutConfig="config"
+    :layoutData="(layoutData as CodeLayoutRootGrid)"
+    :mainMenuConfig="menuData"
+  >
+    <!-- 组件内容 -->
+  </CodeLayout>
 </template>
 
 <script lang="ts" setup>
-const 
+import { ref, reactive, onMounted } from 'vue';
+import { 
+  CodeLayout, 
+  type CodeLayoutConfig, 
+  type CodeLayoutInstance, 
+  defaultCodeLayoutConfig,
+  CodeLayoutRootGrid,
+  useLocalStorage,
+} from 'vue-code-layout';
+import { h } from 'vue';
+import IconFile from '@/assets/icons/IconFile.vue';
+import IconSearch from '@/assets/icons/IconSearch.vue';
 
 const codeLayout = ref<CodeLayoutInstance>();
+const layoutData = ref(new CodeLayoutRootGrid());
 
-//可以在事件回调中执行加载与保存操作，默认事件回调会在组件初始化与卸载时触发
-//事件会传递组件实例 ref，可以直接调用，等同于 codeLayout.value
-function loadLayout(ref: CodeLayoutInstance) {
-  //在这里加载
-}
-function saveLayout(ref: CodeLayoutInstance) {
-  //在这里保存
-}
+// 配置信息
+const codeLayoutConfig: CodeLayoutConfig = {
+  ...defaultCodeLayoutConfig,
+  titleBar: true,
+  activityBar: true,
+  primarySideBar: true,
+  // 其他配置项
+};
+const config = reactive<CodeLayoutConfig>({
+  ...codeLayoutConfig,
+  // 其他响应式配置
+});
 
-//也可以在其他自定时机通过调用组件实例方法来加载/保存数据
-onMounted(() => {
-  codeLayout.value.loadLayout();
-})
+// 保存布局配置
+const { clearData: clearConfigData } = useLocalStorage(
+  'CodeLayoutDemoSaveConfig',
+  null,
+  // 加载时的回调
+  (dataObj) => {
+    if (dataObj) {
+      for (const key in dataObj) {
+        (config as Record<string, any>)[key] = (dataObj as Record<string, any>)[key];
+      }
+    }
+  },
+  // 保存时的回调
+  () => {
+    return config;
+  }
+);
+
+// 保存布局数据
+const { clearData: clearLayoutData } = useLocalStorage(
+  'CodeLayoutDemoSaveData',
+  null,
+  // 加载时的回调
+  (data) => {
+    if (data) {
+      // 加载布局数据，并重新填充面板不序列化的属性
+      layoutData.value.loadLayout(data, (panel) => {
+        // 根据面板名称设置不同的属性
+        switch (panel.name) {
+          case 'explorer':
+            panel.title = 'Explorer';
+            panel.tooltip = 'Explorer';
+            panel.badge = '2';
+            panel.iconLarge = () => h(IconFile);
+            break;
+          case 'search':
+            panel.title = 'Search';
+            panel.tooltip = 'Search';
+            panel.iconLarge = () => h(IconSearch);
+            break;
+          case 'explorer.file':
+            panel.title = 'VUE-CODE-LAYOUT';
+            panel.tooltip = 'vue-code-layout';
+            panel.iconSmall = () => h(IconSearch);
+            break;
+          // 其他面板配置...
+          default:
+            panel.title = panel.name;
+            panel.tooltip = `Panel ${panel.name}`;
+            panel.iconLarge = () => h(IconSearch);
+            panel.iconSmall = () => h(IconSearch);
+            break;
+        }
+        return panel;
+      });
+    } else {
+      // 没有保存的数据，创建新的布局
+      if (codeLayout.value) {
+        // 创建初始布局
+        const groupExplorer = codeLayout.value.addGroup({
+          title: 'Explorer',
+          tooltip: 'Explorer',
+          name: 'explorer',
+          badge: '2',
+          iconLarge: () => h(IconFile),
+        }, 'primarySideBar');
+        
+        // 添加其他面板...
+      }
+    }
+  },
+  // 保存时的回调
+  () => {
+    // 只有当布局中有内容时才保存
+    return layoutData.value.children.length > 0 ? layoutData.value.saveLayout() /** 序列化json */ : null;
+  }
+);
+
+// 重置所有布局数据
+function onResetAll() {
+  layoutData.value.clearLayout();
+  // useLocalStorage 内部封装了清除之后会自动重新调用加载回调
+  clearConfigData();
+  clearLayoutData();
+}
 </script>
 ```
 
-### 加载数据
-
-有两个数据需要加载:
-
-* 基础布局数据 (CodeLayoutConfig)，这部分数据定义了每个基础组的大小，是否显示，基础布局设置等。
-* 组和面板信息 (布局数据)。
-
-基础布局数据只需要重新将保存的数据加载至变量中即可。
-
-```ts
-import { toRaw, reactive } from 'vue';
-import { type CodeLayoutConfig } from 'vue-code-layout';
-
-//加载基础布局数据至 config 变量中。
-const config = reactive<CodeLayoutConfig>({
-  //此处仅为示例，有多种方法可以填充数据，你可以用自己喜欢的方法
-  ...JSON.parse(localStorage.getItem('LayoutConfig'))
-});
-```
-
-布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以你还需要在 loadLayout 的回调，根据面板名称填充这些数据，以实例化面板。
-
-```ts
-const data = localStorage.getItem('LayoutData');
-if (data) {
-  //If load layout from data, need fill panel data
-  codeLayout.value.loadLayout(JSON.parse(data), (panel) => {
-    switch (panel.name) {
-      case 'explorer':
-        panel.title = 'Explorer';
-        panel.tooltip = 'Explorer';
-        panel.badge = '2';
-        panel.iconLarge = () => h(IconFile);
-        break;
-      case 'search':
-        panel.title = 'Search';
-        panel.tooltip = 'Search';
-        panel.iconLarge = () => h(IconSearch);
-        break;
-      case 'explorer.file':
-        panel.title = 'VUE-CODE-LAYOUT';
-        panel.tooltip = 'vue-code-layout';
-        panel.actions = [
-          { 
-            name: 'test',
-            icon: () => h(IconSearch),
-            onClick() {},
-          },
-          { 
-            name: 'test2',
-            icon: () => h(IconFile),
-            onClick() {},
-          },
-        ]
-        panel.iconSmall = () => h(IconSearch);
-        break; 
-      case 'explorer.outline':
-        panel.title = 'OUTLINE';
-        panel.tooltip = 'Outline';
-        panel.actions = [
-          { 
-            name: 'test',
-            icon: () => h(IconSearch),
-            onClick() {},
-          },
-          { 
-            name: 'test2',
-            icon: () => h(IconFile),
-            onClick() {},
-          },
-        ]
-        panel.iconSmall = () => h(IconSearch);
-        break;
-      case 'bottom.ports':
-        panel.title = 'PORTS';
-        panel.tooltip = 'Ports';
-        panel.iconSmall = () => h(IconSearch);
-        break;  
-      case 'bottom.terminal':
-        panel.title = 'TERMINAL';
-        panel.tooltip = 'Terminal';
-        panel.iconSmall = () => h(IconSearch);
-        break;
-    }
-    return panel;
-  });
-} else {
-  //No data, create new layout
-  //...
-}
-```
-
-### 保存数据
-
-通过调用 saveLayout 方法保存布局数据。
-
-同时你也应该保存基础布局数据（CodeLayoutConfig），只需要在调用 saveLayout 函数后，将 config 变量保存即可。
-
-```ts
-import { toRaw, reactive } from 'vue';
-import { type CodeLayoutConfig } from 'vue-code-layout';
-
-const config = reactive<CodeLayoutConfig>({
-  //...省略
-});
-
-const json = codeLayout.value.saveLayout();
-
-localStorage.setItem('LayoutData', json);
-localStorage.setItem('LayoutConfig', toRaw(config)); //保存布局
-```
+你也可以使用自己的工具类来实现数据的保存与加载，例如存储数据至本地（Electron）或者存储至服务器。
 
 ## 内置主菜单
 
@@ -739,6 +776,7 @@ CodeLayout 还提供了一些插槽供您使用：
 * titleBarMenu 标题栏渲染主菜单位置
 * titleBarCenter 标题栏中心位置
 * titleBarRight 标题栏右侧位置（VSCode这里放置关闭按钮）
+* titleBarCustomizeLayout: 自定义布局按钮位置，可用于放置自定义布局按钮或配置CodeLayoutCustomizeLayout组件
 * titleBarTop 标题栏上部空间
 * titleBarBottom 标题栏底部，在中心区域之上的空间，可以放置自定义操作
 

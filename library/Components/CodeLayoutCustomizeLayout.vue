@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, inject, computed, ref, type Ref, type VNode, nextTick } from 'vue';
+import { h, inject, computed, ref, type Ref, type VNode, nextTick, type PropType } from 'vue';
 import { useCodeLayoutLang } from '../Language';
 import type { CodeLayoutActionButton, CodeLayoutConfig } from '../CodeLayout';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
@@ -89,6 +89,7 @@ const customizeLayoutControlItems = computed<{
   showVisibility?: boolean,
 }[]>(() => ([
   {
+    id: 'toggleMenuBar',
     title: t('menuBar'),
     icon: () => h(LayoutMenubarCodicon),
     click: () => layoutConfig.value.menuBar = !layoutConfig.value.menuBar,
@@ -97,6 +98,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'toggleActivityBar',
     title: t('activityBar'),
     icon: () => h(LayoutActivitybarLeftCodicon),
     click: () => layoutConfig.value.activityBar = !layoutConfig.value.activityBar,
@@ -104,6 +106,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'togglePrimarySideBar',
     title: t('primarySideBar'),
     icon: () => h(LayoutSidebarLeftCodicon),
     click: () => layoutConfig.value.primarySideBar = !layoutConfig.value.primarySideBar,
@@ -111,6 +114,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'toggleSecondarySideBar',
     title: t('secondarySideBar'),
     icon: () => h(LayoutSidebarRightCodicon),
     click: () => layoutConfig.value.secondarySideBar = !layoutConfig.value.secondarySideBar,
@@ -118,6 +122,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'togglePanel',
     title: t('panel'),
     icon: () => h(LayoutPanelCodicon),
     click: () => layoutConfig.value.bottomPanel = !layoutConfig.value.bottomPanel,
@@ -125,6 +130,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'toggleStatusBar',
     title: t('statusBar'),
     icon: () => h(LayoutStatusbarCodicon),
     click: () => layoutConfig.value.statusBar = !layoutConfig.value.statusBar,
@@ -132,6 +138,7 @@ const customizeLayoutControlItems = computed<{
     showVisibility: true,
   },
   {
+    id: 'togglePrimarySideBarPositionLeft',
     title: t('left'),
     rightText: t('primarySideBarPosition'),
     icon: () => h(LayoutSidebarLeftCodicon),
@@ -140,12 +147,14 @@ const customizeLayoutControlItems = computed<{
     checked: layoutConfig.value.primarySideBarPosition === 'left',
   },
   {
+    id: 'togglePrimarySideBarPositionRight',
     title: t('right'),
     icon: () => h(LayoutSidebarLeftCodicon),
     click: () => layoutConfig.value.primarySideBarPosition = 'right',
     checked: layoutConfig.value.primarySideBarPosition === 'right',
   },
   {
+    id: 'togglePanelAlignmentLeft',
     title: t('left'),
     rightText: t('panelAlignment'),
     icon: () => h(LayoutPanelLeftCodicon),
@@ -154,24 +163,27 @@ const customizeLayoutControlItems = computed<{
     checked: layoutConfig.value.panelAlignment === 'left',
   },
   {
+    id: 'togglePanelAlignmentRight',
     title: t('right'),
     icon: () => h(LayoutPanelRightCodicon),
     click: () => layoutConfig.value.panelAlignment = 'right',
     checked: layoutConfig.value.panelAlignment === 'right',
   },
   {
+    id: 'togglePanelAlignmentCenter',
     title: t('center'),
     icon: () => h(LayoutPanelCenterCodicon),
     click: () => layoutConfig.value.panelAlignment = 'center',
     checked: layoutConfig.value.panelAlignment === 'center',
   },
   {
+    id: 'togglePanelAlignmentJustify',
     title: t('justify'),
     icon: () => h(LayoutPanelJustifyCodicon),
     click: () => layoutConfig.value.panelAlignment = 'justify',
     checked: layoutConfig.value.panelAlignment === 'justify',
   },
-]));
+].filter(item => props.showItems.length === 0 || props.showItems.includes(item.id))));
 const customizeLayoutControlActions : CodeLayoutActionButton[] = [
   {
     name: t('restoreDefault'),
@@ -214,8 +226,45 @@ function handleCustomizeLayoutControlItemKeyDown(e: KeyboardEvent) {
   } 
 }
 
+const props = defineProps({
+  /**
+   * Config the buttons to show in the customize layout entry action buttons.
+   * If empty, all buttons will be shown.
+   * There has some built-in buttons:
+   * - togglePrimarySideBar
+   * - togglePanel
+   * - toggleSecondarySideBar
+   * - customizeLayout
+   */
+  showButtons: {
+    type: Object as PropType<string[]>,
+    default: () => [],
+  },
+  /**
+   * Config the items to show in the customize layout popup.
+   * If empty, all items will be shown.
+   * There has some built-in items:
+   * - toggleMenuBar
+   * - toggleStatusBar
+   * - togglePrimarySideBar
+   * - togglePanel
+   * - toggleSecondarySideBar
+   * - togglePrimarySideBarPositionLeft
+   * - togglePrimarySideBarPositionRight
+   * - togglePanelAlignmentLeft
+   * - togglePanelAlignmentRight
+   * - togglePanelAlignmentCenter
+   * - togglePanelAlignmentJustify
+   */
+  showItems: {
+    type: Object as PropType<string[]>,
+    default: () => [],
+  },
+})
+
 const actions = computed<CodeLayoutActionButton[]>(() => ([
   {
+    id: 'togglePrimarySideBar',
     name: t('togglePrimarySideBar'),
     tooltip: t('togglePrimarySideBar'),
     icon: () => layoutConfig.value.primarySideBar ? h(LayoutSidebarLeftCodicon) : h(LayoutSidebarLeftOffCodicon),
@@ -224,6 +273,7 @@ const actions = computed<CodeLayoutActionButton[]>(() => ([
     },
   },
   {
+    id: 'togglePanel',
     name: t('togglePanel'),
     tooltip: t('togglePanel'),
     icon: () => layoutConfig.value.bottomPanel ? h(LayoutPanelCodicon) : h(LayoutPanelOffCodicon),
@@ -232,6 +282,7 @@ const actions = computed<CodeLayoutActionButton[]>(() => ([
     },
   },
   {
+    id: 'toggleSecondarySideBar',
     name: t('toggleSecondarySideBar'),
     tooltip: t('toggleSecondarySideBar'),
     icon: () => layoutConfig.value.secondarySideBar ? h(LayoutSidebarRightCodicon) : h(LayoutSidebarRightOffCodicon),
@@ -240,6 +291,7 @@ const actions = computed<CodeLayoutActionButton[]>(() => ([
     },
   },
   {
+    id: 'customizeLayout',
     name: t('customizeLayout'),
     tooltip: t('customizeLayout'),
     icon: () => h(LayoutCodicon),
@@ -249,7 +301,7 @@ const actions = computed<CodeLayoutActionButton[]>(() => ([
         nextTick(() => customizeLayoutPopup.value?.focus());
     },
   },
-]));
+].filter((item) => props.showButtons.length === 0 || props.showButtons.includes(item.id))));
 
 </script>
 

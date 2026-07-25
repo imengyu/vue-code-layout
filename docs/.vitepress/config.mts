@@ -24,12 +24,12 @@ export default defineConfig({
         ],
         footer: {
           message: 'Released under the MIT License.',
-          copyright: 'Copyright © 2024 imengyu.top'
+          copyright: 'Copyright © 2026 imengyu.top'
         },
         nav: [
           { text: 'Guide', link: '/en/guide/start' },
           { text: 'API Reference', link: '/en/api/CodeLayout' },
-          { text: 'Changelog', link: '/change/index' },
+          { text: 'Changelog', link: '/en/change/index' },
         ],
         sidebar: {
           '/en/guide/': [
@@ -81,7 +81,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024 imengyu.top'
+      copyright: 'Copyright © 2026 imengyu.top'
     },
     nav: [
       { text: '教程', link: '/guide/install' },

@@ -10,7 +10,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import BasicUseage from './BasicUseage.vue'
-import SplitLayout from './SplitLayout.vue'
+import SplitLayout from './SplitLayoutTest.vue'
 
 const saveData = ref(false);
 </script>

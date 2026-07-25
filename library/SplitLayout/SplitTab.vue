@@ -8,7 +8,7 @@
   >
     <!--tab list-->
     <div
-      v-if="grid.children.length > 0" 
+      v-if="grid.children.length > 0 && grid.tabStyle !== 'hidden'" 
       ref="tabScroll" 
       :class="[
         'code-layout-split-tab-list',
@@ -32,6 +32,7 @@
             @additionSelect="onTabAdditionSelect(panel)"
             @click="onTabClick(panel)"
             @contextmenu="emit('tabItemContextMenu', panel, $event)"
+            @dragStart="onTabDragStart(panel)"
             @dragEnd="selectedTabs = []"
           >
             <template #sub="{ states }">
@@ -81,7 +82,7 @@
 <script setup lang="ts">
 import { ref, watch, type PropType, inject, toRefs, type Ref } from 'vue';
 import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLayoutSplitNPanelInternal } from './SplitN';
-import { getCurrentDragExternalPanels, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { checkDropPanelDefault, getCurrentDragExternalPanels, usePanelDragOverDetector } from '../Composeable/DragDrop';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
 import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
@@ -109,10 +110,15 @@ const selectedTabs = ref<CodeLayoutSplitNPanelInternal[]>([]) as Ref<CodeLayoutS
 
 function onTabAdditionSelect(panel: CodeLayoutSplitNPanelInternal) {
   // 加入或者移除
-  if (selectedTabs.value.includes(panel))
+  if (selectedTabs.value.includes(panel)) {
     selectedTabs.value.splice(selectedTabs.value.indexOf(panel), 1);
-  else
+    console.log('unselect tab', panel.name);
+    
+  }
+  else {
+    console.log('select tab', panel.name);
     selectedTabs.value.push(panel); 
+  }
 }
 function onTabRangeSelect(panel: CodeLayoutSplitNPanelInternal) {
   //区间选择
@@ -130,11 +136,28 @@ function onTabRangeSelect(panel: CodeLayoutSplitNPanelInternal) {
   } else {
     selectedTabs.value = [ panel ];
   }
+  console.log('select tab range', selectedTabs.value.map((p) => p.name));
 }
 function onTabClick(panel: CodeLayoutSplitNPanelInternal) {
+  selectTab(panel, false);
+}
+function onTabDragStart(panel: CodeLayoutSplitNPanelInternal) {
+  selectTab(panel, true);
+}
+
+function selectTab(panel: CodeLayoutSplitNPanelInternal, isFromDrag: boolean) {
   const oldActivePanel = grid.value.activePanel;
   emit('tabActive', panel, oldActivePanel);
-  grid.value.setActiveChild(panel);
+
+  // 从拖动开始选择，需要更新选中的面板
+  if (isFromDrag) {
+    if (selectedTabs.value.length == 1) 
+      selectedTabs.value = [ panel ];
+    else
+      selectedTabs.value.push(panel);
+  } else { 
+    grid.value.setActiveChild(panel);
+  }
 }
 
 watch(() => grid.value.activePanel, (panel) => {
@@ -148,12 +171,7 @@ const tabHeaderDragOverDetector = usePanelDragOverDetector(
   tabScroll, grid, horizontal,
   () => {}, 
   (e) => context.dragDropNonPanel(e, false, 'tab-header'),
-  (dragPanel) => {
-    return (
-      (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
-      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.grid.parentGrid))
-    );
-  }
+  (dragPanel) => checkDropPanelDefault(dragPanel, props.grid, null, tabHeaderDragOverDetector.dragOverState),
 );
 
 function handleTabHeaderDrop(e: DragEvent) {
@@ -174,8 +192,7 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
   (e) => context.dragDropNonPanel(e, false, 'tab-content'),
   (dragPanel) => {
     return (
-      (!dragPanel.accept || dragPanel.accept.includes(props.grid.parentGrid))
-      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.grid.parentGrid))
+      checkDropPanelDefault(dragPanel, props.grid, null, tabContentDragOverDetector.dragOverState)
       && !(grid.value.hasChild(dragPanel) && grid.value.children.length === 1) //当前面板只有一个，并且这一个就是它自己，则不可拖放
     );
   },

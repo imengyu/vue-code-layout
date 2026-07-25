@@ -7,10 +7,10 @@ Editor shell layout component.
 | Property | Description | Type | Default |
 | :----: | :----: | :----: | :----: |
 | layoutConfig | Base layout config | [`CodeLayoutConfig`](#CodeLayoutConfig) | — |
+| layoutData | Root grid of the layout | [`CodeLayoutRootGrid`](#CodeLayoutRootGrid) | — |
 | langConfig | Language config | [`CodeLayoutLangConfig`](#CodeLayoutLangConfig) | — |
 | mainMenuConfig | Main menu (in top left) config | [`MenuOptions`](../guide/code-layout.md#built-in-main-menu) | — |
 | emptyText | The empty text when no panel in the group | `string` | `'Drag a view here to display'` |
-| saveBeforeUnload | Should the canSaveLayout event be triggered when window. beforeupload | `boolean` | `true` |
 
 ## Events
 
@@ -27,16 +27,27 @@ Editor shell layout component.
 | titleBarIcon | Title bar rendering icon position | - |
 | titleBarMenu | Title bar rendering main menu position | - |
 | titleBarCenter | Title bar center position | - |
-| titleBarRight | Right position of title bar | - |
-| titleBarRight | Bottom position of title bar | - |
-| activityBarTopBar | At the btopottom of the main activity bar | - |
-| activityBarBottom | At the bottom of the main activity bar | - |
-| activityBarSecondaryTopBar | At the btopottom of the secondary activity bar | - |
-| activityBarSecondarBottom | At the bottom of the secondary activity bar | - |
-| emptyGroup | Empty group render slot | `{ panel: CodeLayoutGridInternal }` |
-| centerArea | Central area, where SliptLayout or other editor components can be placed | - |
-| statusBar | Status bar position | - |
-| emptyGroup | Customize rendering of empty group content | `{ grid: CodeLayoutGrid }` |
+| titleBarRight | Position on the right side of the title bar (VSCode places the close button here) | - |
+| titleBarCustomizeLayout | Customize layout button position, can be used to place a custom layout button or config CodeLayoutCustomizeLayout component | - |
+| titleBarTop | Area above the title bar | - |
+| titleBarBottom | The area at the bottom of the title bar, above the center area, where custom actions can be placed | - |
+| activityBarTop | Top of activity bar buttons | - |
+| activityBarEnd | Bottom of activity bar buttons | - |
+| activityBarBottom | At the bottom of the activity bar (where VSCode places the settings button) | - |
+| activityBarSecondaryTop | Secondary activity bar top | - |
+| activityBarSecondaryEnd | Secondary activity bar end | - |
+| activityBarSecondaryBottom | Secondary activity bar bottom | - |
+| tabHeaderLeftStart | Panel Group in tab mode, left of buttons | `{ group }` |
+| tabHeaderLeftEnd | Panel Group in tab mode, right of buttons | `{ group }` |
+| tabHeaderRightStart | Panel Group in tab mode, extra actions start | `{ group }` |
+| tabHeaderRightEnd | Panel Group in tab mode, extra actions end |  `{ group }` |
+| titleBarTitle | Panel Group title |  `{ group, title }` |
+| titleBarActionStart | Panel Group extra actions start |  `{ group }` |
+| titleBarActionEnd | Panel Group extra actions end | `{ group }` |
+| centerArea | The central area of CenterArea, where SliptLayout or other editor core components can be placed | - |
+| statusBarLeft | Status Bar left | - |
+| statusBarRight | Status Bar right | - |
+| emptyGroup | No panel in a group | `{ group }` |
 
 ## CodeLayoutInstance
 
@@ -208,12 +219,11 @@ const config = reactive<CodeLayoutConfig>({
 | primarySideBarMinWidth | The minimum size of the primarySideBar in pixels | `number` | `170` |
 | secondarySideBarWidth | The size of the secondarySideBar (0-100, percentage) | `number` | `20` |
 | secondarySideBarMinWidth | The minimum size of the secondarySideBar in pixels | `number` | `170` |
-| secondarySideBarAsActivityBar | Whether the secondary sidebar appears as an active bar like the primarySidebar | `boolean` | `false` |
 | bottomPanelHeight | The size of the bottomPanel (0-100, percentage) | `number` | `30` |
 | bottomPanelMinHeight | The minimum size of the bottomPanel in pixels | `number` | `40` |
 | panelAlignment | The layout position of the bottomPanel<ul><li>left: At the bottom left</li><li>center: At the bottom center</li><li>right: At the bottom right</li><li>justify: At the bottom center and justify</li><li>left-side: Center left</li><li>right-side: Center right</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | The position of the activityBar<ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
-| secondaryActivityBarPosition | The position of the secondary activityBar (when `secondarySideBarAsActivityBar` is set to `true`) <ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
+| secondaryActivityBarPosition | The position of the secondary activityBar <ul><li>side: Main left</li><li>top: In primarySideBar top</li><li>hidden: No activityBar</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
 | panelHeaderHeight | The height of the panel title in pixels | `number` | `24` |
 | panelMinHeight | The minimum height (in pixels) for all panels | `number` | `150` |
 | titleBar | Show title bar? | `boolean` | `true` |
@@ -246,6 +256,38 @@ Basic language defined objects.
 | lang | Language of component | `string` | `en` |
 | stringsOverride | Override some strings of current language. | [`Partial<CodeLayoutLangDefine>`](../guide/i18n) | - |
 
+## CodeLayoutRootGrid
+
+CodeLayout root grid class.
+
+### Constructor
+
+Create a new root grid instance.
+
+| Property | Description | Type | Default |
+| :----: | :----: | :----: | :----: |
+| primarySideBar | Primary sidebar grid | `CodeLayoutSplitNGridInternal` | - |
+| secondarySideBar | Secondary sidebar grid | `CodeLayoutSplitNGridInternal` | - |
+| bottomPanel | Bottom panel grid | `CodeLayoutSplitNGridInternal` | - |
+
+### `clearLayout(): void`
+
+Description：
+
+Same as `CodeLayoutInstance.clearLayout`.
+
+### `saveLayout(): any`
+
+Description：
+
+Same as `CodeLayoutInstance.saveLayout`.
+
+### `loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void`
+
+Description：
+
+Same as `CodeLayoutInstance.loadLayout`.
+
 ## CodeLayoutPanelInternal
 
 Definition of panel/group instance classes.
@@ -269,7 +311,7 @@ Due to the use of the same data instance for groups and panels, some properties 
 | size | The size of the current panel (in pixels), specified as 0 when created, will be automatically allocated by the component | `number` | 0 |
 | parentGroup | Parent grid instance of this panel. | `CodeLayoutPanelInternal` | - |
 | parentGrid | Parent toplevel grid name of this panel. | `CodeLayoutGrid` | - |
-| accept | Set which grids the current panel can be dragged and dropped onto. | `CodeLayoutGrid[]` | - |
+| accept | When self is parent group(grid), Set which panel can be dropped into. Default is inherit from parent grid. | `CodeLayoutGrid[]` | - |
 | noHide | Set whether users cannot hide this panel. | `boolean` | `false` |
 | noAutoShink | Set whether the current grid triggers its own remove/merge operation after all subpanels/grids are removed. Set to true will keep grid display, even if it does not have child panels/grids.(Only valid for group) | `boolean` | `false` |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
@@ -314,6 +356,10 @@ Description:
 
 Open this panel.
 
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
+
 Param：
 
 | Name | Description |
@@ -326,11 +372,19 @@ Description:
 
 Close this panel.
 
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
+
 ### `togglePanel(): void`
 
 Description:
 
 Toggle open state of this panel.
+
+::: warning Note
+Only effect for CodeLayout Root grid, sub panel and SplitLayout panel.
+:::
 
 ### `removeSelfWithShrink(): void`
 

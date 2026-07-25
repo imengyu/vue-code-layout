@@ -17,33 +17,37 @@ nav:
 | langConfig | 组件内置语言数据定义 | [`CodeLayoutLangConfig`](#CodeLayoutLangConfig) | — |
 | mainMenuConfig | 内置主菜单配置 | [`MenuOptions`](../guide/code-layout.md#内置主菜单) | — |
 | emptyText | 组中没有面板时的空文本 | `string` | `'Drag a view here to display'` |
-| saveBeforeUnload | 是否应该在 window.beforeunload 时触发 canSaveLayout 事件 | `boolean` | `true` |
-
-## Events
-
-| 事件名 | 描述 | 参数 |
-| :----: | :----: | :----: |
-| canLoadLayout | 组件加载时触发此事件，可在此事件中执行加载布局操作 | `ref: CodeLayoutInstance` |
-| canSaveLayout | 组件卸载时触发此事件，可在此事件中执行加载保存操作 | `ref: CodeLayoutInstance` |
+| layoutData | 布局数据 | [`CodeLayoutRootGrid`](#CodeLayoutRootGrid) | — |
 
 ## Slots
 
 | 插槽名 | 描述 | 参数 |
 | :----: | :----: | :----: |
-| panelRender | 面板内容渲染核心位置 | `{ panel: CodeLayoutPanelInternal, open: boolean }` |
-| titleBarIcon | 标题栏渲染图标位置 | - |
-| titleBarMenu | 标题栏渲染主菜单位置 | - |
-| titleBarCenter | 标题栏中心位置 | - |
-| titleBarRight | 标题栏右侧位置 | - |
-| titleBarBottom | 标题栏下方位置 | - |
-| activityBarTopBar | 主活动栏顶部 | - |
-| activityBarBottom | 主活动栏底部 | - |
-| activityBarSecondaryTopBar | 副活动栏顶部 | - |
-| activityBarSecondarBottom | 副活动栏底部 | - |
-| emptyGroup | 空组渲染插槽 | `{ panel: CodeLayoutGridInternal }` |
-| centerArea | 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件 | - |
-| statusBar | 状态栏位置 | - |
-| emptyGroup | 自定义渲染空组内容 | `{ grid: CodeLayoutGrid }` |
+| panelRender | 面板渲染插槽 | `{ panel: CodeLayoutPanelInternal, open: boolean }` |
+| titleBarIcon | 标题栏渲染图标位置 | — |
+| titleBarMenu | 标题栏渲染主菜单位置 | — |
+| titleBarCenter | 标题栏中心位置 | — |
+| titleBarRight | 标题栏右侧位置（VSCode这里放置关闭按钮） | — |
+| titleBarCustomizeLayout | 自定义布局按钮位置，可用于放置自定义布局按钮或配置CodeLayoutCustomizeLayout组件 | — |
+| titleBarTop | 标题栏上部空间 | — |
+| titleBarBottom | 标题栏底部，在中心区域之上的空间，可以放置自定义操作 | — |
+| activityBarTop | 活动栏按钮顶部 | — |
+| activityBarEnd | 活动栏按钮尾部 | — |
+| activityBarBottom | 活动栏栏底部（VSCode这里放置设置按钮） | — |
+| activityBarSecondaryTop | 第二活动栏按钮顶部 | — |
+| activityBarSecondaryEnd | 第二活动栏按钮尾部 | — |
+| tabHeaderLeftStart | TAB标签模式下，左侧按钮首部 | `{ group }` |
+| tabHeaderLeftEnd | TAB标签模式下，左侧按钮尾部 | `{ group }` |
+| tabHeaderRightStart | TAB标签模式下，右侧额外按钮首部 | `{ group }` |
+| tabHeaderRightEnd | TAB标签模式下，右侧额外按钮尾部 | `{ group }` |
+| titleBarTitle | 面板大标题栏标题自定义渲染 | `{ group, title }` |
+| titleBarActionStart | 面板大标题栏右侧额外按钮首部 | `{ group }` |
+| titleBarActionEnd | 面板大标题栏右侧额外按钮尾部 | `{ group }` |
+| centerArea | 中心区域，这里可以放置SliptLayout或者其他编辑器核心组件 | — |
+| statusBar | 状态栏位置 | — |
+| statusBarLeft | 状态栏左侧 | — |
+| statusBarRight | 状态栏右侧 | — |
+| emptyGroup | 空组提示渲染，参数 `{ group }` | — |
 
 ## CodeLayoutInstance
 
@@ -215,12 +219,11 @@ const config = reactive<CodeLayoutConfig>({
 | primarySideBarMinWidth | 主侧栏的最小大小（像素） | `number` | `170` |
 | secondarySideBarWidth | 辅助侧边栏的大小（0-100，百分比） | `number` | `20` |
 | secondarySideBarMinWidth | 辅助侧边栏的最小大小（像素） | `number` | `170` |
-| secondarySideBarAsActivityBar | 辅助侧边栏是否像主侧边栏一样显示为活动栏 | `boolean` | `false` |
 | bottomPanelHeight | 面板的大小（0-100，百分比） | `number` | `30` |
 | bottomPanelMinHeight | 面板最小大小（像素） | `number` | `40` |
 | panelAlignment | 面板布局位置<ul><li>left: 底部左对齐</li><li>center：底部居中</li><li>right：底部右对齐</li><li>justify：底部两端对齐</li><li>left-side：左侧</li><li>right-side：右侧</li></ul> | `'left'│'center'│'right'│'justify'│'left-side'│'right-side'` | `'center'` |
 | activityBarPosition | 活动栏的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
-| secondaryActivityBarPosition | 第二活动栏（当 `secondarySideBarAsActivityBar` 设置为 `true`）的布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'` | `'side'` |
+| secondaryActivityBarPosition | 第二活动栏布局位置<ul><li>side: 左侧</li><li>top：顶部</li><li>hidden：隐藏</li></ul> | `'side'│'top'│'hidden'`| `'side'` |
 | panelHeaderHeight | 面板标题的高度（像素） | `number` | `24` |
 | panelMinHeight | 所有面板缩放最小高度（像素） | `number` | `150` |
 | titleBar | 是否显示标题栏 | `boolean` | `true` |
@@ -253,6 +256,38 @@ const config = reactive<CodeLayoutConfig>({
 | lang | 指定组件使用的语言 | `string` | `en` |
 | stringsOverride | 覆盖语言字符串 | [`Partial<CodeLayoutLangDefine>`](../guide/i18n) | - |
 
+## CodeLayoutRootGrid
+
+CodeLayout的根网格类。
+
+### 构造函数
+
+创建一个新的根网格实例。
+
+| 属性 | 描述 | 类型 | 默认值 |
+| :----: | :----: | :----: | :----: |
+| primarySideBar | 主侧边栏网格 | `CodeLayoutSplitNGridInternal` | - |
+| secondarySideBar | 辅助侧边栏网格 | `CodeLayoutSplitNGridInternal` | - |
+| bottomPanel | 底部面板网格 | `CodeLayoutSplitNGridInternal` | - |
+
+### `clearLayout(): void`
+
+说明：
+
+同 `CodeLayoutInstance.clearLayout`。
+
+### `saveLayout(): any`
+
+说明：
+
+同 `CodeLayoutInstance.saveLayout`。
+
+### `loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void`
+
+说明：
+
+同 `CodeLayoutInstance.loadLayout`。
+
 ## CodeLayoutPanelInternal
 
 面板/组实例类定义。
@@ -276,7 +311,7 @@ const config = reactive<CodeLayoutConfig>({
 | size | 当前面板的大小（像素），创建时指定为0将由组件自动分配大小 | `number` | 0 |
 | parentGroup | 获取当前面板的父级组 | `CodeLayoutPanelInternal` | - |
 | parentGrid | 获取当前面板所属的顶级组 | `CodeLayoutGrid` | - |
-| accept | 设置当前面板可以拖放到哪些顶级网格上 | `CodeLayoutGrid[]` | - |
+| accept | 当作为父组时，设置哪些面板可以拖放成为子面板，默认从父级继承 | `CodeLayoutGrid[]` | - |
 | noHide | 是否禁止用户对当前面板做出隐藏操作 | `boolean` | `false` |
 | noAutoShink | 是否禁止自动收缩当前网格(仅组有效) | `boolean` | `false` |
 | actions | 当前面板的自定义操作 | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
@@ -321,6 +356,10 @@ const config = reactive<CodeLayoutConfig>({
 
 打开自己面板。
 
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
+
 参数：
 
 | 名称 | 说明 |
@@ -333,11 +372,19 @@ const config = reactive<CodeLayoutConfig>({
 
 关闭自己面板。
 
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
+
 ### `togglePanel(): void`
 
 说明：
 
 切换自己面板的打开状态。
+
+::: warning 注意
+仅对CodeLayout根网格、子面板和SplitLayout面板有效。
+:::
 
 ### `removeSelfWithShrink(): void`
 

@@ -89,7 +89,7 @@ const {
     emit('activeItem')
   },
   (e) => context.dragDropNonPanel(e, false, 'activiy-bar'),
-  (dragPanel) => checkDropPanelDefault(dragPanel, item.value, dragOverState)
+  (dragPanel) => checkDropPanelDefault(dragPanel, item.value.parentGroup, item.value, dragOverState)
 );
 
 function handleDrop(e: DragEvent) {

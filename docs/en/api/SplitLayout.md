@@ -8,8 +8,8 @@ Split layout components in the file editor center.
 | :----: | :----: | :----: | :----: |
 | saveBeforeUnload | Should the canSaveLayout event be triggered when window. beforeupload | `boolean` | `true` |
 | showTabHeader | Whether to display Tab components. When it is `true`, it supports multiple sub panels in one grid, and the components should be rendered in the tabContentRender slot; When it is `false`, only grid segmentation is supported and panel and drag functions are not supported. You should render the content yourself in gridRender. | `boolean` | `true` |
-| rootGridType | Specify the type of the root grid, usually used to set different types in multiple components to restrict mutual dragging | `CodeLayoutGrid` | `'centerArea'` |
 | layoutConfig | SplitLayout other config | [`CodeLayoutSplitNConfig`](#codelayoutsplitnconfig) | — |
+| layoutData | Layout data | [`CodeLayoutSplitNRootGrid`](#CodeLayoutSplitNRootGrid) | — |
 
 ## Events
 
@@ -20,8 +20,6 @@ Split layout components in the file editor center.
 | panelActive | Trigger event when the user clicks to activate the panel | `lastActivePanel: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal` |
 | panelDrop | Trigger event when the user drags and drops the panel | `panel: CodeLayoutSplitNPanelInternal, referencePanel: CodeLayoutSplitNPanelInternal, referencePosition: CodeLayoutDragDropReferencePosition` |
 | gridActive | Trigger event when the user clicks to activate the grid | `lastActivePanel: CodeLayoutSplitNGridInternal, panel: CodeLayoutSplitNGridInternal` |
-| canLoadLayout | This event is triggered when a component is loaded, and loading layout operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
-| canSaveLayout | This event is triggered when the component is unmount, and loading and saving operations can be performed in this event | `ref: CodeLayoutSplitNInstance` |
 
 ## Slots
 
@@ -169,6 +167,42 @@ Returns:
 | :----: | :----: |
 | `object` | json |
 
+## CodeLayoutSplitNRootGrid
+
+Root grid of SplitLayout.
+
+### Constructor
+
+Create a new root grid instance.
+
+```ts
+const rootGrid = new CodeLayoutSplitNRootGrid();
+```
+
+### `clearLayout(): void`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.clearLayout`.
+
+### `loadLayout(json: object, instantiatePanelCallback: (panel: any) => CodeLayoutSplitNPanel): void`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.loadLayout`.
+
+### `saveLayout(): object`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.saveLayout`.
+
+### `getGridByName(name: string): CodeLayoutSplitNGridInternal | undefined`
+
+Description:
+
+Same as `CodeLayoutSplitNGridInternal.getGridByName`.
+
 ## CodeLayoutSplitNPanelInternal
 
 Panel type definition of SplitLayout.
@@ -183,7 +217,6 @@ Panel type definition of SplitLayout.
 | size | The size of the current panel (in pixels), specified as 0 when created, will be automatically allocated by the component | `number` | 0 |
 | parentGroup | Parent grid instance of this panel. | `CodeLayoutSplitNPanelInternal` | - |
 | parentGrid | Parent toplevel grid name of this panel. | `CodeLayoutGrid` | - |
-| accept | Set which grids the current panel can be dragged and dropped onto. | `CodeLayoutGrid[]` | - |
 | actions | Custom user actions. | [`CodeLayoutActionButton[]`](../api/CodeLayoutActionsRender.md#codelayoutactionbutton) | `false` |
 | data | Custom data attached to the current panel. | `any` | - |
 | onResize | Resize callback for this panel | `(this: CodeLayoutPanelInternal, size: boolean) => void` | - |
@@ -275,6 +308,7 @@ Grid type definition of SplitLayout.
 | stretchable | Set whether this grid can be stretched when the container is resized, the non stretchable mesh will maintain a fixed pixel size. | `boolean` | `true` |
 | direction | Layout direction. | `'vertical'│'horizontal'` | `'vertical'` |
 | childGrid | Child grid of this grid. | `CodeLayoutSplitNGridInternal[]` | - |
+| accept | Set which panel can be dropped into. Default is inherit from parent grid. | `CodeLayoutGrid[]` | - |
 
 ### `addGrid(grid: CodeLayoutSplitNGrid): CodeLayoutSplitNPanelInternal`
 

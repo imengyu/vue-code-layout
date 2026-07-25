@@ -55,7 +55,7 @@
         <template #item="{ item: panel, visible, index }">
           <CodeLayoutTabItem
             v-show="visible"
-            :ref="(ref) => tabRefs[index] = ref"
+            :ref="(ref: any) => tabRefs[index] = ref"
             :tabStyle="group.tabStyle"
             :active="group.activePanel === panel"
             :panel="(panel as CodeLayoutPanelInternal)"
@@ -161,7 +161,7 @@ import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
 import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import CodeLayoutTabItem from './CodeLayoutTabItem.vue';
 import OverflowCollapseList from './Components/OverflowCollapseList.vue';
-import { getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
 import { usePanelMenuControl } from './Composeable/PanelMenu';
 import { useCodeLayoutLang } from './Language';
 import IconActionClose from './Icons/IconActionClose.vue';
@@ -199,7 +199,7 @@ const showTitleBar = computed(() => {
     return false;
   if (layoutConfig.value.activityBarSubGroupShowTitle)
     return group.value.parentGrid === 'primarySideBar' || 
-      (group.value.parentGrid === 'secondarySideBar' && layoutConfig.value.secondarySideBarAsActivityBar);
+      (group.value.parentGrid === 'secondarySideBar');
   return false;
 });
 
@@ -219,6 +219,7 @@ const {
 
 const {
   dragLightBoxState,
+  dragOverState,
   handleDragOver,
   handleDragEnter,
   handleDragLeave,
@@ -229,12 +230,7 @@ const {
   container, group, horizontal,
   () => {}, 
   (e) => context.dragDropNonPanel(e, false, 'empty'),
-  (dragPanel) => {
-    return (
-      (!dragPanel.accept || dragPanel.accept.includes(props.group.parentGrid))
-      && (!dragPanel.preDropCheck || dragPanel.preDropCheck(dragPanel, props.group.parentGrid))
-    );
-  }, 'tab'
+  (dragPanel) => checkDropPanelDefault(dragPanel, group.value, null, dragOverState), 'tab'
 );
 
 function handleDrop(e: DragEvent) {

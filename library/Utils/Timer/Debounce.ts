@@ -13,7 +13,7 @@ export class Debounce {
     if (this.timer > 0)
       return;
     this.cb();
-    this.timer = setTimeout(() => this.timer = 0, this.delay);
+    this.timer = setTimeout(() => this.timer = 0, this.delay) as unknown as number;
   }
   executeWithDelay(delay = -1) {
     if (this.timer > 0)
@@ -23,6 +23,6 @@ export class Debounce {
     this.timer = setTimeout(() => {
       this.timer = 0;
       this.execute();
-    }, delay);
+    }, delay) as unknown as number;
   }
 }

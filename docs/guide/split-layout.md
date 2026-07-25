@@ -2,7 +2,7 @@
 
 ## 基础示例
 
-推荐将 SplitLayout 置于顶级组件或者 CodeLayout 的 centerArea 插槽并设置宽高占满屏幕。
+推荐将 SplitLayout 置于顶级组件或者 CodeLayout 的 `centerArea` 插槽并设置宽高占满屏幕。
 
 ::: warning
 本组件设计为占满父级容器，请为父级容器设置 `position: relative;` 样式以及一个确定的高度，否则组件将无法正确计算高度、无法正常显示。
@@ -28,7 +28,7 @@
   <div class="demo">
     <SplitLayout
       ref="splitLayoutRef"
-      @canLoadLayout="loadLayout"
+      :layoutData="(splitLayoutData as CodeLayoutSplitNRootGrid)"
       @panelClose="onPanelClose"
     >
       <template #tabContentRender="{ panel }">
@@ -53,8 +53,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick, h } from 'vue';
-import { type CodeLayoutSplitNInstance, type CodeLayoutPanelInternal, type CodeLayoutSplitNGridInternal } from 'vue-code-layout';
+import { ref, nextTick, h, onMounted } from 'vue';
+import { type CodeLayoutSplitNInstance,
+  type CodeLayoutPanelInternal, type CodeLayoutSplitNGridInternal, 
+  CodeLayoutSplitNRootGrid 
+} from 'vue-code-layout';
 
 const colors = [
   '#fb0',
@@ -73,6 +76,8 @@ const colors = [
 
 //定义实例
 const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
+//布局数据
+const splitLayoutData = ref(new CodeLayoutSplitNRootGrid());
 
 let count = 0;
 
@@ -94,57 +99,58 @@ function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
 
 //向组件中添加面板数据
 function loadLayout() {
-  if (splitLayoutRef.value) {
-    const grid = splitLayoutRef.value.getRootGrid();
-    const grid1 = grid.addGrid({
-      name: 'grid1',
-      visible: true,
-      size: 0,
-    });
-    const grid2 = grid.addGrid({
-      name: 'grid2',
-      visible: true,
-      size: 0,
-      minSize: 100,
-    });
-    const grid3 = grid1.addGrid({
-      name: 'grid3',
-      visible: true,
-      size: 0,
-      minSize: 0,
-    });
-    grid1.addGrid({
-      name: 'grid4',
-      visible: true,
-      size: 0,
-      minSize: 100,
-      canMinClose: true,
-    });
+  const grid1 = splitLayoutData.value.addGrid({
+    name: 'grid1',
+    visible: true,
+    size: 0,
+    direction: 'vertical',
+  });
+  const grid2 = splitLayoutData.value.addGrid({
+    name: 'grid2',
+    visible: true,
+    size: 0,
+    minSize: 100,
+  });
+  const grid3 = grid1.addGrid({
+    name: 'grid3',
+    visible: true,
+    size: 0,
+    minSize: 0,
+  });
+  grid1.addGrid({
+    name: 'grid4',
+    visible: true,
+    size: 0,
+    minSize: 100,
+    canMinClose: true,
+  });
 
-    for (let i = 0; i < 2; i++) {
-      count++;
-      grid3.addPanel({
-        title: `Panel${count}`,
-        tooltip: `Panel${count} tooltip`,
-        name: `panel${count}`,
-        closeType: 'close',
-        data: count,
-      });
-    }
-    for (let i = 0; i < 2; i++) {
-      count++;
-      grid2.addPanel({
-        title: `Panel${count}`,
-        tooltip: `Panel${count} tooltip`,
-        name: `panel${count}`,
-        closeType: 'close',
-        data: count,
-      });
-    }
-    grid.notifyRelayout();
+  for (let i = 0; i < 2; i++) {
+    count++;
+    grid3.addPanel({
+      title: `Panel${count}`,
+      tooltip: `Panel${count} tooltip`,
+      name: `panel${count}`,
+      closeType: 'close',
+      data: count,
+    });
   }
+  for (let i = 0; i < 2; i++) {
+    count++;
+    grid2.addPanel({
+      title: `Panel${count}`,
+      tooltip: `Panel${count} tooltip`,
+      name: `panel${count}`,
+      closeType: 'close',
+      data: count,
+    });
+  }
+  splitLayoutData.value.notifyRelayout();
 }
 
+onMounted(() => {
+  loadLayout();
+});
 </script>
 
 
@@ -183,14 +189,17 @@ import { CodeLayoutSplitNInstance } from 'vue-code-layout';
 
 //将 splitLayoutRef 变量通过 ref 属性绑定到 SplitLayout 组件上
 const splitLayoutRef = ref<CodeLayoutSplitNInstance>();
+//布局数据
+const splitLayoutData = ref(new CodeLayoutSplitNRootGrid());
 ```
 
 ### 获取根网格
 
-组件提供了获取根网格方法：
+组件提供了获取根网格方法，等同于 `splitLayoutData.value`。
 
 ```ts
-const grid = splitLayoutRef.value.getRootGrid();
+const rootGrid = splitLayoutRef.value.getRootGrid();
+const rootGrid = splitLayoutData.value;
 ```
 
 ### 根网格方向
@@ -199,8 +208,7 @@ const grid = splitLayoutRef.value.getRootGrid();
 你也可以将其改为垂直 （`'vertical'`）。
 
 ```ts
-const grid = splitLayoutRef.value.getRootGrid();
-grid.direction = 'vertical';
+rootGrid.direction = 'vertical';
 ```
 
 ### 添加网格/面板
@@ -208,7 +216,7 @@ grid.direction = 'vertical';
 你可以向根中添加网格，例如，下面的代码向根中添加了一个网格：
 
 ```ts
-const grid1 = grid.addGrid({
+const grid1 = rootGrid.addGrid({
   name: 'grid1',
   visible: true,
   size: 0,
@@ -236,7 +244,7 @@ grid1.addPanel({
 
 ```ts
 //获取面板并修改badge
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.badge = '3';
 ```
 
@@ -249,8 +257,8 @@ file1.badge = '3';
 面板支持关闭按钮，在创建面板时指定关闭按钮，也可获取实例后修改属性：
 
 ```ts
-const grid1 = grid.addGrid({
-  name: 'grid1',
+const file1 = rootGrid.addPanel({
+  name: 'file1',
   visible: true,
   size: 0,
   closeType: 'close', //显示关闭按钮
@@ -259,7 +267,7 @@ const grid1 = grid.addGrid({
 
 ```ts
 //获取面板并修改 closeType
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.closeType = 'unSave'; //显示没有保存按钮
 ```
 
@@ -287,7 +295,7 @@ function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void, rejec
 在代码中也可以手动调用面板实例上的 `closePanel` 函数手动执行关闭操作，此操作与用户点击关闭效果一致。
 
 ```ts
-const file1 = splitLayoutRef.value.getPanelByName('file1')
+const file1 = rootGrid.getPanelByName('file1')
 file1.closePanel(); //手动关闭
 ```
 
@@ -296,7 +304,7 @@ file1.closePanel(); //手动关闭
 用户允许在网格之间拖拽面板，在默认情况下，当一个网格中所有的面板都被移除后，这个面板将进行自动收缩（移除自己），以为其他面板腾出空间。
 
 ```ts
-const grid1 = grid.addGrid({
+const grid1 = rootGrid.addGrid({
   name: 'grid1',
   visible: true,
   size: 0,
@@ -497,73 +505,172 @@ import { SplitLayout, SplitTabItem } from 'vue-code-layout';
 * tabHeaderStartRender : 标签页滚动区域前部插槽
 * tabHeaderEndRender : 标签页滚动区域后部插槽
 
+## 拖拽提示
+
+当内嵌自定义组件需要处理拖拽时，请在自己的拖拽处理函数中调用 `e.stopPropagation()` 来阻止事件冒泡，否则事件会冒泡至CodeLayout组件内部，使之无法处理拖拽。
+
+```ts
+//在自定义组件中处理拖拽事件
+function onDragOver(e: DragEvent) {
+  e.preventDefault();
+  e.stopPropagation();
+}
+```
+
 ## 保存与加载数据
 
-SplitLayout支持你保存用户拖拽后的布局至JSON数据中，在下一次进入后重新从JSON数据加载恢复原布局。
+SplitLayout支持将用户拖拽后的布局保存为 JSON 数据，并在下次进入应用时从 JSON 数据中加载恢复原布局。以下是一个基于实际项目的完整示例：
 
-SplitLayout 支持 `canLoadLayout`、`canSaveLayout` 两个事件，事件回调中会返回当前组件实例，你可以在事件回调中执行加载与保存操作，也可以在其他时机通过调用组件实例上的 `loadLayout`, `saveLayout` 函数自由控制加载与保存操作。
+项目中提供了 `useLocalStorage` 工具类，可以方便地实现数据的自动保存与加载。
+
+`useLocalStorage` 工具类会自动在以下时机执行操作：
+
+* **页面加载时**：自动从本地存储加载数据
+* **页面卸载前、组件卸载时**：自动将数据保存到本地存储
+
+这种方式可以确保用户的布局修改在页面刷新或重新进入应用时不会丢失。
+
+::: tip
+提示：布局数据不会存储不可序列化的对象，例如函数、图标，并且为了国际化也不会存储标题（title）、悬浮提示（tooltip），这部分
+数据需要在加载时从回调中手动设置。
+:::
 
 ```vue
 <template>
-  <SplitLayout 
-    ref="splitLayout"
-    style="height: 400px"
-    @canLoadLayout="loadLayout"
-    @canSaveLayout="saveLayout"
-  />
+  <SplitLayout
+    ref="splitLayoutRef"
+    :layoutConfig="config
+    :layoutData="(layoutData as CodeLayoutSplitNRootGrid)"
+  >
+    <!-- 其他模板内容 -->
+  </SplitLayout>
 </template>
 
-<script lang="ts" setup>
-const splitLayout = ref<CodeLayoutSplitNInstance>();
+<script setup lang="ts">
+import { ref, h, reactive } from 'vue';
+import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
+import type { CodeLayoutSplitNGridInternal } from 'vue-code-layout';
+import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, useLocalStorage } from 'vue-code-layout';
 
-//可以在事件回调中执行加载与保存操作，默认事件回调会在组件初始化与卸载时触发
-//事件会传递组件实例 ref，可以直接调用，等同于 splitLayout.value
-function loadLayout(ref: CodeLayoutSplitNInstance) {
-  //在这里加载
-}
-function saveLayout(ref: CodeLayoutSplitNInstance) {
-  //在这里保存
+const layoutData = ref(new CodeLayoutSplitNRootGrid());
+layoutData.value.direction = 'horizontal';
+
+// 重置所有布局数据
+function onResetAll() {
+  layoutData.value.clearLayout();
+  clearData();
 }
 
-//也可以在其他自定时机通过调用组件实例方法来加载/保存数据
-onMounted(() => {
-  splitLayout.value.loadLayout();
-})
+// 保存布局数据到本地存储
+const { clearData } = useLocalStorage('SplitLayoutDemoSaveData', null, (data) => {
+  if (data) {
+    // 加载布局数据，并重新填充面板不序列化的属性
+    layoutData.value.loadLayout(data, (panel) => {
+      count++;
+      panel.title = `Panel${count}`;
+      panel.tooltip = `Panel${count} tooltip`;
+      panel.iconSmall = () => h(getRandomIcon());
+      panel.closeType = count === 1 ? 'unSave' : 'close';
+      panel.data = count;
+      return panel;
+    });
+    console.log('loadLayout from data ', data);
+  } else {
+    // 初始化布局数据
+    console.log('loadLayout from new');
+    const grid = layoutData.value;
+    const grid1 = grid.addGrid({
+      name: 'grid1',
+      visible: true,
+      size: 0,
+      closeType: 'close',
+    });
+    const grid2 = grid.addGrid({
+      name: 'grid2',
+      visible: true,
+      size: 0,
+      minSize: 100,
+    });
+    // 添加更多网格和面板...
+    
+    grid.notifyRelayout();
+  }
+}, () => {
+  // 保存到JSON
+  console.log('saveLayout', layoutData.value);
+  return layoutData.value.children.length > 0 ? layoutData.value.saveLayout() /* 序列化为JSON */ : null;
+});
 </script>
 ```
 
-### 保存数据
+## 独立组件
 
-通过调用 saveLayout 方法保存布局数据。
+独立导出了可拖拽网格组件，在只有简单的左右面板拖拽需求下可以单独使用。组件参考 [SplitN](../api/SplitN.md)。
 
-```ts
-const json = splitLayout.value.saveLayout();
-localStorage.setItem('SplitLayoutData', json);
-```
+```vue preview
+<template>
+  <div class="demo">
+    <SplitN
+      ref="splitLayoutRef"
+      :grids="grids"
+    >
+      <template #grid="{ grid }">
+        <h2 :style="{ backgroundColor: colors[grid.data] }">Grid {{ grid.name }}</h2>
+      </template>
+    </SplitN>
+  </div>
+</template>
 
-### 加载数据
+<script lang="ts" setup>
+import { ref, nextTick, h, onMounted } from 'vue';
+import { SplitN, type CodeLayoutSplitNGrid } from 'vue-code-layout';
 
-布局数据仅保存每个布局的基础位置、大小等信息，并不包含无法序列化的信息（例如回调函数，图标），所以你还需要在 loadLayout 的回调，根据面板名称填充这些数据，以实例化面板。
+const colors = [
+  '#0a4',
+  '#f80',
+  '#08f',
+]
+const grids = ref<CodeLayoutSplitNGrid[]>([
+  {
+    name: 'grid1',
+    visible: true,
+    size: 0,
+    data: 0,
+  },
+  {
+    name: 'grid2',
+    visible: true,
+    size: 0,
+    data: 1,
+  },
+  {
+    name: 'grid3',
+    visible: true,
+    size: 0,
+    data: 2,
+  }
+]);
 
-```ts
-const data = localStorage.getItem('SplitLayoutData');
-if (data) {
-  //If load layout from data, need fill panel data
-  splitLayout.value.loadLayout(JSON.parse(data), (panel) => {
-    switch (panel.name) {
-      case 'file1':
-        panel.title = 'File 1';
-        panel.tooltip = 'File 1 path';
-        panel.badge = '2';
-        panel.iconLarge = () => h(IconFile);
-        break;
-    }
-    return panel;
-  });
-} else {
-  //No data, create new layout
-  //...
+</script>
+
+
+<style scoped>
+h2 {
+  height: 100%;
+  text-align: center;
+  line-height: 100px!important;
+  margin: 0!important;
+  color: var(--code-layout-color-text-light);
 }
+.demo {
+  height: 400px;
+  display: flex;
+  flex-direction: row;
+  color: var(--code-layout-color-text-light);
+  background-color: var(--code-layout-color-background);
+}
+</style>
+
 ```
 
 ## 组件卸载提示

@@ -6,7 +6,7 @@
       </div>
     </template>
     <template #center>
-      <SplitLayout :enableSave="saveData" :showData="false" @resetAll="($refs.base as any).onResetAll()" />
+      <SplitLayoutTest :enableSave="saveData" :showData="false" @resetAll="($refs.base as any).onResetAll()" />
     </template>
   </BasicUseage>
 </template>
@@ -14,7 +14,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue';
 import BasicUseage from './BasicUseage.vue'
-import SplitLayout from './SplitLayout.vue'
+import SplitLayoutTest from './SplitLayoutTest.vue'
 
 const saveData = ref(true);
 </script>

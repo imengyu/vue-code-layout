@@ -1,47 +1,45 @@
 <template>
-  <div class="full-container">
-    <CodeLayout 
-      ref="codeLayout"
-      :layout-config="config"
-    >
-      <template #centerArea>
-        <h1>Center Area</h1>
+  <CodeLayout 
+    ref="codeLayout"
+    :layout-config="config"
+  >
+    <template #centerArea>
+      <h1>Center Area</h1>
+    </template>
+    <template #titleBarIcon>
+      <img src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+    </template>
+    <template #panelRender="{ panel }">
+      <template v-if="panel.name === 'explorer.file'">
+        <h1>Render Panel Explorer File</h1>
       </template>
-      <template #titleBarIcon>
-        <img src="../assets/images/logo.svg" width="20px" style="margin:0 10px 0 13px">
+      <template v-else-if="panel.name === 'explorer.outline'">
+        <h1>Render Panel Explorer outline</h1>
       </template>
-      <template #panelRender="{ panel }">
-        <template v-if="panel.name === 'explorer.file'">
-          <h1>Render Panel Explorer File</h1>
-        </template>
-        <template v-else-if="panel.name === 'explorer.outline'">
-          <h1>Render Panel Explorer outline</h1>
-        </template>
-        <template v-else-if="panel.name === 'bottom.ports'">
-          <h1>Render bottom panel ports</h1>
-        </template>
-        <template v-else-if="panel.name === 'bottom.terminal'">
-          <h1>Render bottom panel terminal</h1>
-        </template>
-        <span v-else>Panel {{ panel.name }}, no content</span>
+      <template v-else-if="panel.name === 'bottom.ports'">
+        <h1>Render bottom panel ports</h1>
       </template>
-      <template #statusBar>
-        <span>Custom render Status bar area</span>
+      <template v-else-if="panel.name === 'bottom.terminal'">
+        <h1>Render bottom panel terminal</h1>
       </template>
-    </CodeLayout>
-  </div>
+      <span v-else>Panel {{ panel.name }}, no content</span>
+    </template>
+    <template #statusBar>
+      <span>Custom render Status bar area</span>
+    </template>
+  </CodeLayout>
 </template>
 
 <script setup lang="ts">
 import IconFile from '../assets/icons/IconFile.vue';
 import IconSearch from '../assets/icons/IconSearch.vue';
 import { ref, reactive, onMounted, nextTick, h } from 'vue';
-import type { MenuOptions } from '@imengyu/vue3-context-menu';
-import type { CodeLayoutConfig, CodeLayoutInstance, CodeLayoutPanelInternal } from 'vue-code-layout';
-import { CodeLayout } from 'vue-code-layout';
+import type { CodeLayoutConfig, CodeLayoutInstance } from 'vue-code-layout';
+import { CodeLayout, defaultCodeLayoutConfig } from 'vue-code-layout';
 
 const codeLayout = ref<CodeLayoutInstance>();
 const config = reactive<CodeLayoutConfig>({
+  ...defaultCodeLayoutConfig,
   primarySideBarSwitchWithActivityBar: true,
   primarySideBarPosition: 'left',
   primarySideBarWidth: 20,
@@ -142,12 +140,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<style>
-.full-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-</style>

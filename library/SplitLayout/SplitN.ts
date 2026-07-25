@@ -1,6 +1,11 @@
 import { nextTick, reactive, type Ref } from "vue";
-import { CodeLayoutGridInternal, CodeLayoutPanelInternal, type CodeLayoutPanelHosterContext, type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid } from "../CodeLayout";
+import { CodeLayoutGridInternal, CodeLayoutPanelInternal, 
+  type CodeLayoutPanel, type CodeLayoutDragDropReferencePosition, 
+  type CodeLayoutDragDropReferenceAreaType, type CodeLayoutPanelTabStyle, type CodeLayoutGrid, 
+  CodeLayoutRootRef
+} from "../CodeLayout";
 import { FLAG_SPLIT_LAYOUT } from "../Composeable/DragDrop";
+import { assert, assertNotNull } from "../Utils/Assert";
 
 
 export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
@@ -16,6 +21,10 @@ export interface CodeLayoutSplitNGrid extends Omit<CodeLayoutPanel, 'title'> {
    * Default: true
    */
   stretchable?: boolean;
+  /**
+   * Size of this panel. (percentage size)
+   */
+  size: number;
 
   /**
    * Callback when canMinClose is set to true, and this panel visible was changed by user dragging.
@@ -49,8 +58,8 @@ export type CodeLayoutSplitCopyDirection = 'left'|'top'|'bottom'|'right';
  */
 export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal implements CodeLayoutSplitNPanel {
 
-  public constructor(context: CodeLayoutPanelHosterContext) {
-    super(context);
+  public constructor() {
+    super();
     this.open = true;
     this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
@@ -60,6 +69,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
 
   /**
    * Panel in SplitLayout always open, no need to call the open method.
+   * @deprecated
    */
   openPanel(): void {
     throw new Error('SplitLayout panel can only close');
@@ -70,7 +80,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
    * This method will trigger panelClose event in SplitLayout.
    */
   closePanel(): void {
-    this.context.closePanelInternal(this);
+    this.root.getRoot().closePanelInternal(this);
   }
 
   /**
@@ -93,12 +103,11 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
     const adjustGrid = this.parentGroup as CodeLayoutSplitNGridInternal;
     const parentGrid = this.parentGroup?.parentGroup as CodeLayoutSplitNGridInternal;
 
-    if (!parentGrid)
-      throw new Error("No top grid!");
+    assertNotNull(parentGrid, "No top grid!");
 
     //创建相同方向的网格
     function createSameSideGrid(prev = false) {
-      const newGrid = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      const newGrid = new CodeLayoutSplitNGridInternal();
       Object.assign(newGrid, {
         ...adjustGrid,
         direction: adjustGrid.direction,
@@ -117,7 +126,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
     //创建垂直方向的网格
     function createSubGrid(prev = false) {
       //新网格上部，放之前的面板
-      const newGrid = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      const newGrid = new CodeLayoutSplitNGridInternal();
       Object.assign(newGrid, {
         ...adjustGrid,
         direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
@@ -134,7 +143,7 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
       adjustGrid.addChildGrid(newGrid);
 
       //新网格，放新的面板
-      const newGridOther = new CodeLayoutSplitNGridInternal(adjustGrid.context);
+      const newGridOther = new CodeLayoutSplitNGridInternal();
       Object.assign(newGridOther, {
         ...adjustGrid,
         direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
@@ -209,13 +218,12 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
 export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal implements CodeLayoutSplitNGrid {
 
   public constructor(
-    context: CodeLayoutPanelHosterContext,
     name : CodeLayoutGrid = 'centerArea',
     tabStyle: CodeLayoutPanelTabStyle = 'text',
     onSwitchCollapse: (open: boolean) => void = () => {},
     onActiveSelf: () => void = () => {},
   ) {
-    super(name, tabStyle, context, onSwitchCollapse, onActiveSelf);
+    super(name, tabStyle, onSwitchCollapse, onActiveSelf);
     this.open = true;
     this.sourceFlag = FLAG_SPLIT_LAYOUT;
   }
@@ -248,8 +256,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     if (panelInternal.parentGroup)
       throw new Error(`Panel ${grid.name} already added to ${panelInternal.parentGroup.name} !`);
 
-    const panelResult = reactive(new CodeLayoutSplitNGridInternal(this.context));
-    Object.assign(panelResult, grid);
+    const panelResult = reactive(Object.assign(new CodeLayoutSplitNGridInternal(), grid));
     panelResult.children = [];
     panelResult.childGrid = [];
     panelResult.open = true;
@@ -273,19 +280,15 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   addPanel(panel: CodeLayoutSplitNPanel, startOpen?: boolean, index?: number) {
     const panelInternal = panel as CodeLayoutPanelInternal;
     
-    if (panelInternal.parentGroup)
-      throw new Error(`Panel ${panel.name} already added to ${panelInternal.parentGroup.name} !`);
-    if (this.context.panelInstances.has(panelInternal.name))
-      throw new Error(`A panel named ${panel.name} already exists in this layout`);
+    assert(!panelInternal.parentGroup, `Panel ${panel.name} already added to ${panelInternal.parentGroup?.name} !`);
+    assert(!this.root.existsPanelInstanceRef(panelInternal.name), `A panel named ${panel.name} already exists in this layout`);
   
-    const panelResult = reactive(new CodeLayoutSplitNPanelInternal(this.context));
-    Object.assign(panelResult, panel);
+    const panelResult = reactive(Object.assign(new CodeLayoutSplitNPanelInternal(), panel));
     panelResult.children = [];
     panelResult.size = panel.size ?? 0;
     panelResult.accept = panel.accept ?? this.accept;
     this.addChild(panelResult as CodeLayoutSplitNPanelInternal, index);
-    this.context.panelInstances.set(panelInternal.name, panelResult as CodeLayoutSplitNPanelInternal);
-  
+    this.root.addPanelInstanceRef(panelResult as CodeLayoutSplitNPanelInternal);
     return panelResult as CodeLayoutSplitNPanelInternal;
   }
 
@@ -312,11 +315,11 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
 
   setActiveChild(child: CodeLayoutPanelInternal|null) {
     super.setActiveChild(child);
-    this.context.childGridActiveChildChanged(this);
+    this.root.getRoot().childGridActiveChildChanged(this);
   }
   reselectActiveChild(): void {
     super.reselectActiveChild();
-    this.context.childGridActiveChildChanged(this);
+    this.root.getRoot().childGridActiveChildChanged(this);
   }
 
   onActive?: (grid: CodeLayoutSplitNGrid) => void;
@@ -334,6 +337,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     else
       this.childGrid.push(child);
     child.parentGroup = this;
+    child._root = this._root;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
     return child;
@@ -345,6 +349,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
       this.childGrid.push(...childs);
     for (const child of childs) {
       child.parentGroup = this;
+      child._root = this._root;
       if (child.inhertParentGrid)
         child.parentGrid = this.parentGrid;
     }
@@ -352,6 +357,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   removeChildGrid(child: CodeLayoutSplitNGridInternal) {
     this.childGrid.splice(this.childGrid.indexOf(child), 1);
     child.parentGroup = null;
+    child._root = null;
   }
   replaceChildGrid(oldChild: CodeLayoutSplitNGridInternal, child: CodeLayoutSplitNGridInternal) {
     const index = this.childGrid.indexOf(oldChild);
@@ -364,6 +370,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     );  
     if (oldChild.parentGroup === this) 
       oldChild.parentGroup = null;
+    child._root = this._root;
     child.parentGroup = this;
     if (child.inhertParentGrid)
       child.parentGrid = this.parentGrid;
@@ -384,6 +391,92 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     this.direction = json.direction || this.direction;
     this.canMinClose = json.canMinClose ?? this.canMinClose;
     super.loadFromJson(json);
+  }
+}
+/**
+ * Root grid of SplitLayout.
+ * 
+ * This grid is the root grid of SplitLayout, and it is the only grid that can be set to SplitLayout.layoutData.
+ */
+export class CodeLayoutSplitNRootGrid extends CodeLayoutSplitNGridInternal {
+  constructor(grid: CodeLayoutGrid = 'centerArea') {
+    super();
+    this.name = 'root';
+    this.direction = 'horizontal';
+    this.parentGrid = grid;
+    this.canMinClose = false;
+    this.noAutoShink = true;
+    this._root = new CodeLayoutRootRef();
+  }
+
+  /**
+   * Clear all panels and child grids in this layout.
+   */
+  clearLayout() {
+    this.childGrid.splice(0);
+    this.children.splice(0);
+    this._root?.clearPanelInstanceRef();
+    return this;
+  }
+  /**
+   * Load the previous layout from JSON data, will clear all panels,
+   * instantiatePanelCallback will sequentially call all panels, where you can process panel data.
+   * @param json Layout json data.
+   * @param instantiatePanelCallback Callback to process layout data panel.
+   * @returns 
+   */
+  loadLayout(json: object, instantiatePanelCallback: (panel: any) => CodeLayoutSplitNPanel) {
+    if (!json)
+      return this;
+    this.clearLayout();
+
+    function loadGrid(grid: any, gridInstance: CodeLayoutSplitNGridInternal) {
+      gridInstance.loadFromJson(grid);
+
+      if (grid.childGrid instanceof Array && grid.childGrid.length > 0) {
+        for (const childGrid of grid.childGrid) {
+          const childGridInstance = new CodeLayoutSplitNGridInternal();
+          loadGrid(childGrid, childGridInstance);
+          gridInstance.addChildGrid(childGridInstance);
+        }
+        gridInstance.notifyRelayout()
+      } else if (grid.childGrid instanceof Array) {
+        for (const childPanel of grid.children) {
+          const data = instantiatePanelCallback(childPanel);
+          const panel = gridInstance.addPanel(data);
+          panel.loadFromJson(childPanel);
+        }
+      }
+    }
+
+    loadGrid(json, this);
+    this.notifyRelayout();
+    return this;
+  }
+  /**
+   * Save layout to json.
+   * @returns Layout json data.
+   */
+  saveLayout() {
+    return this.toJson();
+  }
+
+  /**
+   * Get grid instance by name.
+   * @param name The grid name.
+   * @returns Grid instance, if grid is not found in the component, return undefined
+   */
+  getGridByName(name: string)  {
+    function loop(grid: CodeLayoutSplitNGridInternal, name2: string) : CodeLayoutSplitNGridInternal|undefined {
+      for (const iterator of grid.childGrid) {
+        if (iterator.name === name2)
+          return iterator;
+        const a = loop(iterator, name2);
+        if (a)
+          return a;
+      }
+    }
+    return loop(this, name);
   }
 }
 
@@ -424,11 +517,6 @@ export interface CodeLayoutSplitNConfig {
  */
 export interface CodeLayoutSplitNInstance {
   /**
-   * Get root grid instance.
-   * @returns Root grid instance.
-   */
-  getRootGrid() : CodeLayoutSplitNGridInternal;
-  /**
    * Get panel instance by name.
    * @param name The panel name.
    * @returns Panel instance, if panel is not found in the component, return undefined
@@ -444,6 +532,21 @@ export interface CodeLayoutSplitNInstance {
    * Obtain a grid that is currently actived by user and can be used to add panels.
    */
   getActiveGird() : CodeLayoutSplitNGridInternal|undefined;
+  /**
+   * Clear all layout data.
+   */
+  clearLayout(): void;
+  /**
+   * Load layout from json data.
+   * @param json Json data.
+   * @param instantiatePanelCallback Callback to instantiate panel.
+   */
+  loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel): void;
+  /**
+   * Save layout to json data.
+   * @returns Json data.
+   */
+  saveLayout(): any;
 
   getGridTreeDebugText() : string;
 
@@ -455,19 +558,6 @@ export interface CodeLayoutSplitNInstance {
    * @param name Panel name
    */
   activePanel(name: string): void;
-  /**
-   * Clear all grid.
-   */
-  clearLayout(): void;
-  /**
-   * Save current layout to JSON data.
-   */
-  saveLayout(): any;
-  /**
-   * Load the previous layout from JSON data, 
-   * instantiatePanelCallback will sequentially call all panels, where you can process panel data.
-   */
-  loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutSplitNPanel) => CodeLayoutSplitNPanel): void;
 }
 
 export interface CodeLayoutSplitLayoutContext {

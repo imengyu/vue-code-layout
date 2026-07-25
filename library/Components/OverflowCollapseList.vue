@@ -166,6 +166,9 @@ function onOverflowItemClicked() {
   }
   menuState = true;
   ContextMenu.showContextMenu({
+    onClose() {
+      setTimeout(() => menuState = false, 100);
+    },
     theme: 'code-layout',
     adjustPadding: { x: 0, y: 0 },
     x: horizontal ? 

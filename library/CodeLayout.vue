@@ -2,9 +2,7 @@
   <CodeLayoutBase 
     ref="codeLayoutBase"
     :config="layoutConfig"
-    :primary="panels.primary"
-    :secondary="panels.secondary"
-    :bottom="panels.bottom"
+    :rootGrid="rootGrid"
     @layoutChange="emit('baseLayoutChange')"
   >
     <template #titleBarBottom>
@@ -25,9 +23,9 @@
       <slot name="titleBarCenter" />
     </template>
     <template #titleBarRight>
-      <CodeLayoutCustomizeLayout 
-        v-if="layoutConfig.titleBarShowCustomizeLayout"
-      />
+      <slot v-if="layoutConfig.titleBarShowCustomizeLayout" name="titleBarCustomizeLayout">
+        <CodeLayoutCustomizeLayout />
+      </slot>
       <slot name="titleBarRight" />
     </template>
     <template #activityBar>
@@ -40,7 +38,7 @@
         <!--main activityBar items-->
         <CodeLayoutActivityBar
           ref="activityBarGroup" 
-          :primary="panels.primary"
+          :primary="rootGrid.primarySideBar"
           :primarySideBar="layoutConfig.primarySideBar"
           :direction="layoutConfig.primarySideBarPosition"
           @activityBarAcitve="onActivityBarAcitve"
@@ -61,7 +59,7 @@
         <!--main activityBar items-->
         <CodeLayoutActivityBar
           ref="activityBarGroup" 
-          :primary="panels.secondary"
+          :primary="rootGrid.secondarySideBar"
           :primarySideBar="layoutConfig.secondarySideBar"
           :direction="layoutConfig.primarySideBarPosition == 'left' ? 'right' : 'left'"
           @activityBarAcitve="onActivityBarAcitve2"
@@ -75,15 +73,15 @@
     <template #primarySideBar>
       <CodeLayoutGroupRender
         ref="primarySideBarGroup"
-        :group="panels.primary"
+        :group="rootGrid.primarySideBar"
         :horizontal="false"
       >
         <template v-for="(_, name) in $slots" #[name]="data">
           <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
-          <CodeLayoutEmpty :panel="panels.primary" grid="primarySideBar">
-            <slot name="emptyGroup" :panel="panels.primary" grid="primarySideBar">{{ emptyText }}</slot>
+          <CodeLayoutEmpty :panel="rootGrid.primarySideBar" grid="primarySideBar">
+            <slot name="emptyGroup" :panel="rootGrid.primarySideBar" grid="primarySideBar">{{ emptyText }}</slot>
           </CodeLayoutEmpty>
         </template>
       </CodeLayoutGroupRender>
@@ -91,15 +89,15 @@
     <template #secondarySideBar>
       <CodeLayoutGroupRender
         ref="secondarySideBarGroup"
-        :group="panels.secondary"
+        :group="rootGrid.secondarySideBar"
         :horizontal="false"
       >
         <template v-for="(_, name) in $slots" #[name]="data">
           <slot :name="name" v-bind="data" />
         </template>
         <template #emptyTabRender>
-          <CodeLayoutEmpty :panel="panels.secondary" grid="secondarySideBar">
-            <slot name="emptyGroup" :panel="panels.secondary" grid="secondarySideBar">{{ emptyText }}</slot>
+          <CodeLayoutEmpty :panel="rootGrid.secondarySideBar" grid="secondarySideBar">
+            <slot name="emptyGroup" :panel="rootGrid.secondarySideBar" grid="secondarySideBar">{{ emptyText }}</slot>
           </CodeLayoutEmpty>
         </template>
       </CodeLayoutGroupRender>
@@ -107,7 +105,7 @@
     <template #bottomPanel>
       <CodeLayoutGroupRender
         ref="bottomPanelGroup"
-        :group="panels.bottom"
+        :group="rootGrid.bottomPanel"
         :horizontal="true"
       >
         <template v-for="(_, name) in $slots" #[name]="data">
@@ -115,7 +113,7 @@
         </template>
         <template #emptyTabRender>
           <CodeLayoutEmpty grid="bottomPanel">
-            <slot name="emptyGroup" :panel="panels.bottom" grid="bottomPanel">{{ emptyText }}</slot>
+            <slot name="emptyGroup" :panel="rootGrid.bottomPanel" grid="bottomPanel">{{ emptyText }}</slot>
           </CodeLayoutEmpty>
         </template>
       </CodeLayoutGroupRender>
@@ -136,28 +134,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref, type PropType, onMounted, provide, onBeforeUnmount, toRefs, computed, watch, nextTick, reactive } from 'vue';
-import { CodeLayoutPanelInternal, type CodeLayoutConfig, type CodeLayoutContext, type CodeLayoutGrid, type CodeLayoutInstance, CodeLayoutGridInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutLangConfig, defaultCodeLayoutConfig } from './CodeLayout';
-import CodeLayoutBase, { type CodeLayoutBaseInstance } from './CodeLayoutBase.vue';
+import { ref, type PropType, onMounted, provide, toRefs, computed, watch, nextTick, reactive } from 'vue';
+import { CodeLayoutPanelInternal, 
+  type CodeLayoutConfig, type CodeLayoutContext, type CodeLayoutGrid, type CodeLayoutInstance, CodeLayoutGridInternal, 
+  type CodeLayoutDragDropReferencePosition, type CodeLayoutLangConfig, defaultCodeLayoutConfig, 
+} from './CodeLayout';
+import CodeLayoutBase from './CodeLayoutBase.vue';
 import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
 import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
+import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
 import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
-import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutPanelHosterContext } from './CodeLayout';
-import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
-import { CodeLayoutSplitNGridInternal } from './SplitLayout/SplitN';
+import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutRootRefDefine } from './CodeLayout';
+import { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
 import { useKeyBoardControllerTop } from './Composeable/KeyBoardController';
+import { assertNotNull } from './Utils/Assert';
 
-const codeLayoutBase = ref<CodeLayoutBaseInstance>();
 const primarySideBarGroup = ref();
 const bottomPanelGroup = ref();
 const secondarySideBarGroup = ref();
 const activityBarGroup = ref();
 
 const emit = defineEmits([	
-  'canLoadLayout',
-  'canSaveLayout',
+  'update:layoutData',
   'baseLayoutChange'
 ]);
 const props = defineProps({
@@ -169,7 +169,15 @@ const props = defineProps({
     default: () => defaultCodeLayoutConfig
   },
   /**
+   * Layout data.
+   */
+  layoutData: {
+    type: Object as PropType<CodeLayoutRootGrid>,
+    default: null
+  },
+  /**
    * Language config
+   * @default { lang: 'en' }
    */
   langConfig: {
     type: Object as PropType<CodeLayoutLangConfig>,
@@ -186,115 +194,63 @@ const props = defineProps({
   },
   /**
    * The empty text when no panel in the group
+   * @default "Drag a view here to display"
    */
   emptyText: {
     type: String,
     default: "Drag a view here to display",
   },
-  /**
-   * Should the canSaveLayout event be triggered when window. beforeupload
-   */
-  saveBeforeUnload: {
-    type: Boolean,
-    default: true,
-  },
 });
 const { layoutConfig } = toRefs(props);
-const panelInstances = new Map<string, CodeLayoutPanelInternal>();
-const hosterContext : CodeLayoutPanelHosterContext = {
-  panelInstances,
+const hosterContext : CodeLayoutRootRefDefine = {
   getRef: () => codeLayoutInstance,
   removePanelInternal,
   childGridActiveChildChanged() {},
   closePanelInternal() {}
 }
+const rootGrid = computed(() => {
+  bindRootGridToHosterContext(props.layoutData);
+  return props.layoutData;
+});
 
-const panels = ref({
-  primary: new CodeLayoutSplitNGridInternal(hosterContext, 'primarySideBar', 'hidden', 
-  (open) => {
-    const _layoutConfig = props.layoutConfig;
-    _layoutConfig.primarySideBar = open;
-  },
-  () => {
-    primarySideBarGroup.value.forceUpdate();
-    activityBarGroup.value.forceUpdate();
-  }),
-  secondary: new CodeLayoutSplitNGridInternal(hosterContext,'secondarySideBar', 'icon', 
-  (open) => {
-    const _layoutConfig = props.layoutConfig;
-    _layoutConfig.secondarySideBar = open;
-  },
-  () => {
-    secondarySideBarGroup.value.forceUpdate();
-  }),
-  bottom: new CodeLayoutSplitNGridInternal(hosterContext,'bottomPanel', 'text', 
-  (open) => {
-    const _layoutConfig = props.layoutConfig;
-    _layoutConfig.bottomPanel = open;
-  },
-  () => {
-    bottomPanelGroup.value.forceUpdate();
-  }),
-}) as Ref<{
-  primary: CodeLayoutSplitNGridInternal,
-  secondary: CodeLayoutSplitNGridInternal,
-  bottom: CodeLayoutSplitNGridInternal,
-}>;
-
-//设置默认的面板拖拽允许
-const defaultAccept : CodeLayoutGrid[] = [ 'bottomPanel', 'primarySideBar','secondarySideBar' ];
-panels.value.bottom.accept = defaultAccept;
-panels.value.primary.accept = defaultAccept;
-panels.value.secondary.accept = defaultAccept;
+function bindRootGridToHosterContext(grid: CodeLayoutRootGrid) {
+  grid.root.setRoot(hosterContext);
+  grid.noAutoShink = true;
+  grid.layoutConfig = layoutConfig;
+  grid.bottomPanelGroup = bottomPanelGroup.value;
+  grid.primarySideBarGroup = primarySideBarGroup.value;
+  grid.secondarySideBarGroup = secondarySideBarGroup.value;
+}
 
 //activity bar 位置根据设置进行切换
 function loadActivityBarPosition() {
   switch (layoutConfig.value.activityBarPosition) {
     case 'side':
     case 'hidden':
-      panels.value.primary.tabStyle = 'hidden';
+      rootGrid.value.primarySideBar.tabStyle = 'hidden';
       break;
     case 'top':
-      panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
+      rootGrid.value.primarySideBar.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
       break;
     case 'bottom':
-      panels.value.primary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
+      rootGrid.value.primarySideBar.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
       break;
   }
-  if (layoutConfig.value.secondarySideBarAsActivityBar)
-  {
-    switch (layoutConfig.value.secondaryActivityBarPosition) {
+   switch (layoutConfig.value.secondaryActivityBarPosition) {
       case 'side':
       case 'hidden':
-        panels.value.secondary.tabStyle = 'hidden';
+        rootGrid.value.secondarySideBar.tabStyle = 'hidden';
         break;
       case 'top':
-        panels.value.secondary.tabStyle = 'icon';
+        rootGrid.value.secondarySideBar.tabStyle = layoutConfig.value.secondarySideBar?'icon':'hidden'
         break;
       case 'bottom':
-        panels.value.secondary.tabStyle = 'icon-bottom';
+        rootGrid.value.secondarySideBar.tabStyle = layoutConfig.value.secondarySideBar?'icon-bottom':'hidden'
         break;
     }
-  }
-  else {
-    switch (layoutConfig.value.activityBarPosition) {
-      case 'side':
-        panels.value.secondary.tabStyle = 'icon';
-        break;
-      case 'hidden':
-        panels.value.secondary.tabStyle = 'hidden';
-        break;
-      case 'top':
-        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon' : 'hidden';
-        break;
-      case 'bottom':
-        panels.value.secondary.tabStyle = layoutConfig.value.activityBar ? 'icon-bottom' : 'hidden';
-        break;
-    }
-  }
+ 
 }
 
-watch(() => layoutConfig.value.secondarySideBarAsActivityBar, loadActivityBarPosition);
 watch(() => layoutConfig.value.secondaryActivityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBarPosition, loadActivityBarPosition);
 watch(() => layoutConfig.value.activityBar, loadActivityBarPosition);
@@ -315,11 +271,16 @@ const codeLayoutInstance : CodeLayoutInstance = {
   removeGroup,
   relayoutAll,
   relayoutGroup,
-  getRootGrid,
   getPanelByName,
-  clearLayout,
-  loadLayout,
-  saveLayout,
+  getRootGrid,
+  clearLayout: () => props.layoutData.clearLayout(),
+  loadLayout: (json, instantiatePanelCallback) => props.layoutData.loadLayout(json, instantiatePanelCallback),
+  saveLayout: () => props.layoutData.saveLayout(),
+  createRootGrid() {
+    const rootGrid = new CodeLayoutRootGrid();
+    bindRootGridToHosterContext(rootGrid);
+    return rootGrid;
+  },
 };
 const codeLayoutContext : CodeLayoutContext = {
   dragDropToGrid,
@@ -377,7 +338,6 @@ function dragDropToGrid(grid: CodeLayoutGrid, panel: CodeLayoutPanelInternal) {
   if (presolve)
     gridInstance.addChild(presolve ?? panel);
 }
-
 /**
  * 拖放处理主函数: 拖拽至面板上
  * @param reference 参考面板
@@ -493,15 +453,14 @@ function dragDropToPanelNear(
   ) {
     //2.3.1
 
-    const newGroup = new CodeLayoutPanelInternal(hosterContext);
-    Object.assign(newGroup, {
+    const newGroup = reactive(Object.assign(new CodeLayoutPanelInternal(), {
       ...reference,
       name: reference.name + '.clone' + Math.floor(Math.random() * 10),
       children: []
-    });
+    })) as unknown as CodeLayoutPanelInternal;
     reference.open = true;
     newGroup.addChild(reference);
-    panelInstances.set(newGroup.name, newGroup);
+    rootGrid.value.root.addPanelInstanceRef(newGroup);
 
     switch (referencePosition) {
       case 'left':
@@ -557,7 +516,6 @@ function dragDropToPanelNear(
     newParent.setActiveChild(panel);
   }
 }
-
 /**
  * 移除面板处理函数
  * @param panel 
@@ -637,7 +595,7 @@ function relayoutAfterRemovePanel(group: CodeLayoutPanelInternal, isInTab: boole
       firstChildren.open = true;
       firstChildren.size = 0;//只有一个容器后直接占满容器
       gridInstance.replaceChild(group, firstChildren);
-      panelInstances.delete(group.name);
+      props.layoutData.root.deletePanelInstanceRef(group.name);
       return;
     }
   }
@@ -647,57 +605,15 @@ function relayoutAfterRemovePanel(group: CodeLayoutPanelInternal, isInTab: boole
     firstChildren.open = true;
     firstChildren.size = 0;//只有一个容器后直接占满容器
     group.parentGroup!.replaceChild(group, firstChildren);
-    panelInstances.delete(group.name);
+    props.layoutData.root.deletePanelInstanceRef(group.name);
     return;
   }
 
   //普通组移除状态下，无需其他操作，通知面板进行布局
-  panelInstances.get(group.name)?.relayoutAllWithRemovePanel(panel);
+  props.layoutData.root.getPanelByName(group.name)?.relayoutAllWithRemovePanel(panel);
 }
 
 //布局加载与保存
-function clearLayout() {
-  panels.value.primary.children.splice(0);
-  panels.value.secondary.children.splice(0);
-  panels.value.bottom.children.splice(0);
-  panels.value.primary.setActiveChild(null);
-  panels.value.secondary.setActiveChild(null);
-  panels.value.bottom.setActiveChild(null);
-  panelInstances.clear();
-}
-function saveLayout() {
-  codeLayoutBase.value?.saveGridLayoutDataToConfig();
-  return {
-    primary: panels.value.primary.toJson(),
-    secondary: panels.value.secondary.toJson(),
-    bottom: panels.value.bottom.toJson(),
-  };
-}
-function loadLayout(json: any, instantiatePanelCallback: (data: CodeLayoutPanel) => CodeLayoutPanel) {
-
-  clearLayout();
-
-  if (!json)
-    return;
-
-  function loadGrid(gridData: any, gridInstance: CodeLayoutPanelInternal) {
-    gridInstance.loadFromJson(gridData);
-    if (gridData.children instanceof Array) {
-      for (const childPanelData of gridData.children) {
-        const panelInstance = gridInstance.addPanel(childPanelData as CodeLayoutPanel);
-        loadGrid(childPanelData, instantiatePanelCallback(panelInstance) as CodeLayoutPanelInternal);
-      }
-    }
-    gridInstance.notifyRelayout();
-  }
-
-  if (json.primary)
-    loadGrid(json.primary, panels.value.primary as CodeLayoutPanelInternal);
-  if (json.secondary)
-    loadGrid(json.secondary, panels.value.secondary as CodeLayoutPanelInternal);
-  if (json.primary)
-    loadGrid(json.bottom, panels.value.bottom as CodeLayoutPanelInternal);
-}
 
 //处理函数
 usePanelDraggerRoot(FLAG_CODE_LAYOUT);
@@ -710,106 +626,68 @@ provide('codeLayoutContext', codeLayoutContext);
 
 function onActivityBarAcitve(panelGroup: CodeLayoutPanelInternal) {
   const _layoutConfig = props.layoutConfig;
-  if (panels.value.primary.activePanel === panelGroup && props.layoutConfig.primarySideBarSwitchWithActivityBar) {
+  if (rootGrid.value.primarySideBar.activePanel === panelGroup && props.layoutConfig.primarySideBarSwitchWithActivityBar) {
     //如果点击当前条目，则切换侧边栏
     _layoutConfig.primarySideBar = !_layoutConfig.primarySideBar;
   } else {
     //如果侧边栏关闭，则打开
     if (!props.layoutConfig.primarySideBar)
       _layoutConfig.primarySideBar = true;
-    panels.value.primary.setActiveChild(panelGroup);
+    rootGrid.value.primarySideBar.setActiveChild(panelGroup);
   }
 } 
 function onActivityBarAcitve2(panelGroup: CodeLayoutPanelInternal) {
   const _layoutConfig = props.layoutConfig;
-  if (panels.value.secondary.activePanel === panelGroup && props.layoutConfig.primarySideBarSwitchWithActivityBar) {
+  if (rootGrid.value.secondarySideBar.activePanel === panelGroup && props.layoutConfig.primarySideBarSwitchWithActivityBar) {
     //如果点击当前条目，则切换侧边栏
     _layoutConfig.secondarySideBar = !_layoutConfig.secondarySideBar;
   } else {
     //如果侧边栏关闭，则打开
     if (!props.layoutConfig.secondarySideBar)
       _layoutConfig.secondarySideBar = true;
-    panels.value.secondary.setActiveChild(panelGroup);
+    rootGrid.value.secondarySideBar.setActiveChild(panelGroup); 
   }
 }
 
 //公开控制接口
 
 function getRootGrid(target: CodeLayoutGrid) : CodeLayoutGridInternal {
+  assertNotNull(rootGrid.value, 'layoutData is null!');
   switch (target) {
-    case 'rootGrid': return codeLayoutBase.value?.getSplitLayoutRef()?.getRootGrid()!;
-    case 'primarySideBar': return panels.value.primary as CodeLayoutGridInternal;
-    case 'secondarySideBar': return panels.value.secondary as CodeLayoutGridInternal;
-    case 'bottomPanel': return panels.value.bottom as CodeLayoutGridInternal;
+    case 'rootGrid': return rootGrid.value;
+    case 'primarySideBar': return rootGrid.value.primarySideBar;
+    case 'secondarySideBar': return rootGrid.value.secondarySideBar;
+    case 'bottomPanel': return rootGrid.value.bottomPanel;
   }
   throw new Error(`Unknown grid ${target}`);
 }
 function getPanelByName(name: string) {
-  return panelInstances.get(name);
+  return props.layoutData.root.getPanelByName(name);
 }
 function addGroup(panel: CodeLayoutPanel, target: CodeLayoutGrid) {
-  const panelInternal = panel as CodeLayoutPanelInternal;
-
-  if (panelInternal.parentGrid && panelInternal.parentGrid !== 'none')
-    throw new Error(`Group ${panel.name} already added to ${panelInternal.parentGrid} !`);
-  if (panelInstances.has(panelInternal.name))
-    throw new Error(`A panel named ${panel.name} already exists`);
-
-  const groupResult = reactive(new CodeLayoutPanelInternal(hosterContext));
-  Object.assign(groupResult, panel);
-  groupResult.open = panel.startOpen ?? false;
-  groupResult.size = panel.size ?? 0;
-  groupResult.accept = panel.accept ?? defaultAccept;
-  groupResult.parentGrid = target;
-
-  panelInstances.set(panelInternal.name, groupResult as CodeLayoutPanelInternal);
-  getRootGrid(target).addChild(groupResult as CodeLayoutPanelInternal);
-
-  return groupResult as CodeLayoutPanelInternal;
+  return getRootGrid(target).addGroup(panel);
 }
 function removeGroup(panel: CodeLayoutPanelInternal) {
-  const grid = panel.parentGrid;
-  if (!grid || grid === 'none')
-    throw new Error(`Group ${panel.name} already removed from any grid !`);
-
-  const gridInstance = getRootGrid(grid);
-
-  gridInstance.removeChild(panel);
-  panel.parentGrid = 'none';
-  panelInstances.delete(panel.name);
-
+  getRootGrid(panel.parentGrid).removeGroup(panel);
   return panel;
 }
 function relayoutAll() {
-  panelInstances.forEach(p => p.notifyRelayout());
+  props.layoutData.root.forEachPanelInstanceRef(p => p.notifyRelayout());
 }
 function relayoutGroup(name: string) {
-  panelInstances.get(name)?.notifyRelayout();
+  props.layoutData.root.getPanelByName(name)?.notifyRelayout();
 }
 
 defineExpose(codeLayoutInstance);
-
 onMounted(() => {
   nextTick(() => {
-    emit('canLoadLayout', codeLayoutInstance);
     loadActivityBarPosition();
   });
-  if (props.saveBeforeUnload)
-    window.addEventListener('beforeunload', saveLayoutAtUnmount)
 });
-onBeforeUnmount(() => {
-  saveLayoutAtUnmount();
-});
-
-function saveLayoutAtUnmount() {
-  window.removeEventListener('beforeunload', saveLayoutAtUnmount);
-  codeLayoutBase.value?.saveGridLayoutDataToConfig();
-  emit('canSaveLayout', codeLayoutInstance);
-}
 
 </script>
 
 <style lang="scss">
-@import './Scss/Base.scss';
-@import './Scss/Menu.scss';
+@use './Scss/Base.scss' as *;
+@use './Scss/Menu.scss' as *;
 </style>
