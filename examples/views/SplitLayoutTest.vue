@@ -59,7 +59,7 @@ import IconMarkdown from '../assets/icons/IconMarkdown.vue';
 import IconVue from '../assets/icons/IconVue.vue';
 import IconFile from '../assets/icons/IconFile.vue';
 import { ref, h, reactive } from 'vue';
-import type { CodeLayoutPanelInternal, CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
+import type { CodeLayoutSplitNConfig, CodeLayoutSplitNPanelInternal } from 'vue-code-layout';
 import type { CodeLayoutSplitNGridInternal } from 'vue-code-layout';
 import { CodeLayoutSplitNRootGrid, defaultSplitLayoutConfig, SplitLayout, SplitTabItem, SimpleTooltip, useLocalStorage } from 'vue-code-layout';
 import ContextMenuGlobal from '@imengyu/vue3-context-menu';
@@ -133,7 +133,7 @@ const config = reactive<CodeLayoutSplitNConfig>({
 const layoutData = ref(new CodeLayoutSplitNRootGrid());
 layoutData.value.direction = 'horizontal';
 
-function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
+function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
   console.log('onPanelClose', panel.name);
   resolve();
 }
@@ -149,7 +149,7 @@ function onAddPanel(grid: CodeLayoutSplitNGridInternal) {
   });
   newPanel.activeSelf();
 }
-function onPanelMenu(panel: CodeLayoutPanelInternal, e: MouseEvent) {
+function onPanelMenu(panel: CodeLayoutSplitNPanelInternal, e: MouseEvent) {
   e.stopPropagation();
   e.preventDefault();
 

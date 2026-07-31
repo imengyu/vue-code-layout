@@ -34,8 +34,8 @@ import IconVue from '../assets/icons/IconVue.vue';
 import { ref, onMounted, h } from 'vue';
 import { 
   SplitLayout, 
-  type CodeLayoutSplitNInstance, 
-  type CodeLayoutPanelInternal, 
+  type CodeLayoutSplitNInstance,
+  type CodeLayoutSplitNPanelInternal,
   CodeLayoutSplitNRootGrid
 } from 'vue-code-layout';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
@@ -52,7 +52,7 @@ const MONACO_EDITOR_OPTIONS = {
 }; 
 const splitLayoutData = ref(new CodeLayoutSplitNRootGrid());
 
-function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
+function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
   resolve();
 }
 function loadLayout() {

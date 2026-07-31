@@ -1,14 +1,50 @@
 import { computed, inject, onBeforeUnmount, onMounted, provide, ref, type Ref } from "vue";
-import type { CodeLayoutConfig, CodeLayoutDragDropReferencePosition, CodeLayoutGridInternal, CodeLayoutPanelInternal } from "../CodeLayout";
 import HtmlUtils from '../Utils/HtmlUtils';
 import { createMiniTimeOut } from "./MiniTimeout";
 import { useDragEnterLeaveFilter } from "./DragEnterLeaveFilter";
 
+/**
+ * 本模块被 CodeLayout 与 SplitLayout 两套互相独立的数据结构共用，
+ * 因此这里只按“结构”描述它需要的最小面板形状，不 import 任何一方的具体类型。
+ *
+ * 下面的类型与 CodeLayout.ts / SplitLayout/SplitN.ts 中对应定义结构一致。
+ */
+export interface DragDropPanelLike {
+  name: string;
+  parentGrid: string;
+  accept?: string[];
+  children: any[];
+  sourceFlag: string;
+  draggable?: boolean;
+  preDropCheck?: (
+    dropPanel: any,
+    targetGrid: any,
+    referencePanel?: any,
+    referencePosition?: any,
+  ) => boolean;
+}
+
+/**
+ * Drop source postition definition.
+ */
+export type DragDropReferencePosition = ''|'up'|'down'|'left'|'right'|'center';
+
+/**
+ * 拖拽过程中需要读写的宿主配置（由 CodeLayout 通过 `codeLayoutConfig` 注入）。
+ */
+export interface DragDropHostConfigLike {
+  primarySideBar: boolean;
+  secondarySideBar: boolean;
+  bottomPanel: boolean;
+  onStartDrag?: (panel: any[]) => boolean;
+  onEndDrag?: (panel: any[]) => void;
+}
+
 export function checkDropPanelDefault(
-  dragPanel: CodeLayoutPanelInternal,
-  dropGroup: CodeLayoutPanelInternal|null,
-  referencePanel: CodeLayoutPanelInternal|null,
-  dragOverState: Ref<CodeLayoutDragDropReferencePosition>,
+  dragPanel: any,
+  dropGroup: DragDropPanelLike|null,
+  referencePanel: DragDropPanelLike|null,
+  dragOverState: Ref<DragDropReferencePosition>,
 ) {
   return (
     dragPanel !== referencePanel
@@ -23,7 +59,7 @@ export function checkDropPanelDefault(
 }
 
 const dragEndEventDispatch : (() => void)[] = [];
-const currentDragPanels : CodeLayoutPanelInternal[] = [];
+const currentDragPanels : DragDropPanelLike[] = [];
 
 function dispatchAllDragEndEvent() {
   for (const f of dragEndEventDispatch) {
@@ -35,11 +71,13 @@ function clearAllCurrentDragPanels() {
 }
 
 //获取当前的拖拽面板
-export function getCurrentDragPanel() {
-  return currentDragPanels[0] || null;
+//被拖拽面板可能来自任意一个布局家族，默认类型参数为 any，
+//由调用方按自己所处的布局指定具体类型。
+export function getCurrentDragPanel<T = any>() : T|null {
+  return (currentDragPanels[0] as T) || null;
 }
-export function getCurrentDragExternalPanels() {
-  return currentDragPanels.length > 0 ? currentDragPanels : null;
+export function getCurrentDragExternalPanels<T = any>() : T[]|null {
+  return currentDragPanels.length > 0 ? (currentDragPanels as T[]) : null;
 }
 
 export const FLAG_CODE_LAYOUT = 'CodeLayout';
@@ -57,14 +95,14 @@ export function usePanelDraggerRoot(key: string) {
 
 //拖拽开始函数封装
 export function usePanelDragger(config?: {
-  onBeforeDragAddPanels?: () => CodeLayoutPanelInternal[],
+  onBeforeDragAddPanels?: () => DragDropPanelLike[],
   onDragEnd?: () => void,
   onDragStart?: () => void,
 }) {
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
   const setDragPanelState = inject('setDragPanelState') as () => void;
   const resetDragPanelState = inject('resetDragPanelState') as () => void;
-  const layoutConfig = inject('codeLayoutConfig', undefined) as Ref<CodeLayoutConfig>|undefined;
+  const layoutConfig = inject('codeLayoutConfig', undefined) as Ref<DragDropHostConfigLike>|undefined;
   const cornerSize = 40;
   const dragSelfState = ref(false);
 
@@ -81,7 +119,7 @@ export function usePanelDragger(config?: {
       }
     }
   }
-  function handleDragStart(panel: CodeLayoutPanelInternal, ev: DragEvent) {
+  function handleDragStart(panel: DragDropPanelLike, ev: DragEvent) {
     config?.onDragStart?.();
     if (config?.onBeforeDragAddPanels) {
       const panels = config.onBeforeDragAddPanels();
@@ -124,13 +162,18 @@ export function usePanelDragger(config?: {
 }
 
 //拖拽进入和悬浮效果控制
+//注：selfPanel 这里刻意用 Ref<any> 而不是泛型。
+//两套布局的面板类型互相独立，用泛型会让返回值类型依赖于类型推断，
+//而调用方普遍在 dragoverChecking 里引用本次调用返回的 dragOverState，
+//形成 “返回值 → 推断 → 回调 → 返回值” 的循环推断（TS7022）。
+//selfPanel 在本函数内只用于同一性比较与 children.includes，不需要精确类型。
 export function usePanelDragOverDetector(
   container: Ref<HTMLElement|undefined>,
-  selfPanel: Ref<CodeLayoutPanelInternal>|undefined,
+  selfPanel: Ref<any>|undefined,
   horizontal: Ref<boolean>|'four'|'center',
-  focusPanel: (dragPanel: CodeLayoutPanelInternal) => void,
+  focusPanel: (dragPanel: any) => void,
   dragCustomHandler: (e: DragEvent) => boolean,
-  dragoverChecking?: ((dragPanel: CodeLayoutPanelInternal) => boolean)|undefined,
+  dragoverChecking?: ((dragPanel: any) => boolean)|undefined,
   tag?: string,
 ) {
   
@@ -138,7 +181,7 @@ export function usePanelDragOverDetector(
   const dragPanelState = inject('dragPanelState') as Ref<boolean>;
   const resetDragPanelState = inject('resetDragPanelState') as () => void;
   const dragEnterState = ref(false);
-  const dragOverState = ref<CodeLayoutDragDropReferencePosition>('');
+  const dragOverState = ref<DragDropReferencePosition>('');
   const focusTimer = createMiniTimeOut(600, () => {
     const drag = getCurrentDragPanel();
     if (drag != null)

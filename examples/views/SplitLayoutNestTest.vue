@@ -16,8 +16,8 @@ import IconVue from '../assets/icons/IconVue.vue';
 import { ref, onMounted, h } from 'vue';
 import { 
   SplitLayout, 
-  type CodeLayoutSplitNInstance, 
-  type CodeLayoutPanelInternal, 
+  type CodeLayoutSplitNInstance,
+  type CodeLayoutSplitNPanelInternal,
   CodeLayoutSplitNRootGrid
 } from 'vue-code-layout';
 import TestContent1 from '../assets/text/Useage.vue?raw';
@@ -27,7 +27,7 @@ import GridPlaceholder from '@/components/GridPlaceholder.vue';
 const splitLayoutData = ref(new CodeLayoutSplitNRootGrid('centerArea2'));
 splitLayoutData.value.accept = ['centerArea2'];
 
-function onPanelClose(panel: CodeLayoutPanelInternal, resolve: () => void) {
+function onPanelClose(panel: CodeLayoutSplitNPanelInternal, resolve: () => void) {
   resolve();
 }
 function loadLayout() {

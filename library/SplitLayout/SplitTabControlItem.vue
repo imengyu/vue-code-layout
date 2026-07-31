@@ -100,7 +100,7 @@ const {
 );
 
 function handleDrop(e: DragEvent) {
-  const dropPanels = getCurrentDragExternalPanels();
+  const dropPanels = getCurrentDragExternalPanels<CodeLayoutSplitNPanelInternal>();
   if (dropPanels && dragOverState.value) {
     e.preventDefault();
     e.stopPropagation();

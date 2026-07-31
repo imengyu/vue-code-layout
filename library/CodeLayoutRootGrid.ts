@@ -1,6 +1,5 @@
 import { markRaw, type Ref } from "vue";
 import { CodeLayoutGridInternal, CodeLayoutPanelInternal, CodeLayoutRootRef, type CodeLayoutConfig, type CodeLayoutPanel } from "./CodeLayout";
-import { CodeLayoutSplitNGridInternal } from "./SplitLayout/SplitN";
 import { assertNotNull } from "./Utils/Assert";
 import { defaultAccept } from "./CodeLayoutConsts";
 
@@ -13,7 +12,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     super('rootGrid', 'none', () => {}, () => {});
 
     this._root = markRaw(new CodeLayoutRootRef());
-    this.primarySideBar = new CodeLayoutSplitNGridInternal('primarySideBar', 'hidden', 
+    this.primarySideBar = new CodeLayoutGridInternal('primarySideBar', 'hidden',
       (open) => {
         assertNotNull(this.layoutConfig);
         const _layoutConfig = this.layoutConfig.value;
@@ -23,7 +22,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
         this.primarySideBarGroup?.value.forceUpdate();
         this.activityBarGroup?.value.forceUpdate();
       });
-    this.secondarySideBar = new CodeLayoutSplitNGridInternal('secondarySideBar', 'icon', 
+    this.secondarySideBar = new CodeLayoutGridInternal('secondarySideBar', 'icon',
       (open) => {
         assertNotNull(this.layoutConfig);
         const _layoutConfig = this.layoutConfig.value;
@@ -32,7 +31,7 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
       () => {
         this.secondarySideBarGroup?.value.forceUpdate();
       });
-    this.bottomPanel = new CodeLayoutSplitNGridInternal('bottomPanel', 'text', 
+    this.bottomPanel = new CodeLayoutGridInternal('bottomPanel', 'text',
       (open) => { 
         assertNotNull(this.layoutConfig);
         const _layoutConfig = this.layoutConfig.value;
@@ -59,15 +58,15 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
   /**
    * Primary side bar grid.
    */
-  primarySideBar: CodeLayoutSplitNGridInternal;
+  primarySideBar: CodeLayoutGridInternal;
   /**
    * Secondary side bar grid.
    */
-  secondarySideBar: CodeLayoutSplitNGridInternal;
+  secondarySideBar: CodeLayoutGridInternal;
   /**
    * Bottom panel grid.
    */
-  bottomPanel: CodeLayoutSplitNGridInternal;
+  bottomPanel: CodeLayoutGridInternal;
 
   layoutConfig?: Ref<CodeLayoutConfig>;
   primarySideBarGroup?: Ref<any>;

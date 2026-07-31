@@ -113,16 +113,42 @@ function loadLayout() {
   const reverseBottom = !bottomIsInSide && props.config.panelPosition === 'top';
   rootGrid.parentGrid = 'none';
 
+  /**
+   * 为三大区域各建一个 SplitLayout 网格。
+   *
+   * 这些网格只作为区域容器参与切分与拖拽调宽，区域内的面板由 CodeLayout 自己的
+   * CodeLayoutGroupRender 渲染（见模板中按 grid.name 分发的具名插槽），
+   * 因此这里不搬运 rootGrid 区域的 children，只搬运布局所需的表现字段。
+   *
+   * name 必须与插槽名一致（primarySideBar / secondarySideBar / bottomPanel）。
+   */
+  const buildRegion = (
+    parent: CodeLayoutSplitNGridInternal,
+    name: 'primarySideBar'|'secondarySideBar'|'bottomPanel',
+    visible: boolean,
+    size: number,
+    minSize: number|number[],
+    index?: number,
+  ) => {
+    const grid = new CodeLayoutSplitNGridInternal(name);
+    grid.visible = visible;
+    grid.size = size;
+    grid.minSize = minSize;
+    grid.canMinClose = true;
+    grid.stretchable = false;
+    grid.inhertParentGrid = false;
+    grid.parentGrid = name;
+    return parent.addChildGrid(grid, index);
+  }
+
   const buildSecondary = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = (inversePrimary ? props.rootGrid!.primarySideBar : props.rootGrid!.secondarySideBar).toJson();
-    panel.visible = inversePrimary ? config.primarySideBar : config.secondarySideBar;
-    panel.size = inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth;
-    panel.minSize = inversePrimary? config.primarySideBarMinWidth : config.secondarySideBarMinWidth;
-    panel.canMinClose = true;
-    panel.inhertParentGrid = false;
-    panel.stretchable = false;
-    panel.parentGrid = inversePrimary ? 'primarySideBar' : 'secondarySideBar';
-    const instance = parent.addChildGrid(panel);
+    const instance = buildRegion(
+      parent,
+      inversePrimary ? 'primarySideBar' : 'secondarySideBar',
+      inversePrimary ? config.primarySideBar : config.secondarySideBar,
+      inversePrimary ? config.primarySideBarWidth : config.secondarySideBarWidth,
+      inversePrimary ? config.primarySideBarMinWidth : config.secondarySideBarMinWidth,
+    );
     instance.onMinCloseChanged = (grid, visible) => {
       setNextNoChangeLayout();
       inversePrimary? (config.primarySideBar = visible) : (config.secondarySideBar = visible);
@@ -130,15 +156,13 @@ function loadLayout() {
     return instance;
   }
   const buildPrimary = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = (inversePrimary? props.rootGrid!.secondarySideBar : props.rootGrid!.primarySideBar).toJson();
-    panel.visible = inversePrimary? config.secondarySideBar : config.primarySideBar;
-    panel.size = inversePrimary? config.secondarySideBarWidth : config.primarySideBarWidth;
-    panel.minSize = inversePrimary? config.secondarySideBarMinWidth : config.primarySideBarMinWidth;
-    panel.inhertParentGrid = false;
-    panel.parentGrid = inversePrimary ? 'secondarySideBar' : 'primarySideBar';
-    panel.canMinClose = true;
-    panel.stretchable = false;
-    const instance = parent.addChildGrid(panel);
+    const instance = buildRegion(
+      parent,
+      inversePrimary ? 'secondarySideBar' : 'primarySideBar',
+      inversePrimary ? config.secondarySideBar : config.primarySideBar,
+      inversePrimary ? config.secondarySideBarWidth : config.primarySideBarWidth,
+      inversePrimary ? config.secondarySideBarMinWidth : config.primarySideBarMinWidth,
+    );
     instance.onMinCloseChanged = (grid, visible) => {
       setNextNoChangeLayout();
       inversePrimary? (config.secondarySideBar = visible) : (config.primarySideBar = visible);
@@ -146,22 +170,21 @@ function loadLayout() {
     return instance;
   }
   const buildBottom = (parent: CodeLayoutSplitNGridInternal) => {
-    const panel = props.rootGrid!.bottomPanel.toJson();
     const fullSize = bottomIsInSide ? (100 - props.rootGrid!.primarySideBar.size - props.rootGrid!.secondarySideBar.size) : 100;
-    panel.visible = config.bottomPanel;
-    panel.size = config.bottomPanelMaximize ? fullSize : (config.bottomPanelHeight < fullSize ? config.bottomPanelHeight : 20);
-    panel.minSize = config.bottomPanelMinHeight;
-    panel.canMinClose = true;
-    panel.inhertParentGrid = false;
-    panel.stretchable = false;
-    panel.parentGrid = 'bottomPanel';
-    currentBottom.value = parent.addChildGrid(panel, reverseBottom ? 0 : undefined);
+    currentBottom.value = buildRegion(
+      parent,
+      'bottomPanel',
+      config.bottomPanel,
+      config.bottomPanelMaximize ? fullSize : (config.bottomPanelHeight < fullSize ? config.bottomPanelHeight : 20),
+      config.bottomPanelMinHeight,
+      reverseBottom ? 0 : undefined,
+    );
     currentBottom.value.onMinCloseChanged = (grid, visible) => {
       setNextNoChangeLayout();
       config.bottomPanel = visible;
     };
     return currentBottom.value;
-  }    
+  }
   const buildCenter = (parent: CodeLayoutSplitNGridInternal) => {
     const panel = parent.addGrid({
       name: 'centerArea',
@@ -313,6 +336,9 @@ function relayoutAfterVarChange() {
 }
 function saveGridLayoutDataToConfig() {
   const config = props.config;
+  //注意：这里查的是面板实例表，而三大区域是「网格」，网格从不登记进
+  //panelInstances（只有 addPanel/addChild 才登记），所以这三次查询恒为 undefined，
+  //本函数实际上不生效。此为解耦改动之前就存在的行为，这里保持原样不动。
   const bottomPanel = splitLayoutRootGrid.value.root.getPanelByName('bottomPanel');
   const primarySideBar = splitLayoutRootGrid.value.root.getPanelByName('primarySideBar');
   const secondarySideBar = splitLayoutRootGrid.value.root.getPanelByName('secondarySideBar');

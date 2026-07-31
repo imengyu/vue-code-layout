@@ -23,7 +23,7 @@
         <ScrollRect scroll="horizontal" :scrollBarSize="4" containerClass="code-layout-split-tab-list-tabs">
           <slot name="tabHeaderStartRender" :grid="grid" />
           <SplitTabControlItem
-            v-for="(panel, index) in (grid.children as CodeLayoutSplitNPanelInternal[])"
+            v-for="(panel, index) in grid.children"
             :key="panel.name"
             :panel="panel" 
             :dragAddPanels="() => selectedTabs"
@@ -130,9 +130,9 @@ function onTabRangeSelect(panel: CodeLayoutSplitNPanelInternal) {
     if (lastIndex === -1 || currentIndex === -1)
       throw new Error('panel not found in grid.children');
     if (lastIndex > currentIndex)
-      selectedTabs.value = grid.value.children.slice(currentIndex, lastIndex + 1) as CodeLayoutSplitNPanelInternal[];
+      selectedTabs.value = grid.value.children.slice(currentIndex, lastIndex + 1);
     else
-      selectedTabs.value = grid.value.children.slice(lastIndex, currentIndex + 1) as CodeLayoutSplitNPanelInternal[];
+      selectedTabs.value = grid.value.children.slice(lastIndex, currentIndex + 1);
   } else {
     selectedTabs.value = [ panel ];
   }
@@ -161,8 +161,8 @@ function selectTab(panel: CodeLayoutSplitNPanelInternal, isFromDrag: boolean) {
 }
 
 watch(() => grid.value.activePanel, (panel) => {
-  if (panel) 
-    selectedTabs.value = [ panel as CodeLayoutSplitNPanelInternal ];
+  if (panel)
+    selectedTabs.value = [ panel ];
   else
     selectedTabs.value = [];
 }, { immediate: true })
@@ -175,7 +175,7 @@ const tabHeaderDragOverDetector = usePanelDragOverDetector(
 );
 
 function handleTabHeaderDrop(e: DragEvent) {
-  const dropPanels = getCurrentDragExternalPanels();
+  const dropPanels = getCurrentDragExternalPanels<CodeLayoutSplitNPanelInternal>();
   if (dropPanels) {
     e.preventDefault();
     e.stopPropagation();
@@ -196,7 +196,7 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
     //拖拽集合覆盖了本网格全部面板时，拖回本网格没有意义：
     //会先把本网格清空、新建网格、再把空网格收缩掉，白折腾一轮。
     //注意要检查整个多选集合，只看主拖拽面板会漏掉 Ctrl 多选整格的情况。
-    const dragPanels = getCurrentDragExternalPanels() ?? [ dragPanel ];
+    const dragPanels = getCurrentDragExternalPanels<CodeLayoutSplitNPanelInternal>() ?? [ dragPanel ];
     const allFromSelf = grid.value.children.length > 0
       && grid.value.children.every(p => dragPanels.includes(p));
     return !allFromSelf;
@@ -204,7 +204,7 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
 );
 
 function handleTabContentDrop(e: DragEvent) {
-  const dropPanels = getCurrentDragExternalPanels();
+  const dropPanels = getCurrentDragExternalPanels<CodeLayoutSplitNPanelInternal>();
   if (dropPanels) {
     e.preventDefault();
     e.stopPropagation();

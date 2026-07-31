@@ -22,8 +22,7 @@
 
 <script setup lang="ts">
 import { ref, provide, type Ref, type PropType, nextTick, computed, watch } from 'vue';
-import { type CodeLayoutPanelInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig, type CodeLayoutRootRefDefine } from '../CodeLayout';
-import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig, CodeLayoutSplitNRootGrid, cloneGridStyle, generateSplitGridName } from './SplitN';
+import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig, CodeLayoutSplitNRootGrid, cloneGridStyle, generateSplitGridName, type CodeLayoutSplitNRootRefDefine, type CodeLayoutSplitNDragDropReferencePosition, type CodeLayoutSplitNNodeInternal } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
@@ -66,11 +65,11 @@ const props = defineProps({
 // $slots 的推导会回到自身，导致循环推导 (TS7022)。
 defineSlots<Record<string, (props: any) => any>>();
 
-const hosterContext : CodeLayoutRootRefDefine = {
+const hosterContext : CodeLayoutSplitNRootRefDefine = {
   getRef: () => instance,
   removePanelInternal,
-  childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
-  closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
+  childGridActiveChildChanged: (grid) => onChildGridActiveChildChanged(grid),
+  closePanelInternal: (panel) => onPanelClose(panel),
 }
 //根网格初始化带副作用（setRoot / 写 noAutoShink / 写 accept），
 //放在 computed 里每次重算都会执行（写 accept 还会自我失效一次），
@@ -137,7 +136,7 @@ const instance = {
   saveLayout: () => props.layoutData.saveLayout(),
 } as CodeLayoutSplitNInstance;
 
-const lastActivePanel  = ref<CodeLayoutPanelInternal|null>(null);
+const lastActivePanel  = ref<CodeLayoutSplitNPanelInternal|null>(null);
 const context : CodeLayoutSplitLayoutContext = {
   currentActiveGrid: currentActiveGrid as Ref<CodeLayoutSplitNGridInternal|null>,
   getRef: () => instance,
@@ -164,9 +163,9 @@ usePanelDraggerRoot(FLAG_SPLIT_LAYOUT);
 useKeyBoardControllerTop();
 
 function onTabActiveChild(old: CodeLayoutSplitNPanelInternal, panel: CodeLayoutSplitNPanelInternal) {
-  const parent = panel.parentGroup as CodeLayoutSplitNGridInternal;
+  const parent = panel.parentGroup;
   const oldGrid = currentActiveGrid.value;
-  if (oldGrid != parent) {
+  if (parent && oldGrid != parent) {
     context.currentActiveGrid.value = parent;
     parent.onActive?.(parent);
     emit('gridActive', oldGrid, parent)
@@ -219,9 +218,9 @@ function onChildGridActiveChildChanged(grid: CodeLayoutSplitNGridInternal) {
  * @param panel 
  */
 function dragDropToPanel(
-  referencePanel: CodeLayoutPanelInternal, 
-  referencePosition: CodeLayoutDragDropReferencePosition, 
-  panels: CodeLayoutPanelInternal[], 
+  referencePanel: CodeLayoutSplitNNodeInternal,
+  referencePosition: CodeLayoutSplitNDragDropReferencePosition,
+  panels: CodeLayoutSplitNPanelInternal[],
   toTab?: boolean | undefined) {
 
   //0
@@ -241,7 +240,7 @@ function dragDropToPanel(
   if (referencePanel instanceof CodeLayoutSplitNGridInternal)
     targetGrid = referencePanel;
   else if (referencePanel instanceof CodeLayoutSplitNPanelInternal)
-    targetGrid = referencePanel.parentGroup as CodeLayoutSplitNGridInternal;
+    targetGrid = referencePanel.parentGroup;
   if (!targetGrid)
     return;
 
@@ -250,7 +249,7 @@ function dragDropToPanel(
   //1.1
   if (panels.length === 1) {
     const oldParent = panels[0].parentGroup;
-    if (targetGrid === oldParent && oldParent.children.length === 1) {
+    if (oldParent && targetGrid === oldParent && oldParent.children.length === 1) {
       return;
     }
   }
@@ -259,11 +258,12 @@ function dragDropToPanel(
   //一律使用不收缩的 removeSelf()，收缩延后到步骤 5 面板插入完成之后。
   for (const panel of panels) {
     const oldParent = panel.parentGroup;
-    oldParents.add(oldParent as CodeLayoutSplitNGridInternal);
+    if (oldParent)
+      oldParents.add(oldParent);
     panel.removeSelf();
   }
 
-  const targetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+  const targetGridParent = targetGrid.parentGroup;
 
   //3
   if (referencePosition === 'center' || toTab) {
@@ -272,7 +272,8 @@ function dragDropToPanel(
     //参照物是网格自身时（拖到 TAB 条空白处 / 网格中央），无落点可言，插入末尾；
     //参照物是某个面板时（拖到某个 TAB 上），按落点在该面板之前/之后插入。
     //注意：toTab 只表示“不要切分”，不代表忽略落点位置。
-    const referencePanelIndex = targetGrid.children.indexOf(referencePanel);
+    //referencePanel 可能是网格自身（拖到 TAB 条空白处），此时必然找不到，返回 -1
+    const referencePanelIndex = targetGrid.children.indexOf(referencePanel as CodeLayoutSplitNPanelInternal);
     if (referencePanelIndex === -1) {
       //3.1.2
       targetGrid.addChilds(panels);
@@ -358,7 +359,7 @@ function dragDropToPanel(
     };
   } else {
     //3.3.b
-    const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
+    const oldTargetGridParent = targetGrid.parentGroup;
     if (!oldTargetGridParent)
       throw new Error('oldTargetGridParent is null');
     const newGridTop = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//上级包围的网格
@@ -406,7 +407,7 @@ function dragDropToPanel(
   //5
   //面板已插入完毕，此时才收缩腾空的旧父级。
   for (const oldParent of oldParents)
-    autoShrinkEmptyGrid(oldParent as CodeLayoutSplitNGridInternal, targetGrid);
+    autoShrinkEmptyGrid(oldParent, targetGrid);
 
   nextTick(() => {
     lateAction?.();
@@ -432,7 +433,7 @@ function dragDropToPanel(
  */
 function removePanelInternal(panel: CodeLayoutSplitNPanelInternal) {
 
-  const parent = panel.parentGroup as CodeLayoutSplitNGridInternal;
+  const parent = panel.parentGroup;
   if (!parent)
     return undefined;
 
@@ -459,7 +460,7 @@ function autoShrinkEmptyGrid(grid: CodeLayoutSplitNGridInternal, dropGrid: CodeL
   if (!grid.parentGroup || grid.noAutoShink || grid.children.length > 0 || grid.childGrid.length > 0)
     return;
 
-  const parent = grid.parentGroup as CodeLayoutSplitNGridInternal;
+  const parent = grid.parentGroup;
   const shrinkSize = grid.size;
   //记录相邻兄弟，用于在没有 dropGrid 时把腾出的空间就近归还
   const indexInParent = parent.childGrid.indexOf(grid);
