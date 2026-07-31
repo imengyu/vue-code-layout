@@ -62,6 +62,10 @@ const props = defineProps({
   },
 })
 
+// 模板中向子组件转发全部插槽，若不显式声明插槽类型，
+// $slots 的推导会回到自身，导致循环推导 (TS7022)。
+defineSlots<Record<string, (props: any) => any>>();
+
 const hosterContext : CodeLayoutRootRefDefine = {
   getRef: () => instance,
   removePanelInternal,

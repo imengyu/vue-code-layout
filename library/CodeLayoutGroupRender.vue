@@ -187,6 +187,11 @@ const props = defineProps({
   },
 });
 
+// 本组件在 tabStyle==='hidden' 时会递归渲染自身并转发全部插槽，
+// 若不显式声明插槽类型，$slots 的推导会经由递归实例回到自身，
+// 导致 slotData 出现循环推导 (TS7022)。
+defineSlots<Record<string, (props: any) => any>>();
+
 const tabRefs = ref<any[]>([]);
 
 const layoutConfig = inject('codeLayoutConfig') as Ref<CodeLayoutConfig>;
