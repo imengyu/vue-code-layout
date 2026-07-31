@@ -1,6 +1,7 @@
 import type { VNode } from "vue";
 import type { PanelMenuRegistryItem } from "./Composeable/PanelMenu";
 import type { CodeLayoutLangDefine } from "./Language";
+import type { CodeLayoutRegionName } from "./Consts";
 
 /**
  * 阶段 0 说明：本文件是从重构前的 `CodeLayout.ts` 抽出的**纯类型**定义，
@@ -197,6 +198,62 @@ export interface CodeLayoutActionButton {
    * Click callback
    */
   onClick?: () => void,
+}
+
+/**
+ * Group User Type Definition
+ *
+ * 阶段 1：组的用户侧定义。目前与 {@link CodeLayoutPanel} 字段兼容，
+ * 便于 `Region.addGroup(...)` 直接接收现有的面板定义对象。
+ */
+export type CodeLayoutGroup = CodeLayoutPanel;
+
+//
+// ─── 保存数据格式（版本 2，决策 C3，见 plan.md §11.3） ──────────────────
+//
+
+/** 面板的可序列化运行时状态 */
+export interface CodeLayoutSavedPanel {
+  name: string;
+  title?: string;
+  weight: number;
+  visible: boolean;
+  open: boolean;
+  showBadge: boolean;
+}
+
+/** 组的可序列化运行时状态 */
+export interface CodeLayoutSavedGroup {
+  name: string;
+  title?: string;
+  tabStyle: CodeLayoutPanelTabStyle;
+  weight: number;
+  visible: boolean;
+  noAutoShink: boolean;
+  activePanelName?: string;
+  children: CodeLayoutSavedPanel[];
+}
+
+/** 区域的可序列化运行时状态 */
+export interface CodeLayoutSavedRegion {
+  name: CodeLayoutRegionName;
+  activeGroupName?: string;
+  children: CodeLayoutSavedGroup[];
+}
+
+/**
+ * `saveLayout()` 的输出 / `loadLayout()` 的输入。
+ *
+ * `version` 恒为 2；`loadLayout` 检测不到 `version === 2` 即视为旧格式（或损坏数据），
+ * 不加载并返回 false（走「无数据 → 新建布局」分支）。
+ */
+export interface CodeLayoutSavedData {
+  version: 2;
+  regions: {
+    primarySideBar: CodeLayoutSavedRegion;
+    secondarySideBar: CodeLayoutSavedRegion;
+    bottomPanel: CodeLayoutSavedRegion;
+  };
 }
 
 //
