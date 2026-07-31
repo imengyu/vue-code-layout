@@ -1,0 +1,798 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Layout / buildShellLayout > 24 组合结构快照 1`] = `
+{
+  "center/bottom/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "centerArea",
+            "visible": true,
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "center/bottom/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "centerArea",
+            "visible": true,
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "center/top/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "kind": "slot",
+            "slot": "centerArea",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "center/top/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "kind": "slot",
+            "slot": "centerArea",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "justify/bottom/left": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "justify/bottom/right": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "justify/top/left": {
+    "children": [
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "justify/top/right": {
+    "children": [
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left-side/bottom/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left-side/bottom/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left-side/top/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left-side/top/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left/bottom/left": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left/bottom/right": {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left/top/left": {
+    "children": [
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "left/top/right": {
+    "children": [
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right-side/bottom/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right-side/bottom/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right-side/top/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right-side/top/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "kind": "slot",
+        "slot": "centerArea",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "bottomPanel",
+        "visible": true,
+      },
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right/bottom/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right/bottom/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right/top/left": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "primarySideBar",
+        "visible": true,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "secondarySideBar",
+                "visible": false,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+  "right/top/right": {
+    "children": [
+      {
+        "kind": "slot",
+        "slot": "secondarySideBar",
+        "visible": false,
+      },
+      {
+        "children": [
+          {
+            "kind": "slot",
+            "slot": "bottomPanel",
+            "visible": true,
+          },
+          {
+            "children": [
+              {
+                "kind": "slot",
+                "slot": "centerArea",
+                "visible": true,
+              },
+              {
+                "kind": "slot",
+                "slot": "primarySideBar",
+                "visible": true,
+              },
+            ],
+            "direction": "row",
+            "kind": "split",
+          },
+        ],
+        "direction": "column",
+        "kind": "split",
+      },
+    ],
+    "direction": "row",
+    "kind": "split",
+  },
+}
+`;

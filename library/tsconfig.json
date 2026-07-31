@@ -4,7 +4,6 @@
   "exclude": ["./**/__tests__/*", "./old/**"],
   "compilerOptions": {
     "composite": true,
-    "baseUrl": ".",
     "types": ["node"],
     "paths": {
       "@/*": ["./*"]

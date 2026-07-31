@@ -4,7 +4,7 @@ import { CodeLayoutPanelInstance, createPanelInstance } from "./Panel";
 import type { CodeLayoutRegionInstance } from "./Region";
 import { attachChild, detachChild } from "./tree";
 import { autoShrinkEmptyGroup } from "./shrink";
-import type { CodeLayoutGroup, CodeLayoutPanelTabStyle } from "../Types";
+import type { CodeLayoutGroup, CodeLayoutPanel, CodeLayoutPanelTabStyle } from "../Types";
 
 const TAB_STYLES: CodeLayoutPanelTabStyle[] = [
   "text",

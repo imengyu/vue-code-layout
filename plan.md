@@ -821,7 +821,7 @@ ResizeChecker、SimpleTooltipDelayLock、Vector2）全部原地复用。
 每个阶段结束都要求 `npm run typecheck` 通过、`npm run test:run` 通过、
 `npm run dev` 能起且既有 examples 不崩。
 
-### 阶段 0：搬迁与隔离（不改逻辑）
+### 阶段 0：搬迁与隔离
 
 1. 建 `library/old/`，移入 §9.1 列出的文件。
 2. `CodeLayoutRootEmpty.vue`、`CodeLayoutActionsRender.vue` 移入 `Components/`，
@@ -830,7 +830,7 @@ ResizeChecker、SimpleTooltipDelayLock、Vector2）全部原地复用。
    `CodeLayoutLangConfig`、`CodeLayoutPanelTabStyle` 等纯类型从旧 `CodeLayout.ts` 复制过来
    （复制，不是引用 —— 旧文件即将只读）。
 4. `library/tsconfig.json` 增加 `"exclude": ["old/**"]`。
-5. `index.ts` 暂时仍导出旧 CodeLayout，保证此阶段 examples 完全可用。
+5. `index.ts` 不导出旧 CodeLayout。
 
 **验收**：typecheck 通过；`npm run dev` 行为与重构前完全一致（纯搬迁）。
 

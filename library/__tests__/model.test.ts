@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { toRaw } from "vue";
 import { CodeLayoutRootGrid } from "../Model/RootGrid";
 import { CodeLayoutGroupInstance } from "../Model/Group";
 import { CodeLayoutPanelInstance } from "../Model/Panel";
@@ -21,7 +22,8 @@ describe("Model / tree", () => {
     expect(group.parent).toBe(root.primarySideBar);
     expect(root.primarySideBar.children).toContain(group);
     expect(root.getNodeByName("explorer")).toBe(group);
-    expect(group.root).toBe(root);
+    // group.root 是 root 的响应式代理；比较底层原始对象。
+    expect(toRaw(group.root)).toBe(root);
 
     const panel = group.addPanel(p("files"));
     expect(panel.parent).toBe(group);

@@ -1,6 +1,6 @@
 import { markRaw, type Ref } from "vue";
 import { CodeLayoutGridInternal, CodeLayoutPanelInternal, CodeLayoutRootRef, type CodeLayoutConfig, type CodeLayoutPanel } from "./CodeLayout";
-import { assertNotNull } from "./Utils/Assert";
+import { assertNotNull } from "@/Utils/Assert";
 import { defaultAccept } from "./CodeLayoutConsts";
 
 /**
@@ -15,8 +15,9 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.primarySideBar = new CodeLayoutGridInternal('primarySideBar', 'hidden',
       (open) => {
         assertNotNull(this.layoutConfig);
-        const _layoutConfig = this.layoutConfig.value;
-        _layoutConfig.primarySideBar = open;
+        const _layoutConfig = this.layoutConfig?.value;
+        if (_layoutConfig)
+            _layoutConfig.primarySideBar = open;
       },
       () => {
         this.primarySideBarGroup?.value.forceUpdate();
@@ -25,8 +26,9 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.secondarySideBar = new CodeLayoutGridInternal('secondarySideBar', 'icon',
       (open) => {
         assertNotNull(this.layoutConfig);
-        const _layoutConfig = this.layoutConfig.value;
-        _layoutConfig.secondarySideBar = open;
+        const _layoutConfig = this.layoutConfig?.value;
+        if (_layoutConfig)
+            _layoutConfig.secondarySideBar = open;
       },
       () => {
         this.secondarySideBarGroup?.value.forceUpdate();
@@ -34,8 +36,9 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
     this.bottomPanel = new CodeLayoutGridInternal('bottomPanel', 'text',
       (open) => { 
         assertNotNull(this.layoutConfig);
-        const _layoutConfig = this.layoutConfig.value;
-        _layoutConfig.bottomPanel = open;
+        const _layoutConfig = this.layoutConfig?.value;
+        if (_layoutConfig)
+            _layoutConfig.bottomPanel = open;
       },
       () => {
         this.bottomPanelGroup?.value.forceUpdate();

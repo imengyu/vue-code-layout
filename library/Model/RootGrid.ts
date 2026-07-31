@@ -1,4 +1,4 @@
-import { markRaw } from "vue";
+import { markRaw, reactive } from "vue";
 import { CodeLayoutNode } from "./Node";
 import { CodeLayoutRegionInstance } from "./Region";
 import { CodeLayoutPanelInstance } from "./Panel";
@@ -26,9 +26,12 @@ export class CodeLayoutRootGrid {
   readonly pixels: PixelRegistry = markRaw(new PixelRegistry());
 
   constructor() {
-    this.primarySideBar = new CodeLayoutRegionInstance("primarySideBar", this);
-    this.secondarySideBar = new CodeLayoutRegionInstance("secondarySideBar", this);
-    this.bottomPanel = new CodeLayoutRegionInstance("bottomPanel", this);
+    // 区域包成 reactive：一方面组件依赖其 childNodes/activeGroup 变化触发重渲染，
+    // 另一方面保证整棵树在响应式图中的对象标识一致（子节点读回的 parent 与
+    // root.xxxSideBar 是同一个 proxy，避免 `node.parent !== region` 之类的误判）。
+    this.primarySideBar = reactive(new CodeLayoutRegionInstance("primarySideBar", this)) as CodeLayoutRegionInstance;
+    this.secondarySideBar = reactive(new CodeLayoutRegionInstance("secondarySideBar", this)) as CodeLayoutRegionInstance;
+    this.bottomPanel = reactive(new CodeLayoutRegionInstance("bottomPanel", this)) as CodeLayoutRegionInstance;
 
     this.primarySideBar.tabStyle = "hidden";
     this.secondarySideBar.tabStyle = "icon";

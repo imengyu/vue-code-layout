@@ -2,14 +2,12 @@ import type { App } from 'vue';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 
 /**
- * 阶段 0：CodeLayout 仍指向 old/ 下的旧实现，保证 examples 与既有用户代码不受影响。
+ * 阶段 0：不可用 CodeLayout。
  * 阶段 6 会切换到新实现（见 plan.md §10）。
  *
  * 注意：类型从 old/CodeLayout 导出（它 re-export 了 Types.ts 的全部类型），
  * 避免与 './Types' 同名导出冲突。
  */
-export * from './old/CodeLayout'
-export * from './old/CodeLayoutRootGrid';
 export * from './Consts';
 export * from './SplitLayout/SplitN';
 export * from './Composeable/DragDrop';
