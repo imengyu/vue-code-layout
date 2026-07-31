@@ -1,7 +1,16 @@
 import ContextMenu, { type MenuItem } from "@imengyu/vue3-context-menu";
-import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from "../CodeLayout";
+import type { CodeLayoutConfig, CodeLayoutPanelInternal } from "../Types";
 import { useCodeLayoutLang, type CodeLayoutLangDefine } from "../Language";
 import { inject, type Ref } from "vue";
+
+/**
+ * Forward declaration for phase 0.
+ * The real context is defined by the new CodeLayout component (§8.5).
+ */
+export interface CodeLayoutContext {
+  config?: Ref<CodeLayoutConfig>;
+  relayoutTopGridProp(grid: string, visible: boolean): void;
+}
 
 export const PanelMenuBuiltins : Record<string, PanelMenuRegistryItem> = {
   'toggleVisible': {

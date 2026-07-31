@@ -78,12 +78,12 @@
 
 <script setup lang="ts">
 import { ref, type PropType, watch, onBeforeUnmount, onMounted, nextTick } from 'vue';
-import { CodeLayoutSplitNGridInternal, CodeLayoutSplitNRootGrid } from './SplitLayout/SplitN';
+import { CodeLayoutSplitNGridInternal, CodeLayoutSplitNRootGrid } from '../SplitLayout/SplitN';
 import type { CodeLayoutConfig } from './CodeLayout';
 import type { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
-import SplitLayout from './SplitLayout/SplitLayout.vue';
+import SplitLayout from '../SplitLayout/SplitLayout.vue';
 import CodeLayoutTagControl from './CodeLayoutTagControl.vue';
-import CodeLayoutRootEmpty from './CodeLayoutRootEmpty.vue';
+import CodeLayoutRootEmpty from '../Components/CodeLayoutRootEmpty.vue';
 
 const splitLayoutRootGrid = ref(new CodeLayoutSplitNRootGrid());
 

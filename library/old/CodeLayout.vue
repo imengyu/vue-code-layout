@@ -142,14 +142,14 @@ import { CodeLayoutPanelInternal,
 import CodeLayoutBase from './CodeLayoutBase.vue';
 import CodeLayoutGroupRender from './CodeLayoutGroupRender.vue';
 import CodeLayoutEmpty from './CodeLayoutEmpty.vue';
-import CodeLayoutCustomizeLayout from './Components/CodeLayoutCustomizeLayout.vue';
+import CodeLayoutCustomizeLayout from '../Components/CodeLayoutCustomizeLayout.vue';
 import CodeLayoutActivityBar from './CodeLayoutActivityBar.vue';
 import { MenuBar, type MenuOptions, type MenuBarOptions } from '@imengyu/vue3-context-menu';
-import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from './Composeable/DragDrop';
+import { FLAG_CODE_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
 import type { CodeLayoutDragDropReferenceAreaType, CodeLayoutPanel, CodeLayoutRootRefDefine } from './CodeLayout';
 import { CodeLayoutRootGrid } from './CodeLayoutRootGrid';
-import { useKeyBoardControllerTop } from './Composeable/KeyBoardController';
-import { assertNotNull } from './Utils/Assert';
+import { useKeyBoardControllerTop } from '../Composeable/KeyBoardController';
+import { assertNotNull } from '../Utils/Assert';
 
 const primarySideBarGroup = ref();
 const bottomPanelGroup = ref();
@@ -693,6 +693,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-@use './Scss/Base.scss' as *;
-@use './Scss/Menu.scss' as *;
+@use '../Scss/Base.scss' as *;
+@use '../Scss/Menu.scss' as *;
 </style>

@@ -85,7 +85,7 @@ import type { CodeLayoutSplitLayoutContext, CodeLayoutSplitNGridInternal, CodeLa
 import { checkDropPanelDefault, getCurrentDragExternalPanels, usePanelDragOverDetector } from '../Composeable/DragDrop';
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import '@imengyu/vue-scroll-rect/lib/vue-scroll-rect.css';
-import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
+import CodeLayoutActionsRender from '../Components/CodeLayoutActionsRender.vue';
 import SplitTabItem from './SplitTabItem.vue'
 import SplitTabControlItem from './SplitTabControlItem.vue'
 

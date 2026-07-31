@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { CodeLayoutActionButton } from './CodeLayout';
+import type { CodeLayoutActionButton } from '../Types';
 import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
 import SimpleTooltip from './Components/SimpleTooltip.vue';
 

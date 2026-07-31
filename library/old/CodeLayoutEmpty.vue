@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { inject, ref, toRefs, type PropType } from 'vue';
 import type { CodeLayoutContext, CodeLayoutGrid, CodeLayoutPanelInternal } from './CodeLayout';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector } from './Composeable/DragDrop';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
 
 const props = defineProps({
   panel: {

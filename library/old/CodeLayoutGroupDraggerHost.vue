@@ -34,11 +34,11 @@
 <script setup lang="ts">
 import { ref, type Ref, type PropType, onMounted, nextTick, inject, watch, toRefs, onBeforeUnmount } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
-import { useResizeChecker } from './Composeable/ResizeChecker';
+import { useResizeChecker } from '../Composeable/ResizeChecker';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
-import HtmlUtils from './Utils/HtmlUtils';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector } from './Composeable/DragDrop';
-import { assertNotNull } from './Utils/Assert';
+import HtmlUtils from '../Utils/HtmlUtils';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { assertNotNull } from '../Utils/Assert';
 
 const container = ref<HTMLElement>();
 const resizeDragging = ref(false);

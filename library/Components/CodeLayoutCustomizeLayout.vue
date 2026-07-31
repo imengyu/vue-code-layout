@@ -47,8 +47,8 @@
 <script setup lang="ts">
 import { h, inject, computed, ref, type Ref, type VNode, nextTick, type PropType } from 'vue';
 import { useCodeLayoutLang } from '../Language';
-import type { CodeLayoutActionButton, CodeLayoutConfig } from '../CodeLayout';
-import CodeLayoutActionsRender from '../CodeLayoutActionsRender.vue';
+import type { CodeLayoutActionButton, CodeLayoutConfig } from '../Types';
+import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
 import LayoutSidebarLeftCodicon from '../Icons/LayoutSidebarLeftCodicon.vue';
 import LayoutSidebarLeftOffCodicon from '../Icons/LayoutSidebarLeftOffCodicon.vue';
 import LayoutPanelCodicon from '../Icons/LayoutPanelCodicon.vue';

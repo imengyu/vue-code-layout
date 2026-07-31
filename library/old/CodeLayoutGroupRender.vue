@@ -158,14 +158,14 @@ import { ref, type PropType, h, inject, type Ref, watch, getCurrentInstance, com
 import type { CodeLayoutActionButton, CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutGroupDraggerHost from './CodeLayoutGroupDraggerHost.vue';
 import CodeLayoutPanelRender from './CodeLayoutPanelRender.vue';
-import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
+import CodeLayoutActionsRender from '../Components/CodeLayoutActionsRender.vue';
 import CodeLayoutTabItem from './CodeLayoutTabItem.vue';
-import OverflowCollapseList from './Components/OverflowCollapseList.vue';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
-import { usePanelMenuControl } from './Composeable/PanelMenu';
-import { useCodeLayoutLang } from './Language';
-import IconActionClose from './Icons/IconActionClose.vue';
-import IconActionMax from './Icons/IconActionMax.vue';
+import OverflowCollapseList from '../Components/OverflowCollapseList.vue';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { usePanelMenuControl } from '../Composeable/PanelMenu';
+import { useCodeLayoutLang } from '../Language';
+import IconActionClose from '../Icons/IconActionClose.vue';
+import IconActionMax from '../Icons/IconActionMax.vue';
 import { toRefs } from 'vue';
 
 const props = defineProps({

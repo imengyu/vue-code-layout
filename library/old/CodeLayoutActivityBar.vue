@@ -29,7 +29,7 @@
 import { getCurrentInstance, type PropType } from 'vue';
 import type { CodeLayoutPanelInternal } from './CodeLayout';
 import CodeLayoutActionItem from './CodeLayoutActionItem.vue';
-import OverflowCollapseList from './Components/OverflowCollapseList.vue';
+import OverflowCollapseList from '../Components/OverflowCollapseList.vue';
 
 const props = defineProps({
   primary: {

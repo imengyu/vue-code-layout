@@ -66,9 +66,9 @@
 <script setup lang="ts">
 import { ref, computed, type PropType, inject, toRefs, type Ref, onMounted, watch } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
-import { createMouseDragHandler } from './Composeable/MouseHandler';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from './Composeable/DragDrop';
-import { usePanelMenuControl } from './Composeable/PanelMenu';
+import { createMouseDragHandler } from '../Composeable/MouseHandler';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from '../Composeable/DragDrop';
+import { usePanelMenuControl } from '../Composeable/PanelMenu';
 import CodeLayoutCollapseTitle from './CodeLayoutCollapseTitle.vue';
 
 const emit = defineEmits([ 

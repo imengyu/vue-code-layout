@@ -33,11 +33,11 @@
 
 <script setup lang="ts">
 import { ref, type PropType, toRefs, inject } from 'vue';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from './Composeable/DragDrop';
-import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragOverDetector, usePanelDragger } from '../Composeable/DragDrop';
+import CodeLayoutVNodeStringRender from '../Components/CodeLayoutVNodeStringRender.vue';
 import type { CodeLayoutContext, CodeLayoutPanelInternal, CodeLayoutPanelTabStyle } from './CodeLayout';
-import { usePanelMenuControl } from './Composeable/PanelMenu';
-import SimpleTooltip from './Components/SimpleTooltip.vue';
+import { usePanelMenuControl } from '../Composeable/PanelMenu';
+import SimpleTooltip from '../Components/SimpleTooltip.vue';
 
 const emit = defineEmits([
   'focusSelf'

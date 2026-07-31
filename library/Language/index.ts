@@ -1,7 +1,7 @@
 import { computed, inject } from 'vue';
 import { LangString } from './en';
 import { LangString as LangStringZh } from './zh';
-import type { CodeLayoutLangConfig } from '../CodeLayout';
+import type { CodeLayoutLangConfig } from '../Types';
 
 export type CodeLayoutLangDefine = typeof LangString;
 

@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
-import CodeLayoutActionsRender from './CodeLayoutActionsRender.vue';
-import IconArrow from './Icons/IconArrow.vue';
+import CodeLayoutVNodeStringRender from '../Components/CodeLayoutVNodeStringRender.vue';
+import CodeLayoutActionsRender from '../Components/CodeLayoutActionsRender.vue';
+import IconArrow from '../Icons/IconArrow.vue';
 import type { PropType } from 'vue';
 import type { CodeLayoutActionButton } from './CodeLayout';
-import SimpleTooltip from './Components/SimpleTooltip.vue';
+import SimpleTooltip from '../Components/SimpleTooltip.vue';
 
 defineEmits([ 'click', 'contextmenu', 'dragstart', 'dragend' ]);
 defineProps({

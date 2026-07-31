@@ -34,10 +34,10 @@
 <script setup lang="ts">
 import { inject, ref, toRefs, type PropType, type Ref } from 'vue';
 import type { CodeLayoutConfig, CodeLayoutContext, CodeLayoutPanelInternal } from './CodeLayout';
-import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
-import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from './Composeable/DragDrop';
-import { usePanelMenuControl } from './Composeable/PanelMenu';
-import SimpleTooltip from './Components/SimpleTooltip.vue';
+import CodeLayoutVNodeStringRender from '../Components/CodeLayoutVNodeStringRender.vue';
+import { checkDropPanelDefault, getCurrentDragPanel, usePanelDragger, usePanelDragOverDetector } from '../Composeable/DragDrop';
+import { usePanelMenuControl } from '../Composeable/PanelMenu';
+import SimpleTooltip from '../Components/SimpleTooltip.vue';
 
 const emit = defineEmits(['activeItem'])
 

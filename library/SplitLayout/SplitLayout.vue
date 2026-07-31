@@ -27,7 +27,7 @@ import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
 import { useKeyBoardControllerTop } from '../Composeable/KeyBoardController';
-import CodeLayoutRootEmpty from '../CodeLayoutRootEmpty.vue';
+import CodeLayoutRootEmpty from '../Components/CodeLayoutRootEmpty.vue';
 
 const emit = defineEmits([ 
   'panelClose', 
