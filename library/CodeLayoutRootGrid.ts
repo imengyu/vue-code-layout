@@ -42,6 +42,12 @@ export class CodeLayoutRootGrid extends CodeLayoutGridInternal {
         this.bottomPanelGroup?.value.forceUpdate();
       });
 
+    this.primarySideBar.parentGrid = 'primarySideBar';
+    this.bottomPanel.parentGrid = 'bottomPanel';
+    this.secondarySideBar.parentGrid = 'secondarySideBar';
+    this.primarySideBar.inhertParentGrid = false;
+    this.bottomPanel.inhertParentGrid = false;
+    this.secondarySideBar.inhertParentGrid = false;
     this.addChild(this.primarySideBar);
     this.addChild(this.secondarySideBar);
     this.addChild(this.bottomPanel);
