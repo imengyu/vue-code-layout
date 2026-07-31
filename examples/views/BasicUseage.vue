@@ -1,4 +1,6 @@
 <template>
+  <!--  
+    CodeLayout 暂未完成迁移，此处先住宿功能
   <CodeLayout 
     ref="codeLayout"
     :layoutConfig="config"
@@ -73,7 +75,7 @@
     <template v-if="!renderSlots" #statusBar>
       <span>Custom render Status bar area</span>
     </template>
-  </CodeLayout>
+  </CodeLayout> -->
 </template>
 
 <script setup lang="ts">
@@ -81,14 +83,14 @@ import IconFile from '../assets/icons/IconFile.vue';
 import IconSearch from '../assets/icons/IconSearch.vue';
 import { ref, reactive, onMounted, nextTick, h, onBeforeUnmount, toRaw } from 'vue';
 import type { MenuOptions } from '@imengyu/vue3-context-menu';
-import { 
+/* import { 
   CodeLayout,
   type CodeLayoutConfig, type CodeLayoutInstance,
   defaultCodeLayoutConfig, useResizeChecker,
   CodeLayoutCustomizeLayout,
   CodeLayoutRootGrid,
   useLocalStorage,
-} from 'vue-code-layout';
+} from 'vue-code-layout'; */
 import { ScrollRect } from '@imengyu/vue-scroll-rect';
 import SlotDisplay from '../components/SlotDisplay.vue';
 import { assertNotNull } from '../../library/Utils/Assert';
@@ -115,7 +117,7 @@ const renderSlotExtras = props.renderSlots ? [
   'titleBarActionStart', 'titleBarActionEnd', 
   'statusBarLeft', 'statusBarRight',
 ] : []
-
+/* 
 const codeLayout = ref<CodeLayoutInstance>();
 
 const codeLayoutConfig : CodeLayoutConfig = {
@@ -552,5 +554,5 @@ onBeforeUnmount(() => {
 
 defineExpose({
   onResetAll
-})
+}) */
 </script>

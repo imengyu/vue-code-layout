@@ -31,8 +31,8 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { CodeLayoutActionButton } from '../Types';
-import CodeLayoutVNodeStringRender from './Components/CodeLayoutVNodeStringRender.vue';
-import SimpleTooltip from './Components/SimpleTooltip.vue';
+import CodeLayoutVNodeStringRender from './CodeLayoutVNodeStringRender.vue';
+import SimpleTooltip from './SimpleTooltip.vue';
 
 defineProps({
   actions: {

@@ -24,6 +24,10 @@
               <span class="link-icon">🧩</span>
               Slots
             </router-link>
+            <router-link :to="{ name: 'ShellTest' }" class="nav-link">
+              <span class="link-icon">🧪</span>
+              Shell (WIP)
+            </router-link>
             <!-- <router-link :to="{ name: 'Theme' }" class="nav-link">
               <span class="link-icon">🎨</span>
               Custom Style

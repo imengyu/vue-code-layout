@@ -4,6 +4,7 @@ import SplitLayoutTest from '../views/SplitLayoutTest.vue'
 import DataSaveAndLoad from '../views/DataSaveAndLoad.vue'
 import SlotsTest from '../views/SlotsTest.vue'
 import EmptyTest from '../views/EmptyTest.vue'
+import ShellTest from '../views/ShellTest.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -30,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     path: '/EmptyTest',
     name: 'EmptyTest',
     component: EmptyTest,
+  },
+  {
+    path: '/ShellTest',
+    name: 'ShellTest',
+    component: ShellTest,
   },
 ]
 

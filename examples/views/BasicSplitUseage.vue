@@ -59,9 +59,11 @@ function loadLayout() {
   const grid = splitLayoutData.value;
   const splitLeft = grid.addGrid({
     name: 'split1',
+    size: 50,
   });
   const splitRight = grid.addGrid({
     name: 'split2',
+    size: 50,
   });
   splitRight.addPanel({
     title: 'BasicUseage.vue (1)',
