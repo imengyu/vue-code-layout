@@ -191,10 +191,15 @@ const tabContentDragOverDetector = usePanelDragOverDetector(
   () => {}, 
   (e) => context.dragDropNonPanel(e, false, 'tab-content'),
   (dragPanel) => {
-    return (
-      checkDropPanelDefault(dragPanel, props.grid, null, tabContentDragOverDetector.dragOverState)
-      && !(grid.value.hasChild(dragPanel) && grid.value.children.length === 1) //当前面板只有一个，并且这一个就是它自己，则不可拖放
-    );
+    if (!checkDropPanelDefault(dragPanel, props.grid, null, tabContentDragOverDetector.dragOverState))
+      return false;
+    //拖拽集合覆盖了本网格全部面板时，拖回本网格没有意义：
+    //会先把本网格清空、新建网格、再把空网格收缩掉，白折腾一轮。
+    //注意要检查整个多选集合，只看主拖拽面板会漏掉 Ctrl 多选整格的情况。
+    const dragPanels = getCurrentDragExternalPanels() ?? [ dragPanel ];
+    const allFromSelf = grid.value.children.length > 0
+      && grid.value.children.every(p => dragPanels.includes(p));
+    return !allFromSelf;
   },
 );
 

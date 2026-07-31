@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide, type Ref, type PropType, nextTick, computed } from 'vue';
+import { ref, provide, type Ref, type PropType, nextTick, computed, watch } from 'vue';
 import { type CodeLayoutPanelInternal, type CodeLayoutDragDropReferencePosition, type CodeLayoutConfig, defaultCodeLayoutConfig, type CodeLayoutRootRefDefine } from '../CodeLayout';
-import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig, CodeLayoutSplitNRootGrid } from './SplitN';
+import { CodeLayoutSplitNGridInternal, type CodeLayoutSplitLayoutContext, type CodeLayoutSplitNInstance, CodeLayoutSplitNPanelInternal, defaultSplitLayoutConfig, type CodeLayoutSplitNConfig, CodeLayoutSplitNRootGrid, cloneGridStyle, generateSplitGridName } from './SplitN';
 import SplitNest from './SplitNest.vue';
 import SplitTab from './SplitTab.vue';
 import { FLAG_SPLIT_LAYOUT, usePanelDraggerRoot } from '../Composeable/DragDrop';
@@ -68,15 +68,18 @@ const hosterContext : CodeLayoutRootRefDefine = {
   childGridActiveChildChanged: (panel) => onChildGridActiveChildChanged(panel as CodeLayoutSplitNGridInternal),
   closePanelInternal: (panel) => onPanelClose(panel as CodeLayoutSplitNPanelInternal),
 }
-const rootGrid = computed(() => {
-  if (!props.layoutData)
-    return null;
-  props.layoutData.root.setRoot(hosterContext);
-  props.layoutData.noAutoShink = true;
-  if (!props.layoutData.accept)
-    props.layoutData.accept = [props.layoutData.parentGrid];
-  return props.layoutData;
-});
+//根网格初始化带副作用（setRoot / 写 noAutoShink / 写 accept），
+//放在 computed 里每次重算都会执行（写 accept 还会自我失效一次），
+//因此改为在 layoutData 变化时用 watch 执行一次。
+watch(() => props.layoutData, (layoutData) => {
+  if (!layoutData)
+    return;
+  layoutData.root.setRoot(hosterContext);
+  layoutData.noAutoShink = true;
+  if (!layoutData.accept)
+    layoutData.accept = [ layoutData.parentGrid ];
+}, { immediate: true });
+const rootGrid = computed(() => props.layoutData ?? null);
 const currentActiveGrid = ref<CodeLayoutSplitNGridInternal|null>(null);
 
 const instance = {
@@ -182,8 +185,6 @@ function onChildGridActiveChildChanged(grid: CodeLayoutSplitNGridInternal) {
   } 
 }
 
-let generatePanelNameCount = 0;
-
 /**
  * 拖放面板操作流程
  * 
@@ -191,13 +192,15 @@ let generatePanelNameCount = 0;
  *    1.1 如果拖拽只有一个网格，目标网格和当前父级网格相同，
  *        且父级网格只有当前面板，则直接返回不做操作
  * 2. 移除
- *    2.1 目标网格和当前父级网格相同，直接移除而不触发移除收缩
- *    2.2 目标网格和当前父级网格不同，调用 removePanelInternal 触发移除收缩
+ *    只从原父级移除，绝不在此处触发收缩。
+ *    收缩会改动树结构（autoShrinkEmptyGrid → moveChildGridToSelf），
+ *    有可能把还没插入面板的 targetGrid 直接从树上摘掉，
+ *    导致后续插入进了一个脱树网格、面板凭空消失。
+ *    收缩统一延后到步骤 5。
  * 3. 判断方向
  *    3.1 拖放到网格中或者TAB
- *      3.1.0 从原有父级移除
- *      3.1.1 直接插入至网格中指定位置
- *      3.1.2 拖放到TAB末尾，则调整顺序插入至网格末尾
+ *      3.1.1 按落点位置插入至网格中指定位置
+ *      3.1.2 拖放到TAB条空白处（参照物是网格自身），则插入至网格末尾
  *    3.2 拖放切割方向与当前网格方向一致
  *      创建新网格包围当前面板
  *      插入至指定位置
@@ -249,13 +252,11 @@ function dragDropToPanel(
   }
 
   //2
+  //一律使用不收缩的 removeSelf()，收缩延后到步骤 5 面板插入完成之后。
   for (const panel of panels) {
     const oldParent = panel.parentGroup;
     oldParents.add(oldParent as CodeLayoutSplitNGridInternal);
-    if (oldParent === targetGrid)
-      panel.removeSelf();
-    else
-      panel.removeSelfWithShrink();
+    panel.removeSelf();
   }
 
   const targetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
@@ -263,21 +264,22 @@ function dragDropToPanel(
   //3
   if (referencePosition === 'center' || toTab) {
 
-    for (const panel of panels) {
-    }
-
     //3.1
-    if (!toTab) {
-      let referencePanelIndex = targetGrid.children.indexOf(referencePanel);
-      if (referencePanelIndex === -1)
-        referencePanelIndex = targetGrid.children.indexOf(targetGrid.activePanel as CodeLayoutPanelInternal);
-      targetGrid.addChilds(
-        panels, 
-        referencePanelIndex + (referencePosition === 'right' || referencePosition === 'down' || referencePosition === 'center' ? 1 : 0)
-      );
-    } else {
+    //参照物是网格自身时（拖到 TAB 条空白处 / 网格中央），无落点可言，插入末尾；
+    //参照物是某个面板时（拖到某个 TAB 上），按落点在该面板之前/之后插入。
+    //注意：toTab 只表示“不要切分”，不代表忽略落点位置。
+    const referencePanelIndex = targetGrid.children.indexOf(referencePanel);
+    if (referencePanelIndex === -1) {
       //3.1.2
       targetGrid.addChilds(panels);
+    } else {
+      targetGrid.addChilds(
+        panels,
+        referencePanelIndex + (
+          referencePosition === 'right' || referencePosition === 'down' || referencePosition === 'center'
+            ? 1 : 0
+        )
+      );
     }
     targetGrid.setActiveChild(panels[0]);
   } else if (targetGridParent && (
@@ -291,16 +293,11 @@ function dragDropToPanel(
     )
   )) {
     //3.2
-    const newGrid = new CodeLayoutSplitNGridInternal();//新面板包围的网格
-    Object.assign(newGrid, {
-      ...targetGrid,
-      direction: targetGrid.direction,
-      name: targetGrid.name + Math.floor(Math.random() * 10),
-      children: [],
-      childGrid: [],
-      size: 0,
-      noAutoShink: false,
-    });
+    const newGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//新面板包围的网格
+    newGrid.direction = targetGrid.direction;
+    newGrid.name = generateSplitGridName(targetGrid.name);
+    newGrid.size = 0;
+    newGrid.noAutoShink = false;
     newGrid.addChilds(panels);
     newGrid.setActiveChild(panels[0]);
     targetGridParent.addChildGrid(
@@ -312,28 +309,65 @@ function dragDropToPanel(
     lateAction = () => {
       targetGridParent.relayoutAllWithNewPanel([ newGrid ], targetGrid!);
     };
+  } else if (targetGrid === rootGrid.value) {
+    //3.3.a 目标网格就是根网格（根网格直接挂着面板的情况）
+    //根网格必须保持同一个实例（它是 CodeLayoutSplitNRootGrid，
+    //承载 clearLayout/loadLayout/saveLayout 等接口，且外部未必监听
+    //update:layoutData），所以这里原地重构：把根网格现有面板移入一个新建
+    //兄弟网格，再把兄弟网格与新网格一起挂到根网格下。
+    const newGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//新面板包围的网格
+    const siblingGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//原有面板包围的网格
+    for (const grid of [ newGrid, siblingGrid ]) {
+      grid.direction = targetGrid.direction;
+      grid.name = generateSplitGridName(targetGrid.name);
+      grid.size = 0;
+      grid.noAutoShink = false;
+    }
+
+    const oldChildren = targetGrid.children.slice();
+    const oldActivePanel = targetGrid.activePanel;
+    targetGrid.children.splice(0);
+    targetGrid.activePanel = null;
+    siblingGrid.addChilds(oldChildren);
+    //沿用原本激活的面板，避免切分后激活项莫名跳到第一个
+    siblingGrid.setActiveChild(
+      oldActivePanel && oldChildren.includes(oldActivePanel) ? oldActivePanel : (oldChildren[0] ?? null)
+    );
+    newGrid.addChilds(panels);
+    newGrid.setActiveChild(panels[0]);
+
+    targetGrid.direction = (referencePosition === 'left' || referencePosition === 'right')
+      ? 'horizontal' : 'vertical';
+    if (referencePosition === 'left' || referencePosition === 'up') {
+      targetGrid.addChildGrid(newGrid);
+      targetGrid.addChildGrid(siblingGrid);
+    } else {
+      targetGrid.addChildGrid(siblingGrid);
+      targetGrid.addChildGrid(newGrid);
+    }
+
+    //重新布局面板
+    lateAction = () => {
+      targetGrid!.notifyRelayout();
+      newGrid.notifyRelayout();
+      siblingGrid.notifyRelayout();
+    };
   } else {
-    //3.3
+    //3.3.b
     const oldTargetGridParent = targetGrid.parentGroup as CodeLayoutSplitNGridInternal;
-    const newGridTop = new CodeLayoutSplitNGridInternal();//上级包围的网格
-    const newGrid = new CodeLayoutSplitNGridInternal();//新面板包围的网格
-    Object.assign(newGrid, {
-      ...targetGrid,
-      direction: targetGrid.direction === 'vertical' ? 'horizontal' : 'vertical',//相对的方向
-      name: targetGrid.name + (generatePanelNameCount++),
-      children: [],
-      childGrid: [],
-      size: 0,
-      noAutoShink: false,
-    });
-    Object.assign(newGridTop, {
-      ...targetGrid,
-      name: targetGrid.name + (generatePanelNameCount++),
-      direction: (referencePosition === 'left' || referencePosition === 'right') ? 'horizontal' : 'vertical',
-      children: [],
-      childGrid: [],
-      noAutoShink: false,
-    });
+    if (!oldTargetGridParent)
+      throw new Error('oldTargetGridParent is null');
+    const newGridTop = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//上级包围的网格
+    const newGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), targetGrid);//新面板包围的网格
+    newGrid.direction = targetGrid.direction === 'vertical' ? 'horizontal' : 'vertical';//相对的方向
+    newGrid.name = generateSplitGridName(targetGrid.name);
+    newGrid.size = 0;
+    newGrid.noAutoShink = false;
+    newGridTop.name = generateSplitGridName(targetGrid.name);
+    newGridTop.direction = (referencePosition === 'left' || referencePosition === 'right')
+      ? 'horizontal' : 'vertical';
+    newGridTop.size = targetGrid.size;
+    newGridTop.noAutoShink = false;
     targetGrid.size = 0; //设为0以让后续进行布局
     newGridTop.addChildGrid(targetGrid);
     newGrid.addChilds(panels);
@@ -351,15 +385,11 @@ function dragDropToPanel(
 
     newGrid.setActiveChild(panels[0]);
 
-    if (targetGrid === rootGrid.value)
-      emit('update:layoutData', newGridTop);
-    else {
-      if (!oldTargetGridParent)
-        throw new Error('oldTargetGridParent is null');
-      oldTargetGridParent.replaceChildGrid(targetGrid, newGridTop);
-    }
+    oldTargetGridParent.replaceChildGrid(targetGrid, newGridTop);
 
     //重新布局面板
+    //newGridTop 有可能在步骤 5 的收缩中被 moveChildGridToSelf 吸收掉，
+    //此时真正承载布局的是 childReplacedBy 指向的网格。
     lateAction = () => {
       if (newGridTop.childReplacedBy)
         newGridTop.childReplacedBy.notifyRelayout();
@@ -370,6 +400,7 @@ function dragDropToPanel(
   }
 
   //5
+  //面板已插入完毕，此时才收缩腾空的旧父级。
   for (const oldParent of oldParents)
     autoShrinkEmptyGrid(oldParent as CodeLayoutSplitNGridInternal, targetGrid);
 
@@ -378,7 +409,9 @@ function dragDropToPanel(
   });
 
   //发出事件
-  emit('panelDrop', panels, referencePanel, referencePosition);
+  //panels 可能是 DragDrop 模块级共享数组，dragend 时会被清空，
+  //这里传副本，避免外部异步持有后拿到空数组。
+  emit('panelDrop', panels.slice(), referencePanel, referencePosition);
 }
 /**
  * 移除面板操作流程
@@ -400,20 +433,14 @@ function removePanelInternal(panel: CodeLayoutSplitNPanelInternal) {
     return undefined;
 
   //1
+  //removeChild 内部在删除的是激活面板时已会 reselectActiveChild
   parent.removeChild(panel);
 
   //2.1
-  if (parent.children.length > 0) {
-    parent.reselectActiveChild();
-    return undefined;
-  }
-
-  //2.2
-
-  if (parent.noAutoShink || !parent.parentGroup)
+  if (parent.children.length > 0)
     return undefined;
 
-  //2.2.2
+  //2.2 / 2.2.2 是否可收缩由 autoShrinkEmptyGrid 内部统一判断
   autoShrinkEmptyGrid(parent);
   return undefined;
 }
@@ -423,17 +450,25 @@ function removePanelInternal(panel: CodeLayoutSplitNPanelInternal) {
  * @param grid 
  */
 function autoShrinkEmptyGrid(grid: CodeLayoutSplitNGridInternal, dropGrid: CodeLayoutSplitNGridInternal|undefined = undefined) {
-  if (!grid.parentGroup || grid.noAutoShink || grid.children.length > 0)
+  //childGrid 也要判：一个还挂着子网格的网格即使没有直接面板，也不能删，
+  //否则会连同整棵子树一起丢掉。
+  if (!grid.parentGroup || grid.noAutoShink || grid.children.length > 0 || grid.childGrid.length > 0)
     return;
 
   const parent = grid.parentGroup as CodeLayoutSplitNGridInternal;
-  const dropGridIsBorther = dropGrid && dropGrid.parentGroup === grid.parentGroup;
+  const shrinkSize = grid.size;
+  //记录相邻兄弟，用于在没有 dropGrid 时把腾出的空间就近归还
+  const indexInParent = parent.childGrid.indexOf(grid);
+  const neighbor = parent.childGrid[indexInParent + 1] ?? parent.childGrid[indexInParent - 1];
+  const dropGridIsBorther = dropGrid && dropGrid !== grid && dropGrid.parentGroup === parent;
   parent.removeChildGrid(grid);
   //删除网格后，将其大小加到兄弟网格上
-  if (dropGrid && dropGridIsBorther)
-    dropGrid.size += grid.size;
+  if (dropGridIsBorther)
+    dropGrid!.size += shrinkSize;
+  else if (neighbor && neighbor.parentGroup === parent)
+    neighbor.size += shrinkSize;
   else if (parent.childGrid.length > 0)
-    parent.childGrid[0].size += grid.size;
+    parent.childGrid[0].size += shrinkSize;
 
   //如果父级网格只剩下一个子网格，则将其与父级网格替换
   if (parent.childGrid.length === 1)
