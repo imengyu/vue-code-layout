@@ -52,6 +52,57 @@ export interface CodeLayoutSplitNPanel extends Omit<CodeLayoutPanel, 'visible'|'
 
 export type CodeLayoutSplitCopyDirection = 'left'|'top'|'bottom'|'right';
 
+let gridNameCounter = 0;
+
+/**
+ * 为新建网格生成一个不重复的名称。
+ *
+ * 网格名称是 `v-for` 的 `:key` 与 `getGridByName` 的依据，重名会导致
+ * 渲染节点复用错乱与查找取错，因此这里使用单调递增计数器而非随机数。
+ * @param baseName 基础名称，通常是被切分网格的名称
+ */
+export function generateSplitGridName(baseName: string) {
+  return `${baseName}-${gridNameCounter++}`;
+}
+
+/**
+ * 从一个已存在网格上复制“表现层与配置”字段到新网格。
+ *
+ * 不能直接用 `Object.assign(newGrid, { ...sourceGrid })`：那样会把
+ * `LateClass` 的 `_lateNotifyCallbacks` / `_lateNotifyItems`（markRaw 的 Map 与数组）
+ * 按引用复制过去，使新旧网格共享同一份延迟回调容器，relayout 通知会串台；
+ * 同时还会带上 `childReplacedBy`、`activePanel`、`parentGroup`、`_root`
+ * 等结构性脏状态。
+ *
+ * @param target 新网格
+ * @param source 来源网格
+ */
+export function cloneGridStyle(
+  target: CodeLayoutSplitNGridInternal,
+  source: CodeLayoutSplitNGridInternal,
+) {
+  //_root 是整个布局共享的同一个 CodeLayoutRootRef（addChildGrid/addChild 也是这样传播的），
+  //必须带上：新网格在挂入树之前就可能要 addChilds，那会用到 this.root。
+  target._root = source._root;
+  target.tabStyle = source.tabStyle;
+  target.minSize = source.minSize;
+  target.accept = source.accept;
+  target.draggable = source.draggable;
+  target.resizeable = source.resizeable;
+  target.stretchable = source.stretchable;
+  target.canMinClose = source.canMinClose;
+  target.parentGrid = source.parentGrid;
+  target.inhertParentGrid = source.inhertParentGrid;
+  target.preDropCheck = source.preDropCheck;
+  target.sourceFlag = source.sourceFlag;
+  target.closeType = source.closeType;
+  target.iconLarge = source.iconLarge;
+  target.iconSmall = source.iconSmall;
+  target.actions = source.actions;
+  target.data = source.data;
+  return target;
+}
+
 
 /**
  * Panel type definition of SplitLayout.
@@ -107,16 +158,11 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
 
     //创建相同方向的网格
     function createSameSideGrid(prev = false) {
-      const newGrid = new CodeLayoutSplitNGridInternal();
-      Object.assign(newGrid, {
-        ...adjustGrid,
-        direction: adjustGrid.direction,
-        name: adjustGrid.name + Math.floor(Math.random() * 10),
-        children: [],
-        childGrid: [],
-        size: 0,
-        noAutoShink: false,
-      });
+      const newGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), adjustGrid);
+      newGrid.direction = adjustGrid.direction;
+      newGrid.name = generateSplitGridName(adjustGrid.name);
+      newGrid.size = 0;
+      newGrid.noAutoShink = false;
       parentGrid.addChildGrid(
         newGrid, 
         parentGrid.childGrid.indexOf(adjustGrid) + (prev ? -1 : 0)
@@ -126,33 +172,23 @@ export class CodeLayoutSplitNPanelInternal extends CodeLayoutPanelInternal imple
     //创建垂直方向的网格
     function createSubGrid(prev = false) {
       //新网格上部，放之前的面板
-      const newGrid = new CodeLayoutSplitNGridInternal();
-      Object.assign(newGrid, {
-        ...adjustGrid,
-        direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
-        name: adjustGrid.name + Math.floor(Math.random() * 10),
-        children: [],
-        childGrid: [],
-        size: 0,
-        noAutoShink: false,
-      });
-      newGrid.addChilds(adjustGrid.children);
+      const newGrid = cloneGridStyle(new CodeLayoutSplitNGridInternal(), adjustGrid);
+      newGrid.direction = adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal';
+      newGrid.name = generateSplitGridName(adjustGrid.name);
+      newGrid.size = 0;
+      newGrid.noAutoShink = false;
+      newGrid.addChilds(adjustGrid.children.slice());
       newGrid.setActiveChild(self);
       adjustGrid.children = [];
       adjustGrid.childGrid = [];
       adjustGrid.addChildGrid(newGrid);
 
       //新网格，放新的面板
-      const newGridOther = new CodeLayoutSplitNGridInternal();
-      Object.assign(newGridOther, {
-        ...adjustGrid,
-        direction: adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal',
-        name: adjustGrid.name + Math.floor(Math.random() * 10),
-        children: [],
-        childGrid: [],
-        size: 0,
-        noAutoShink: false,
-      });
+      const newGridOther = cloneGridStyle(new CodeLayoutSplitNGridInternal(), adjustGrid);
+      newGridOther.direction = adjustGrid.direction == 'horizontal' ? 'vertical' : 'horizontal';
+      newGridOther.name = generateSplitGridName(adjustGrid.name);
+      newGridOther.size = 0;
+      newGridOther.noAutoShink = false;
       adjustGrid.addChildGrid(newGridOther, prev ? 0 : 1);
       return newGridOther;
     }
@@ -293,6 +329,7 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
   }
 
   moveChildGridToSelf(childGrid: CodeLayoutSplitNGridInternal) {
+    const activePanel = childGrid.activePanel;
     childGrid.childReplacedBy = this;
     this.children.push(...childGrid.children);
     for (const iterator of this.children)
@@ -305,7 +342,15 @@ export class CodeLayoutSplitNGridInternal extends CodeLayoutGridInternal impleme
     for (const iterator of this.childGrid)
       iterator.parentGroup = this;
     this.direction = childGrid.direction;
-    this.setActiveChild(childGrid.activePanel);
+    //清理被吸收网格的悬挂引用：
+    //其 children/childGrid 已全部移交给自身，若不清空，
+    //同一批面板会同时挂在两个网格的 children 上（parentGroup 只指向新父级），
+    //后续任何对这个已脱树网格的误操作都会静默生效而不是立刻暴露。
+    childGrid.children.splice(0);
+    childGrid.childGrid.splice(0);
+    childGrid.activePanel = null;
+    childGrid.parentGroup = null;
+    this.setActiveChild(activePanel);
   }
 
   getContainerSize(): number {
